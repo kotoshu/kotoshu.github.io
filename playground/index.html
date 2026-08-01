@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kotoshu playground</title>
+  <link rel="stylesheet" href="./css/main.css" />
+</head>
+<body>
+  <header>
+    <h1>Kotoshu playground</h1>
+    <div class="controls">
+      <label>
+        Server
+        <input id="server-url" value="http://localhost:9292" placeholder="https://kotoshu.example/v1" />
+      </label>
+      <label>
+        Language
+        <select id="language"><option value="auto" selected>auto</option></select>
+      </label>
+      <button id="health-btn">Health check</button>
+      <span id="status" class="status">—</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="editor-pane">
+      <textarea id="editor" spellcheck="false"
+        placeholder="Type or paste text. Diagnostics appear after a short pause.">helo wrold. thiss is a tessst.</textarea>
+    </section>
+    <section class="diagnostics-pane">
+      <h2>Diagnostics <span id="diag-count" class="badge">0</span></h2>
+      <ul id="diagnostics"></ul>
+      <p id="empty" class="empty">No errors.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Open-source <a href="https://github.com/kotoshu/kotoshu" target="_blank" rel="noopener">Kotoshu</a> spell checker.
+      Server-backed playground — points at <code>/v1/check</code> on the configured server.
+      See <code>README.md</code> for the WASM-native roadmap.
+    </p>
+  </footer>
+
+  <template id="diag-row-template">
+    <li>
+      <button class="word"></button>
+      <span class="suggestions"></span>
+    </li>
+  </template>
+
+  <script type="module" src="./js/playground.js"></script>
+</body>
+</html>
