@@ -1,0 +1,130 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import {
+  FULL_LANGUAGES,
+  FREQUENCY_LANGUAGES,
+  LANGUAGE_STATS,
+  LANGUAGE_ROADMAP,
+  FULL_FEATURE_INCLUDES,
+} from '~/data/languages'
+---
+
+<BaseLayout title="Languages — what we support" description="Kotoshu language support: six full-feature languages, frequency data for six more, 98 staged Hunspell dictionaries, and automatic detection across 176 languages.">
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <SectionHeading
+        jp="言葉"
+        eyebrow="Languages"
+        title="What we support, honestly"
+        lead="A precise matrix beats a vague promise. Here is exactly what works today, what is staged, and what is coming."
+      />
+    </div>
+  </section>
+
+  <!-- Full feature -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">完全</span>Full feature — {LANGUAGE_STATS.fullFeature} languages</p>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {FULL_LANGUAGES.map((l, i) => (
+          <div
+            class="rounded-xl border border-[var(--color-border)] p-6 transition-colors duration-300 hover:border-[var(--color-accent)] animate-in"
+            style={`transition-delay:${i * 50}ms`}
+          >
+            <div class="flex items-baseline justify-between">
+              <span class="font-mono text-xs uppercase tracking-wider text-[var(--color-gold)]">{l.code}</span>
+              <span class="text-[10px] uppercase tracking-wider text-[var(--color-text-3)]">{l.keyboards}</span>
+            </div>
+            <h3 class="mt-2 text-lg font-semibold text-[var(--color-text)]">{l.native}</h3>
+            <p class="text-xs text-[var(--color-text-3)]">{l.name}</p>
+          </div>
+        ))}
+      </div>
+      <div class="mt-8 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-6 animate-in">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-text-3)]">Full feature means</p>
+        <ul class="mt-4 grid gap-2.5 sm:grid-cols-2">
+          {FULL_FEATURE_INCLUDES.map((item) => (
+            <li class="flex gap-2.5 text-sm leading-6 text-[var(--color-text-2)]">
+              <span class="mt-[10px] size-1 shrink-0 rounded-full bg-[var(--color-accent)]" aria-hidden="true"></span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Frequency -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">頻度</span>Frequency-ranked — {LANGUAGE_STATS.frequencyOnly} more, plus Russian</p>
+      <p class="max-w-2xl text-sm leading-7 text-[var(--color-text-2)] animate-in">
+        These languages have Kelly Project frequency tiers feeding the ranking
+        engine today; full dictionaries arrive as language modules are wired
+        from the staged corpus.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3 animate-in">
+        {[...FREQUENCY_LANGUAGES, { code: 'ru', name: 'Russian' }].map((l) => (
+          <span class="flex items-baseline gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2">
+            <span class="font-mono text-xs uppercase tracking-wider text-[var(--color-gold)]">{l.code}</span>
+            <span class="text-sm text-[var(--color-text)]">{l.name}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Staged + detection -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+      <div class="grid gap-8 md:grid-cols-2">
+        <div class="animate-in">
+          <p class="eyebrow"><span class="jp" lang="ja">準備</span>Staged</p>
+          <p class="display mt-3 text-4xl text-[var(--color-text)]">{LANGUAGE_STATS.dictionariesStaged}</p>
+          <p class="mt-2 text-sm leading-7 text-[var(--color-text-2)]">
+            Hunspell dictionaries with license metadata, sitting in the
+            <a href="https://github.com/kotoshu/dictionaries" class="text-[var(--color-accent)] hover:underline">dictionaries repo</a>
+            ready to be wired — each becomes a language module (tokenizer,
+            normalizer, keyboard layout) away from full support.
+          </p>
+        </div>
+        <div class="animate-in">
+          <p class="eyebrow"><span class="jp" lang="ja">認識</span>Auto-detected</p>
+          <p class="display mt-3 text-4xl text-[var(--color-text)]">{LANGUAGE_STATS.detectionLanguages}</p>
+          <p class="mt-2 text-sm leading-7 text-[var(--color-text-2)]">
+            FastText LID identifies a document's language automatically —
+            <code class="font-mono text-xs">kotoshu check doc.md</code> detects
+            before it checks, so mixed-language work just works.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">将来</span>Roadmap</p>
+      <div class="grid gap-4 md:grid-cols-3">
+        {LANGUAGE_ROADMAP.map((r, i) => (
+          <div
+            class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6 animate-in"
+            style={`transition-delay:${i * 60}ms`}
+          >
+            <span class="kanji text-xs text-[var(--color-gold)]" lang="ja">次</span>
+            <h3 class="mt-3 text-base font-semibold text-[var(--color-text)]">{r.title}</h3>
+            <p class="mt-2 text-[13px] leading-6 text-[var(--color-text-2)]">{r.detail}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-sm text-[var(--color-text-2)]">
+        Adding a language? The path is documented in the
+        <a href="https://github.com/kotoshu/kotoshu/blob/main/TODO.impl/04-language-modules.md" class="text-[var(--color-accent)] hover:underline">
+          language-modules plan
+        </a> — most new languages are a dictionary away.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,45 @@
+---
+import Logo from '~/components/Logo.astro'
+import { SITE, FOOTER_COLUMNS } from '~/data/site'
+
+const year = new Date().getFullYear()
+---
+
+<footer class="border-t border-[var(--color-border)]">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-14">
+    <div class="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <Logo size={32} />
+          <span class="text-[1.05rem] font-semibold tracking-tight text-[var(--color-text)]">Kotoshu</span>
+          <span class="kanji text-sm text-[var(--color-accent)]" lang="ja">言修</span>
+        </div>
+        <p class="mt-4 text-sm leading-6 text-[var(--color-text-2)] max-w-xs">
+          <em>Koto</em> (言) — word. <em>Shu</em> (修) — to fix, to cultivate.
+          The fixing and embellishing of words.
+        </p>
+        <p class="mt-4 text-xs text-[var(--color-text-3)]">
+          {SITE.license} · {SITE.author} · {year}
+        </p>
+      </div>
+
+      {FOOTER_COLUMNS.map((col) => (
+        <nav aria-label={col.heading}>
+          <h3 class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-text-3)] mb-4">{col.heading}</h3>
+          <ul class="space-y-2.5">
+            {col.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm text-[var(--color-text-2)] hover:text-[var(--color-accent)] transition-colors"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))}
+    </div>
+  </div>
+</footer>

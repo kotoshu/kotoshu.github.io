@@ -1,0 +1,20 @@
+---
+interface Props {
+  jp: string
+  eyebrow: string
+  title: string
+  lead?: string
+  center?: boolean
+}
+const { jp, eyebrow, title, lead, center = true } = Astro.props
+---
+
+<div class:list={['max-w-2xl', center && 'mx-auto text-center', 'animate-in']}>
+  <p class="eyebrow mb-4">
+    <span class="jp" lang="ja">{jp}</span>{eyebrow}
+  </p>
+  <h2 class="display text-3xl sm:text-4xl text-[var(--color-text)]">{title}</h2>
+  {lead && (
+    <p class="mt-4 text-[15px] leading-7 text-[var(--color-text-2)]">{lead}</p>
+  )}
+</div>

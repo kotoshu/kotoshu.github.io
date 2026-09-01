@@ -1,0 +1,37 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+---
+
+<BaseLayout title="Playground" description="Try Kotoshu in the browser — point the playground at any running kotoshu-server and see live diagnostics and suggestions.">
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-12">
+      <SectionHeading
+        jp="実験"
+        eyebrow="Playground"
+        title="Try it against a live server"
+        lead="The playground below talks to any running kotoshu-server over /v1/check. Point it at your own instance — the text never has to leave your network."
+      />
+      <p class="mx-auto mt-6 max-w-2xl text-center text-xs leading-6 text-[var(--color-text-3)]">
+        No server running? Start one with
+        <code class="font-mono text-[var(--color-accent)]">gem install kotoshu-server && kotoshu-server</code>,
+        or open the playground in a new tab and configure it there.
+        <a href="/playground/app/" class="text-[var(--color-accent)] hover:underline">Open standalone ↗</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+      <div class="overflow-hidden rounded-xl border border-[var(--color-border)]">
+        <iframe
+          src="/playground/app/"
+          title="Kotoshu playground"
+          class="h-[75vh] w-full bg-white dark:bg-[#0b0d0a]"
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

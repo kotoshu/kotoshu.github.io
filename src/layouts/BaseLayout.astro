@@ -1,0 +1,75 @@
+---
+import '../styles/global.css'
+import Header from '~/components/Header.astro'
+import Footer from '~/components/Footer.astro'
+import SearchModal from '~/components/search/SearchModal.vue'
+import { SITE } from '~/data/site'
+
+interface Props {
+  title: string
+  description?: string
+  noindex?: boolean
+}
+
+const { title, description = SITE.description, noindex = false } = Astro.props
+const fullTitle = title === SITE.name ? `${SITE.name} 「言修」 — ${SITE.meaning}` : `${title} · Kotoshu`
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: light)" href="/assets/kotoshu-logo_logo-light.svg" />
+    <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: dark)" href="/assets/kotoshu-logo_logo-dark.svg" />
+    <meta name="theme-color" content="#fbfbf8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0d0a" media="(prefers-color-scheme: dark)" />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/assets/kotoshu-logo_logo-light.png" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <script is:inline>
+      // Apply theme before paint. data-theme drives the Tailwind 4
+      // custom dark variant and the token overrides in global.css.
+      const stored = localStorage.getItem('kotoshu-theme')
+      const dark =
+        stored === 'dark' ||
+        (!stored && matchMedia('(prefers-color-scheme: dark)').matches)
+      if (dark) document.documentElement.dataset.theme = 'dark'
+    </script>
+  </head>
+  <body class="min-h-dvh flex flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:z-[100] focus:top-3 focus:left-3 focus:px-4 focus:py-2 focus:rounded-md focus:bg-[var(--color-bg-raised)] focus:text-[var(--color-text)] focus:text-sm focus:border focus:border-[var(--color-border)]"
+    >
+      Skip to content
+    </a>
+    <Header />
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+    <SearchModal client:load />
+    <script>
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible')
+              io.unobserve(e.target)
+            }
+          })
+        },
+        { threshold: 0.06, rootMargin: '0px 0px -50px 0px' },
+      )
+      document.querySelectorAll('.animate-in').forEach((el) => io.observe(el))
+    </script>
+  </body>
+</html>

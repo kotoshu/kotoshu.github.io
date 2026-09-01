@@ -1,0 +1,142 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import InstallTabs from '~/components/home/InstallTabs.vue'
+---
+
+<BaseLayout title="Install & quickstart" description="Get started with Kotoshu — the Ruby gem and CLI, editor integration via LSP, CI via the GitHub Action, the HTTP API server with SDKs, and Docker.">
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <SectionHeading
+        jp="導入"
+        eyebrow="Install"
+        title="Sixty seconds to a checked document"
+        lead="Pick the surface that matches how you work. Everything below talks to the same engine."
+      />
+      <div class="mx-auto mt-12 max-w-2xl">
+        <InstallTabs
+          client:visible
+          tabs={[
+            { id: 'gem', label: 'Ruby gem', hint: 'Core library', command: 'gem install kotoshu' },
+            { id: 'lsp', label: 'Editor (LSP)', hint: 'VS Code · Neovim · Emacs · JetBrains', command: 'gem install kotoshu-lsp' },
+            { id: 'action', label: 'GitHub Action', hint: 'CI with SARIF output', command: 'uses: kotoshu/action-kotoshu@v1' },
+            { id: 'server', label: 'HTTP API', hint: 'For Python / JS / Go SDKs', command: 'gem install kotoshu-server' },
+            { id: 'go', label: 'Go SDK', hint: 'go get, tagged v0.1.0', command: 'go get github.com/kotoshu/kotoshu-go@v0.1.0' },
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 space-y-14">
+      <div class="animate-in">
+        <p class="eyebrow mb-4"><span class="jp" lang="ja">最初</span>Ruby — library & CLI</p>
+        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7"><code>gem install kotoshu
+
+# Stage 1 — set up a language once (downloads the dictionary, ~5 MB)
+kotoshu setup en
+
+# Stage 2 — check, cache-only, instant
+echo "helo wrold" | kotoshu check
+kotoshu check README.md --format sarif
+kotoshu check README.md --interactive</code></pre>
+        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
+          In Ruby: <code class="font-mono text-xs text-[var(--color-accent)]">Kotoshu.setup(:en)</code>
+          then <code class="font-mono text-xs text-[var(--color-accent)]">Kotoshu.check("helo wrold")</code>.
+          Optional semantics: <code class="font-mono text-xs">gem install onnxruntime</code>.
+        </p>
+      </div>
+
+      <div class="animate-in">
+        <p class="eyebrow mb-4"><span class="jp" lang="ja">編集</span>Editor — via LSP</p>
+        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7" is:raw><code>gem install kotoshu-lsp
+
+# Neovim (built-in LSP)
+vim.lsp.start({ name = 'kotoshu', cmd = { 'kotoshu-lsp' } })
+
+# Emacs (eglot)
+(add-to-list 'eglot-server-programs '((text-mode markdown-mode) . ("kotoshu-lsp")))</code></pre>
+        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
+          Diagnostics on open and change; quick-fixes ranked by confidence;
+          hover a word for suggestions; add to your personal dictionary from
+          the code-action menu. Full wiring snippets for every editor are in
+          the <a href="https://github.com/kotoshu/kotoshu-lsp#readme" class="text-[var(--color-accent)] hover:underline">kotoshu-lsp README</a>.
+        </p>
+      </div>
+
+      <div class="animate-in">
+        <p class="eyebrow mb-4"><span class="jp" lang="ja">検証</span>CI — GitHub Action</p>
+        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7"><code>jobs:
+  spell-check:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # for the SARIF upload
+    steps:
+      - uses: actions/checkout@v4
+      - uses: kotoshu/action-kotoshu@v1
+        with:
+          files: "*.md docs/**/*.adoc"
+          language: en</code></pre>
+        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
+          Dictionaries are cached between runs; results land in the Security
+          tab as code annotations.
+        </p>
+      </div>
+
+      <div class="animate-in">
+        <p class="eyebrow mb-4"><span class="jp" lang="ja">服務</span>Service — HTTP API & SDKs</p>
+        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7" is:raw><code>gem install kotoshu-server
+KOTOSHU_SERVER_LANGUAGES="en de" kotoshu-server   # :9292
+
+# then, from any language
+curl -X POST localhost:9292/v1/check \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"helo wrold","language":"en"}'</code></pre>
+        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
+          Typed clients for <a href="https://github.com/kotoshu/kotoshu-python" class="text-[var(--color-accent)] hover:underline">Python</a>,
+          <a href="https://github.com/kotoshu/kotoshu-js" class="text-[var(--color-accent)] hover:underline">JavaScript</a>, and
+          <a href="https://github.com/kotoshu/kotoshu-go" class="text-[var(--color-accent)] hover:underline">Go</a>;
+          an OpenAPI 3.1 spec generates the rest.
+        </p>
+      </div>
+
+      <div class="animate-in">
+        <p class="eyebrow mb-4"><span class="jp" lang="ja">容器</span>Docker</p>
+        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7"><code>git clone https://github.com/kotoshu/docker-kotoshu-ci && cd docker-kotoshu-ci
+docker build -t kotoshu-ci .
+docker run --rm -v "$PWD:/work" -w /work kotoshu-ci check README.md --format json</code></pre>
+      </div>
+
+      <div class="animate-in">
+        <p class="eyebrow mb-4"><span class="jp" lang="ja">終焉</span>Exit codes</p>
+        <div class="overflow-hidden rounded-lg border border-[var(--color-border)]">
+          <table class="w-full text-sm">
+            <tbody class="divide-y divide-[var(--color-border)]">
+              {[
+                ['0', 'No spelling errors'],
+                ['1', 'Errors found'],
+                ['2', 'Usage error'],
+                ['3', 'Language not set up — run kotoshu setup LANG'],
+              ].map(([code, meaning]) => (
+                <tr>
+                  <td class="w-16 px-4 py-2.5 font-mono text-[var(--color-gold)]">{code}</td>
+                  <td class="px-4 py-2.5 text-[var(--color-text-2)]">{meaning}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-6 text-center animate-in">
+        <p class="text-sm text-[var(--color-text-2)]">
+          Not sure which surface is yours? The
+          <a href="/audiences" class="text-[var(--color-accent)] hover:underline">audiences guide</a>
+          matches how you work to what to install.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

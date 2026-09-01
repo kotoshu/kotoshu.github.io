@@ -1,0 +1,96 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import Logo from '~/components/Logo.astro'
+import { SITE } from '~/data/site'
+---
+
+<BaseLayout title="About" description="Kotoshu 言修 — koto (word) + shu (to fix, to cultivate). The name, the mark, and the philosophy of the project.">
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <SectionHeading
+        jp="物語"
+        eyebrow="About"
+        title="A name about tending words"
+      />
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+      <div class="animate-in">
+        <h2 class="display text-2xl text-[var(--color-text)]">言修 — kotoshu</h2>
+        <p class="mt-4 text-[15px] leading-8 text-[var(--color-text-2)]">
+          The name joins two characters. <strong class="text-[var(--color-text)]">Koto</strong>
+          (<span lang="ja">言</span>) is word, speech, language.
+          <strong class="text-[var(--color-text)]">Shu</strong>
+          (<span lang="ja">修</span>) is to fix, to mend, to cultivate — as one
+          cultivates a garden or refines a craft. Together:
+          <em class="text-[var(--color-accent)] not-italic font-medium">the fixing or embellishing of words.</em>
+        </p>
+        <p class="mt-4 text-[15px] leading-8 text-[var(--color-text-2)]">
+          The name quietly echoes two older compounds:
+          <span lang="ja">修辞</span> (<em>shūji</em>, rhetoric — the ornamenting
+          of words) and <span lang="ja">修養</span> (<em>shūyō</em>,
+          self-cultivation). Spell checking, done well, is both: a small act of
+          rhetoric applied with care, and a daily discipline of refinement.
+        </p>
+      </div>
+
+      <div class="animate-in">
+        <h2 class="display text-2xl text-[var(--color-text)]">The mark</h2>
+        <div class="mt-6 flex flex-col items-start gap-8 sm:flex-row sm:items-center">
+          <div class="grid shrink-0 grid-cols-2 gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-6">
+            <figure class="grid place-items-center gap-2 rounded-lg bg-white p-6">
+              <img src="/assets/kotoshu-logo_logo-light.svg" alt="Kotoshu logo, light variant" width="72" height="72" />
+              <figcaption class="text-[10px] uppercase tracking-wider text-zinc-500">light</figcaption>
+            </figure>
+            <figure class="grid place-items-center gap-2 rounded-lg bg-[#0b0d0a] p-6">
+              <img src="/assets/kotoshu-logo_logo-dark.svg" alt="Kotoshu logo, dark variant" width="72" height="72" />
+              <figcaption class="text-[10px] uppercase tracking-wider text-zinc-400">dark</figcaption>
+            </figure>
+          </div>
+          <p class="text-[15px] leading-8 text-[var(--color-text-2)]">
+            The mark is a sprouting leaf rendered in six tones. Words, tended,
+            grow — the checker is the gardener. The muted sage variant lives on
+            light ground; the vivid green-and-gold variant, on ink. Both share
+            one geometry, as light and dark share one site.
+          </p>
+        </div>
+        <p class="mt-6 text-xs text-[var(--color-text-3)]">
+          Brand assets — both SVGs, high-resolution PNGs, and the source PDF —
+          are in the repository under <code class="font-mono">assets/</code>.
+        </p>
+      </div>
+
+      <div class="animate-in">
+        <h2 class="display text-2xl text-[var(--color-text)]">The architecture</h2>
+        <p class="mt-4 text-[15px] leading-8 text-[var(--color-text-2)]">
+          Kotoshu is a small constellation of repositories. The
+          <a href="https://github.com/kotoshu/kotoshu" class="text-[var(--color-accent)] hover:underline">core gem</a>
+          holds the engine: a Ruby port of the Hunspell algorithms, pluggable
+          suggestion strategies, and an optional semantic layer. Around it sit
+          thin adapters — an LSP server, an HTTP API, three SDKs, a GitHub
+          Action, a Docker image — and three content repos (dictionaries,
+          frequency lists, ONNX models) fetched on demand, never vendored.
+        </p>
+        <p class="mt-4 text-[15px] leading-8 text-[var(--color-text-2)]">
+          See the <a href="/projects" class="text-[var(--color-accent)] hover:underline">projects page</a>
+          for the full map.
+        </p>
+      </div>
+
+      <div class="animate-in">
+        <h2 class="display text-2xl text-[var(--color-text)]">Stewardship</h2>
+        <p class="mt-4 text-[15px] leading-8 text-[var(--color-text-2)]">
+          Kotoshu is developed in the open by
+          <a href="https://www.ribose.com" class="text-[var(--color-accent)] hover:underline" rel="noopener">Ribose Inc.</a>
+          and contributors, under the {SITE.license} license — the same terms as
+          the core gem. Issues, dictionary contributions, and language modules
+          are welcome in each repository.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

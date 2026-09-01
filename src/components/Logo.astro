@@ -1,0 +1,33 @@
+---
+interface Props {
+  size?: number
+  class?: string
+  alt?: string
+}
+
+const { size = 28, class: cls = '', alt = 'Kotoshu' } = Astro.props
+---
+
+<span class:list={['relative inline-grid place-items-center shrink-0', cls]}>
+  <img
+    src="/assets/kotoshu-logo_logo-light.svg"
+    alt={alt}
+    width={size}
+    height={size}
+    class="col-start-1 row-start-1 dark:hidden"
+    style={`width:${size}px;height:${size}px;`}
+    loading="eager"
+    decoding="async"
+  />
+  <img
+    src="/assets/kotoshu-logo_logo-dark.svg"
+    alt=""
+    width={size}
+    height={size}
+    class="col-start-1 row-start-1 hidden dark:block"
+    style={`width:${size}px;height:${size}px;`}
+    loading="eager"
+    decoding="async"
+    aria-hidden="true"
+  />
+</span>

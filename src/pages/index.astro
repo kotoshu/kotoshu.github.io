@@ -1,0 +1,242 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Logo from '~/components/Logo.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import DemoPanel from '~/components/home/DemoPanel.vue'
+import InstallTabs from '~/components/home/InstallTabs.vue'
+import { AUDIENCES } from '~/data/audiences'
+import { PROJECTS } from '~/data/projects'
+import { FULL_LANGUAGES, LANGUAGE_STATS } from '~/data/languages'
+import { SITE } from '~/data/site'
+
+const featured = PROJECTS.filter((p) => p.featured)
+---
+
+<BaseLayout title={SITE.name}>
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <div class="kanji-watermark" aria-hidden="true" lang="ja">言修</div>
+
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-24 pb-20 sm:pt-32 sm:pb-28 text-center">
+      <Logo size={64} class="mx-auto mb-8 animate-in" />
+      <p class="eyebrow mb-6 animate-in">
+        <span class="jp" lang="ja">言修</span>Pure-Ruby semantic spell checking
+      </p>
+      <h1 class="display mx-auto max-w-3xl text-4xl sm:text-6xl text-[var(--color-text)] animate-in">
+        The fixing and embellishing of&nbsp;words.
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-8 text-[var(--color-text-2)] animate-in">
+        Kotoshu pairs a Hunspell-compatible dictionary engine with optional
+        FastText embeddings — resolving the right dictionary, frequency list,
+        and model for every language you write. No binaries. No surprise downloads.
+      </p>
+
+      <div class="mx-auto mt-10 max-w-xl animate-in">
+        <InstallTabs
+          client:visible
+          tabs={[
+            { id: 'gem', label: 'Ruby gem', hint: 'Core library', command: 'gem install kotoshu' },
+            { id: 'lsp', label: 'Editor (LSP)', hint: 'VS Code · Neovim · Emacs · JetBrains', command: 'gem install kotoshu-lsp' },
+            { id: 'action', label: 'GitHub Action', hint: 'SARIF in the Security tab', command: 'uses: kotoshu/action-kotoshu@v1' },
+            { id: 'server', label: 'HTTP API', hint: 'For Python / JS / Go SDKs', command: 'gem install kotoshu-server' },
+          ]}
+        />
+      </div>
+
+      <div class="mt-8 flex items-center justify-center gap-6 text-sm animate-in">
+        <a
+          href="/install"
+          class="rounded-full bg-[var(--color-accent)] px-5 py-2 text-[var(--color-bg)] font-medium transition-colors hover:bg-[var(--color-accent-hover)]"
+        >
+          Get started
+        </a>
+        <a href="/projects" class="text-[var(--color-text-2)] hover:text-[var(--color-accent)] transition-colors">
+          Explore the ecosystem →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
+      <SectionHeading
+        jp="実演"
+        eyebrow="See it work"
+        title="Misspellings, surfaced and mended"
+        lead="A small taste of the interactive experience — the editor extension and CLI do this against the full engine, live."
+      />
+      <div class="mx-auto mt-12 max-w-3xl">
+        <DemoPanel client:visible />
+        <p class="mt-4 text-center text-xs text-[var(--color-text-3)]">
+          Want the real thing against a running server? Try the <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audiences -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
+      <SectionHeading
+        jp="使う人"
+        eyebrow="Who it's for"
+        title="One engine, many hands"
+        lead="Five audiences, five entry points — from a Ruby API to a one-line GitHub Action."
+      />
+      <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {AUDIENCES.map((a, i) => (
+          <a
+            href={`/audiences#${a.id}`}
+            class:list={[
+              'group rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6 transition-all duration-300 hover:border-[var(--color-accent)] hover:shadow-lg hover:shadow-black/[0.03] animate-in',
+              i >= 3 && 'sm:col-span-2 lg:col-span-1',
+            ]}
+            style={`transition-delay:${i * 60}ms`}
+          >
+            <span class="kanji text-2xl text-[var(--color-accent)]" lang="ja">{a.kanji}</span>
+            <h3 class="mt-3 text-base font-semibold text-[var(--color-text)]">{a.name}</h3>
+            <p class="mt-2 text-sm leading-6 text-[var(--color-text-2)]">{a.headline}</p>
+            <p class="mt-3 font-mono text-[11px] text-[var(--color-gold)]">{a.install}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Ecosystem -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
+      <SectionHeading
+        jp="生態系"
+        eyebrow="The ecosystem"
+        title="A gem at the center, a ring of surfaces around it"
+        lead="Every surface is a thin adapter over the same engine — nothing duplicates the checking logic."
+      />
+      <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {featured.map((p, i) => (
+          <a
+            href={`/projects#${p.id}`}
+            class="group rounded-xl border border-[var(--color-border)] p-6 transition-all duration-300 hover:border-[var(--color-accent)] hover:shadow-lg hover:shadow-black/[0.03] animate-in"
+            style={`transition-delay:${i * 60}ms`}
+          >
+            <div class="flex items-center justify-between">
+              <h3 class="font-mono text-sm font-semibold text-[var(--color-text)]">{p.name}</h3>
+              <span class="rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-accent)]">
+                {p.status}
+              </span>
+            </div>
+            <p class="mt-2 text-sm font-medium text-[var(--color-text-2)]">{p.tagline}</p>
+            <p class="mt-3 text-[13px] leading-6 text-[var(--color-text-3)] line-clamp-3">{p.description}</p>
+          </a>
+        ))}
+      </div>
+      <p class="mt-8 text-center text-sm">
+        <a href="/projects" class="text-[var(--color-accent)] hover:underline">
+          All {PROJECTS.length} projects — SDKs, content repos, and infrastructure →
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Languages -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
+      <SectionHeading
+        jp="言葉"
+        eyebrow="What's supported"
+        title="Six languages fully featured, ninety-eight staged"
+        lead="Full feature means spelling with affixes, frequency ranking, semantic reranking, and keyboard-aware suggestions."
+      />
+      <div class="mt-12 flex flex-wrap items-center justify-center gap-3">
+        {FULL_LANGUAGES.map((l, i) => (
+          <a
+            href="/languages"
+            class="group flex items-baseline gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-2.5 transition-colors hover:border-[var(--color-accent)] animate-in"
+            style={`transition-delay:${i * 50}ms`}
+          >
+            <span class="font-mono text-xs uppercase tracking-wider text-[var(--color-gold)]">{l.code}</span>
+            <span class="text-sm font-medium text-[var(--color-text)]">{l.native}</span>
+          </a>
+        ))}
+      </div>
+      <div class="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-border)] text-center">
+        <div class="bg-[var(--color-bg)] px-4 py-6">
+          <p class="display text-3xl text-[var(--color-accent)]">{LANGUAGE_STATS.fullFeature}</p>
+          <p class="mt-1 text-xs uppercase tracking-wider text-[var(--color-text-3)]">full feature</p>
+        </div>
+        <div class="bg-[var(--color-bg)] px-4 py-6">
+          <p class="display text-3xl text-[var(--color-accent)]">{LANGUAGE_STATS.dictionariesStaged}</p>
+          <p class="mt-1 text-xs uppercase tracking-wider text-[var(--color-text-3)]">dictionaries staged</p>
+        </div>
+        <div class="bg-[var(--color-bg)] px-4 py-6">
+          <p class="display text-3xl text-[var(--color-accent)]">{LANGUAGE_STATS.detectionLanguages}</p>
+          <p class="mt-1 text-xs uppercase tracking-wider text-[var(--color-text-3)]">auto-detected</p>
+        </div>
+      </div>
+      <p class="mt-8 text-center text-sm">
+        <a href="/languages" class="text-[var(--color-accent)] hover:underline">The full support matrix →</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Principles -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
+      <SectionHeading
+        jp="思想"
+        eyebrow="Principles"
+        title="How Kotoshu is built"
+      />
+      <div class="mt-12 grid gap-8 md:grid-cols-2">
+        {[
+          {
+            jp: '純粋',
+            title: 'Pure Ruby',
+            body: 'No shelling out to hunspell or aspell. The only native dependency is the optional onnxruntime — everything else is Ruby that ships in the gem.',
+          },
+          {
+            jp: '段階',
+            title: 'Two-stage resources',
+            body: 'Setup is explicit and downloads once; the hot path is cache-only and raises instead of ever touching the network. Metered and air-gapped hosts are safe.',
+          },
+          {
+            jp: '意味',
+            title: 'Semantic when you want it',
+            body: 'FastText embeddings via ONNX rerank candidates by context and rescue out-of-vocabulary words. Install onnxruntime to enable; everything works without it.',
+          },
+          {
+            jp: '万国',
+            title: 'Every language, on demand',
+            body: 'Given any text, Kotoshu detects the language and resolves the dictionary, frequency list, and model it needs — cached, verified, with TTLs.',
+          },
+        ].map((item, i) => (
+          <div class="flex gap-5 animate-in" style={`transition-delay:${i * 60}ms`}>
+            <span class="kanji shrink-0 text-xl text-[var(--color-accent)]" lang="ja" aria-hidden="true">{item.jp}</span>
+            <div>
+              <h3 class="text-base font-semibold text-[var(--color-text)]">{item.title}</h3>
+              <p class="mt-2 text-sm leading-7 text-[var(--color-text-2)]">{item.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Closing CTA -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20 text-center">
+      <p class="kanji text-sm text-[var(--color-accent)]" lang="ja">始めましょう</p>
+      <h2 class="display mt-3 text-3xl sm:text-4xl text-[var(--color-text)]">Begin tending your words.</h2>
+      <div class="mt-8 flex items-center justify-center gap-6 text-sm">
+        <a href="/install" class="rounded-full bg-[var(--color-accent)] px-5 py-2 font-medium text-[var(--color-bg)] transition-colors hover:bg-[var(--color-accent-hover)]">
+          Install & quickstart
+        </a>
+        <a href="/about" class="text-[var(--color-text-2)] hover:text-[var(--color-accent)] transition-colors">
+          Why “Kotoshu”? →
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
