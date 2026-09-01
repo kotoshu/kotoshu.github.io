@@ -8,11 +8,16 @@ import Logo from '~/components/Logo.astro'
     <div class="kanji-watermark" aria-hidden="true" lang="ja">無</div>
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-32 text-center">
       <Logo size={48} class="mx-auto mb-8" />
-      <p class="kanji text-sm text-[var(--color-text-3)]" lang="ja">見つかりません</p>
-      <h1 class="display mt-4 text-5xl text-[var(--color-text)]">Not found</h1>
+      <p class="entry mb-5">
+        <span class="headword">four·oh·four</span>
+        <span class="jp" lang="ja">四〇四</span>
+        <span class="pos">n.</span>
+      </p>
+      <h1 class="display text-5xl text-[var(--color-text)]">Not found</h1>
       <p class="mx-auto mt-6 max-w-md text-sm leading-7 text-[var(--color-text-2)]">
-        The page you asked for is not here. The words, however, remain —
-        try the search, or return to the beginning.
+        <span class="pos font-display italic">1.</span> The page you asked for
+        is not here. The words, however, remain — try the search, or return to
+        the beginning.
       </p>
       <div class="mt-10 flex items-center justify-center gap-6 text-sm">
         <a href="/" class="rounded-full bg-[var(--color-accent)] px-5 py-2 font-medium text-[var(--color-bg)] transition-colors hover:bg-[var(--color-accent-hover)]">

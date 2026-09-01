@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import Logo from '~/components/Logo.astro'
 import { SITE } from '~/data/site'
@@ -8,6 +9,7 @@ import { SITE } from '~/data/site'
 <BaseLayout title="About" description="Kotoshu 言修 — koto (word) + shu (to fix, to cultivate). The name, the mark, and the philosophy of the project.">
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="名の由来" />
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
       <SectionHeading
         jp="物語"

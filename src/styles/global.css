@@ -298,3 +298,76 @@ body::after {
 html:has([data-theme="dark"]) body::after {
   opacity: 0;
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Dictionary page — the support matrix set as headword entries.
+   Two columns, hanging indent, hairline rules between senses.
+   ─────────────────────────────────────────────────────────────── */
+
+.dict-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+.dict-banner::before,
+.dict-banner::after {
+  content: "";
+  flex: 1;
+  max-width: 4rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.dict-entry {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr;
+  gap: 0 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.dict-headword {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+  padding-top: 2px;
+}
+.dict-sense {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+.dict-sense .pos {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: var(--color-text-3);
+}
+.dict-anno {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text-3);
+}
+
+.dict-also {
+  padding: 1rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-2);
+}
+.dict-also .pos {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--color-text-3);
+  margin-right: 0.5em;
+}

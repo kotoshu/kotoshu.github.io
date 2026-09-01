@@ -1,11 +1,13 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 ---
 
 <BaseLayout title="Playground" description="Try Kotoshu in the browser — point the playground at any running kotoshu-server and see live diagnostics and suggestions.">
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="実験" />
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-12">
       <SectionHeading
         jp="実験"

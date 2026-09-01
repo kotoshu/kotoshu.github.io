@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import { AUDIENCES } from '~/data/audiences'
 
@@ -15,6 +16,7 @@ const ICONS: Record<string, string> = {
 <BaseLayout title="Audiences — who uses Kotoshu" description="Ruby developers, writers and editors, CI maintainers, non-Ruby teams, and multilingual writers — what each audience needs from Kotoshu and what to install.">
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="使う人" />
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
       <SectionHeading
         jp="使う人"

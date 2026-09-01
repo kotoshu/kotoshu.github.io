@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import { PROJECTS, type ProjectStatus } from '~/data/projects'
 import { AUDIENCES } from '~/data/audiences'
@@ -39,6 +40,7 @@ const groups = [
 <BaseLayout title="Projects" description="Every repository in the Kotoshu ecosystem — the core gem, LSP server, HTTP API, Python/JS/Go SDKs, GitHub Action, Docker image, and the content repos behind them.">
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="生態系" />
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
       <SectionHeading
         jp="生態系"

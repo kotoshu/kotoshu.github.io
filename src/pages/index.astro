@@ -2,11 +2,12 @@
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import Logo from '~/components/Logo.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
 import DemoPanel from '~/components/home/DemoPanel.vue'
 import InstallTabs from '~/components/home/InstallTabs.vue'
 import { AUDIENCES } from '~/data/audiences'
 import { PROJECTS } from '~/data/projects'
-import { FULL_LANGUAGES, LANGUAGE_STATS } from '~/data/languages'
+import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_STATS } from '~/data/languages'
 import { SITE } from '~/data/site'
 
 const featured = PROJECTS.filter((p) => p.featured)
@@ -19,17 +20,17 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="kanji-watermark" aria-hidden="true" lang="ja">言修</div>
 
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-20 sm:pt-28 sm:pb-28 text-center">
-      <aside class="vertical-jp" lang="ja" aria-hidden="true">言葉を修める</aside>
+      <VerticalAccent text="言葉を修める" />
       <Logo size={64} class="mx-auto mb-8 animate-in" />
       <p class="entry mb-7 animate-in">
         <span class="headword">ko·to·shu</span>
         <span class="jp" lang="ja">言修</span>
         <span class="pos">n.</span>
       </p>
-      <h1 class="display mx-auto max-w-3xl text-4xl sm:text-6xl text-[var(--color-text)] animate-in">
+      <h1 class="display mx-auto max-w-3xl text-[2.6rem] leading-[1.06] sm:text-7xl text-balance text-[var(--color-text)] animate-in">
         The fixing and <span id="hero-mend" class="mend">embellishing</span> of&nbsp;words.
       </h1>
-      <p class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-8 text-[var(--color-text-2)] animate-in">
+      <p class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-8 text-pretty text-[var(--color-text-2)] animate-in">
         A spell checker for everything you write — terminal, editor, CI. Pure
         Ruby underneath; the right dictionary and language model arrive on
         demand, and nothing ever downloads without your say-so.
@@ -152,18 +153,29 @@ const featured = PROJECTS.filter((p) => p.featured)
         title="Six languages fully featured, ninety-eight staged"
         lead="Full feature means spelling with affixes, frequency ranking, semantic reranking, and keyboard-aware suggestions."
       />
-      <div class="mt-12 flex flex-wrap items-center justify-center gap-3">
-        {FULL_LANGUAGES.map((l, i) => (
-          <a
-            href="/languages"
-            class="group flex items-baseline gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-2.5 transition-colors hover:border-[var(--color-accent)] animate-in"
-            style={`transition-delay:${i * 50}ms`}
-          >
-            <span class="font-mono text-xs uppercase tracking-wider text-[var(--color-gold)]">{l.code}</span>
-            <span class="text-sm font-medium text-[var(--color-text)]">{l.native}</span>
-          </a>
-        ))}
+
+      <div class="mx-auto mt-12 max-w-4xl animate-in">
+        <p class="dict-banner"><span lang="ja">辞書</span> dictionary of supported languages</p>
+        <div class="md:grid md:grid-cols-2 md:gap-x-14">
+          {FULL_LANGUAGES.map((l) => (
+            <a href="/languages" class="dict-entry group transition-colors hover:bg-[var(--color-bg)]">
+              <span class="dict-headword">{l.code}</span>
+              <span>
+                <span class="dict-sense">
+                  <strong class="font-semibold">{l.native}</strong>
+                  <span class="pos"> n.</span> — full feature
+                </span>
+                <span class="dict-anno block">affixes · frequency · semantic · {l.keyboards}</span>
+              </span>
+            </a>
+          ))}
+        </div>
+        <p class="dict-also">
+          <span class="pos">see also</span>
+          {[...FREQUENCY_LANGUAGES.map((l) => l.code), 'ru'].join(', ')} — frequency tiers only
+        </p>
       </div>
+
       <div class="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-border)] text-center">
         <div class="bg-[var(--color-bg)] px-4 py-6">
           <p class="display text-3xl text-[var(--color-accent)]">{LANGUAGE_STATS.fullFeature}</p>
