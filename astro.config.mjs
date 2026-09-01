@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  site: 'https://kotoshu.github.io',
+  site: 'https://www.kotoshu.org',
   output: 'static',
   integrations: [vue(), sitemap()],
   vite: {

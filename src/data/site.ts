@@ -2,7 +2,7 @@ export const SITE = {
   name: 'Kotoshu',
   kanji: '言修',
   meaning: 'The fixing and embellishing of words',
-  url: 'https://kotoshu.github.io',
+  url: 'https://www.kotoshu.org',
   description:
     'Kotoshu (言修) is a pure-Ruby spell checker with semantic reranking — dictionaries, frequency lists, and embedding models resolved on demand for every language you write.',
   githubOrg: 'https://github.com/kotoshu',
