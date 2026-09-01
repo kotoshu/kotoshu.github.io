@@ -18,18 +18,21 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="zen-glow" aria-hidden="true"></div>
     <div class="kanji-watermark" aria-hidden="true" lang="ja">言修</div>
 
-    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-24 pb-20 sm:pt-32 sm:pb-28 text-center">
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-20 sm:pt-28 sm:pb-28 text-center">
+      <aside class="vertical-jp" lang="ja" aria-hidden="true">言葉を修める</aside>
       <Logo size={64} class="mx-auto mb-8 animate-in" />
-      <p class="eyebrow mb-6 animate-in">
-        <span class="jp" lang="ja">言修</span>Pure-Ruby semantic spell checking
+      <p class="entry mb-7 animate-in">
+        <span class="headword">ko·to·shu</span>
+        <span class="jp" lang="ja">言修</span>
+        <span class="pos">n.</span>
       </p>
       <h1 class="display mx-auto max-w-3xl text-4xl sm:text-6xl text-[var(--color-text)] animate-in">
-        The fixing and embellishing of&nbsp;words.
+        The fixing and <span id="hero-mend" class="mend">embellishing</span> of&nbsp;words.
       </h1>
       <p class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-8 text-[var(--color-text-2)] animate-in">
-        Kotoshu pairs a Hunspell-compatible dictionary engine with optional
-        FastText embeddings — resolving the right dictionary, frequency list,
-        and model for every language you write. No binaries. No surprise downloads.
+        A spell checker for everything you write — terminal, editor, CI. Pure
+        Ruby underneath; the right dictionary and language model arrive on
+        demand, and nothing ever downloads without your say-so.
       </p>
 
       <div class="mx-auto mt-10 max-w-xl animate-in">
@@ -240,3 +243,22 @@ const featured = PROJECTS.filter((p) => p.featured)
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Signature moment: the headline misspells one word, then mends it —
+  // once. Progressive enhancement: without JS the headline is already
+  // correct; with reduced motion the performance is skipped entirely.
+  const mend = document.getElementById('hero-mend')
+  if (mend && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const correct = 'embellishing'
+    const typo = 'embelishing'
+    mend.classList.add('mend-typo')
+    mend.textContent = typo
+    setTimeout(() => {
+      mend.textContent = correct
+      mend.classList.remove('mend-typo')
+      mend.classList.add('mend-done')
+      setTimeout(() => mend.classList.remove('mend-done'), 1600)
+    }, 1200)
+  }
+</script>

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter-tight";
+@import "@fontsource-variable/instrument-sans";
 @import "@fontsource-variable/jetbrains-mono";
 @import "@fontsource-variable/noto-sans-jp";
 @import "@fontsource/instrument-serif/400.css";
@@ -36,7 +36,7 @@
   --color-gold-soft: rgba(160, 138, 46, 0.12);
 
   --font-display: "Instrument Serif", ui-serif, Georgia, serif;
-  --font-sans: "Inter Tight Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-jp: "Noto Sans JP Variable", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
 
@@ -200,4 +200,101 @@ body {
   background: var(--color-bg-inset);
   border: 1px solid var(--color-border-subtle);
   border-radius: 0.5rem;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Signature devices
+   ─────────────────────────────────────────────────────────────── */
+
+/* Dictionary-entry line — the site defines its own name like a
+   headword. Mono, letterspaced, with the kanji as the accent. */
+.entry {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--color-text-2);
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.75em;
+}
+.entry .headword {
+  font-weight: 600;
+  color: var(--color-text);
+}
+.entry .jp {
+  font-family: var(--font-jp);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  color: var(--color-accent);
+}
+.entry .pos {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-3);
+}
+
+/* Self-mending headline — the word appears misspelled with a wavy
+   underline, then mends itself once. Script adds/removes states. */
+.mend {
+  transition: color 1.3s var(--ease-calm);
+}
+.mend-typo {
+  text-decoration: underline wavy var(--color-gold);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+.mend-done {
+  color: var(--color-accent);
+  text-decoration: underline wavy var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+
+/* Vertical Japanese accent — runs down the hero's right margin.
+   Decorative; hidden below the wide breakpoint. */
+.vertical-jp {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  font-family: var(--font-jp);
+  font-weight: 300;
+  font-size: 0.78rem;
+  letter-spacing: 0.55em;
+  color: var(--color-text-3);
+  display: none;
+  pointer-events: none;
+}
+.vertical-jp::before {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 3.5rem;
+  margin-bottom: 1.25rem;
+  background: var(--color-border);
+}
+@media (min-width: 1100px) {
+  .vertical-jp {
+    display: block;
+    right: max(1.5rem, calc((100vw - 72rem) / 2 - 5.5rem));
+  }
+}
+
+/* Washi paper grain — fibers over the light ground only; ink has none. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] body::after,
+html:has([data-theme="dark"]) body::after {
+  opacity: 0;
 }

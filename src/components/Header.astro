@@ -43,9 +43,10 @@ const isActive = (href: string) =>
       <button
         id="search-button"
         aria-label="Search (Ctrl+K)"
-        class="size-9 grid place-items-center rounded-md text-[var(--color-text-2)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-raised)] transition-colors"
+        class="flex h-9 items-center gap-1.5 rounded-md px-2 text-[var(--color-text-2)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-raised)] transition-colors"
       >
         <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <kbd class="hidden sm:inline font-mono text-[10px] tracking-wide border border-[var(--color-border)] rounded px-1 py-px text-[var(--color-text-3)]">⌘K</kbd>
       </button>
       <button
         id="theme-toggle"
