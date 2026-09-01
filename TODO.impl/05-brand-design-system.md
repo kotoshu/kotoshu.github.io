@@ -69,4 +69,4 @@ words tended like a garden — the leaf mark is that garden.
 
 ## Status
 
-_Pending._
+**Implemented** (2026-09-01).

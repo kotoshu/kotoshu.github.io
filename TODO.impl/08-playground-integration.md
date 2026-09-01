@@ -36,4 +36,4 @@ gitignored derived output.
 
 ## Status
 
-_Pending._
+**Implemented** (2026-09-01).

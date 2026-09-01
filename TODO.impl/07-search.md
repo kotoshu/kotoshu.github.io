@@ -45,4 +45,4 @@ post-build crawler (Pagefind) so `astro dev` search works too.
 
 ## Status
 
-_Pending._
+**Implemented** (2026-09-01).

@@ -54,4 +54,4 @@ establishes the exact stack and patterns this repo now follows.
 
 ## Status
 
-_Pending._
+**Implemented** (2026-09-01).

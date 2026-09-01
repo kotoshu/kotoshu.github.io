@@ -104,4 +104,4 @@ source of truth consumed by pages and the search index.
 
 ## Status
 
-_Pending._
+**Implemented** (2026-09-01).
