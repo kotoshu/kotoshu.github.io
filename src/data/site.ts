@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
   { label: 'Projects', href: '/projects' },
   { label: 'Audiences', href: '/audiences' },
   { label: 'Languages', href: '/languages' },
+  { label: 'Docs', href: '/docs' },
   { label: 'Playground', href: '/playground' },
   { label: 'Install', href: '/install' },
   { label: 'About', href: '/about' },
@@ -40,6 +41,7 @@ export const FOOTER_COLUMNS: { heading: string; links: NavItem[] }[] = [
   {
     heading: 'Learn',
     links: [
+      { label: 'Documentation', href: '/docs' },
       { label: 'Install & quickstart', href: '/install' },
       { label: 'Language support', href: '/languages' },
       { label: 'Who uses Kotoshu', href: '/audiences' },

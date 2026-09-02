@@ -2,6 +2,7 @@ import { SITE, NAV } from './site'
 import { PROJECTS } from './projects'
 import { AUDIENCES } from './audiences'
 import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_ROADMAP } from './languages'
+import { DOCS_PAGES, docsPath } from './docs'
 
 export interface SearchEntry {
   id: string
@@ -105,11 +106,11 @@ export function buildSearchIndex(): SearchEntry[] {
   for (const l of FULL_LANGUAGES) {
     entries.push({
       id: `lang-${l.code}`,
-      url: '/languages',
+      url: `/languages/${l.code}`,
       title: `${l.name} (${l.code}) — ${l.native}`,
       section: 'Languages',
       description:
-        'Full-feature support: spelling with affixes, frequency tiers, ONNX semantic model, keyboard layouts.',
+        'Full-feature support: spelling with affixes, ONNX semantic model, keyboard layouts — and frequency ranking where Kelly data exists.',
       keywords: `full feature ${l.name} ${l.native} ${l.code} ${l.keyboards} dictionary hunspell`,
     })
   }
@@ -157,6 +158,17 @@ export function buildSearchIndex(): SearchEntry[] {
       keywords: 'rubygems gem download',
     },
   )
+
+  for (const p of DOCS_PAGES) {
+    entries.push({
+      id: `docs-${p.slug || 'index'}`,
+      url: docsPath(p.slug),
+      title: p.title,
+      section: 'Docs',
+      description: p.description,
+      keywords: p.keywords,
+    })
+  }
 
   // Nav quick links
   for (const item of NAV) {

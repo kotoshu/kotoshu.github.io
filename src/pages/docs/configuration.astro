@@ -1,0 +1,185 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout title="Configuration" description="Kotoshu configuration: resolution order, KOTOSHU_* environment variables, XDG paths, dictionary types, and the personal dictionary.">
+  <p class="docs-lead">One resolver, four sources, a fixed order — Kotoshu configuration is predictable by construction.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">設定</span>Settings</p>
+  <h2 class="display text-2xl mt-12">Resolution order</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Every option resolves through the same chain, highest first. A CLI flag beats
+    an environment variable, which beats a programmatic value, which beats the default.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>CLI flags  →  ENV (KOTOSHU_*)  →  programmatic  →  defaults
+  highest                                            lowest</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The programmatic layer is the global singleton reached through
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.configure</code>:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>Kotoshu.configure do |config|
+  config.default_language = "en"
+  config.max_suggestions = 5
+  config.dictionary_type = :hunspell
+  config.dictionary_path = "/usr/share/hunspell/en_US.dic"
+end</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    After changing configuration, call
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.reset_spellchecker</code>
+    so the next check rebuilds with the new values.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Environment variables</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Any variable below feeds the same resolver, so it applies to both the CLI and
+    the library. The commonly used set:
+  </p>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Variable</th>
+        <th class="px-3 py-2.5 text-left">Purpose</th>
+        <th class="px-3 py-2.5 text-left">Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_CACHE_PATH</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Cache directory — dictionaries, frequency lists, models</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~/.cache/kotoshu</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_CONFIG_PATH</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">User config directory</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~/.config/kotoshu</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_DATA_PATH</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Data directory — audit log</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~/.local/share/kotoshu</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_OFFLINE</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Never download; use cached resources only</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">unset (off)</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_NO_ONNX</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Disable the semantic path even when onnxruntime is installed</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">unset</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_LANGUAGE</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Configured language</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">en-US</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_DEFAULT_LANGUAGE</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Fallback when detection is inconclusive</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">en</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_MAX_SUGGESTIONS</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Suggestions returned per word</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">10</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_DICTIONARY_TYPE</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Dictionary backend</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">unix_words</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_PERSONAL_DIC</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Personal dictionary file</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">config dir + personal.dic</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="display text-2xl mt-12">XDG paths</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Kotoshu follows the XDG Base Directory specification. A
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_*_PATH</code> variable
+    wins over the generic <code class="font-mono text-[13px] text-[var(--color-accent)]">XDG_*_HOME</code>,
+    which wins over the default below.
+  </p>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Concern</th>
+        <th class="px-3 py-2.5 text-left">Default path</th>
+        <th class="px-3 py-2.5 text-left">Overridden by</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Dictionaries, frequency lists, ONNX models</td>
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">~/.cache/kotoshu/</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">KOTOSHU_CACHE_PATH, XDG_CACHE_HOME</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Personal dictionary, kotoshu.cfg</td>
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">~/.config/kotoshu/</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">KOTOSHU_CONFIG_PATH, XDG_CONFIG_HOME</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Audit log</td>
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">~/.local/share/kotoshu/audit.log</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">KOTOSHU_DATA_PATH, XDG_DATA_HOME</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="display text-2xl mt-12">Dictionary types</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">dictionary_type</code> selects
+    the backend the dictionary is loaded from:
+  </p>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Type</th>
+        <th class="px-3 py-2.5 text-left">Use it when</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">:unix_words</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Default. A flat system word list such as /usr/share/dict/words; Kotoshu detects the file when one exists</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">:plain_text</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Your own one-word-per-line list; requires dictionary_path</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">:custom</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Words supplied in code via custom_words — tests and small embedded lists</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">:hunspell</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">An .aff/.dic pair with affix rules and compounding — the format kotoshu setup downloads; the .aff path is derived from the .dic path</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">:cspell</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Reusing cspell-format dictionary files</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="display text-2xl mt-12">Personal dictionary</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Words you accept live in one personal dictionary, shared across languages, at
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.config/kotoshu/personal.dic</code>
+    (or <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_PERSONAL_DIC</code>).
+    The <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu personal</code>
+    subcommand manages it:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu personal add kotoshu
+kotoshu personal import project-terms.txt   # one word per line
+kotoshu personal list
+kotoshu personal path</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Where caches live and how they expire is covered in
+    <a href="/docs/caching" class="text-[var(--color-accent)] hover:underline">Caching</a>.
+  </p>
+</DocsLayout>

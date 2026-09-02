@@ -1,0 +1,122 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout title="Plugins" description="Extend Kotoshu with custom dictionary types, custom suggestion strategies, document-format plugin gems, and the personal dictionary.">
+  <p class="docs-lead">Two registries and one plugin hook: Kotoshu is extended by registration, not by patching.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">拡張</span>Extend</p>
+  <h2 class="display text-2xl mt-12">Custom suggestion strategies</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    A strategy is a class that subclasses
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">BaseStrategy</code> and implements
+    one method, <code class="font-mono text-[13px] text-[var(--color-accent)]">generate(context)</code>,
+    returning a SuggestionSet. The context carries the misspelled word, the
+    dictionary, and limits. Register it with
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.register_suggestion_algorithm</code>
+    and it becomes available by name.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>require "kotoshu"
+
+# Illustrative — a minimal strategy, not a useful one.
+# Real strategies score candidates against context.dictionary;
+# BaseStrategy supplies ranking helpers like create_suggestion_set.
+class SuffixStrategy &lt; Kotoshu::Suggestions::Strategies::BaseStrategy
+  def generate(context)                 # the one required method
+    word = context.word
+    candidates = %w[hello help held hell].select { |c| c.end_with?(word[-2..]) }
+    create_suggestion_set(candidates, original_word: word)
+  end
+end
+
+Kotoshu.register_suggestion_algorithm(:suffix, SuffixStrategy)</code></pre>
+
+  <h2 class="display text-2xl mt-12">Built-in strategies</h2>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Strategy</th>
+        <th class="px-3 py-2.5 text-left">Role</th>
+        <th class="px-3 py-2.5 text-left">In default pipeline</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">edit_distance</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Levenshtein candidates, boosted by frequency tiers</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">phonetic</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Sounds-alike candidates</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">keyboard_proximity</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Adjacent-key typos, per keyboard layout (QWERTY, QWERTZ, AZERTY, JCUKEN)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">ngram</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Character n-gram similarity</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">symspell</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">SymSpell-style high-speed candidate lookup</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">optional</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">semantic</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Embedding-based reranking of candidates</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">optional — needs onnxruntime</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The default four run composed as a composite strategy; your registered
+    strategies join the same vocabulary of names when you configure
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">suggestion_algorithms</code>.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Custom dictionary types</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Dictionary backends are pluggable the same way. A custom class subclasses
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Dictionary::Base</code>, implements
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">lookup(word)</code> (and optionally
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">words</code> and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">add_word</code>), and is registered
+    for use as a <code class="font-mono text-[13px] text-[var(--color-accent)]">dictionary_type</code>:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>Kotoshu.register_dictionary_type(:json, MyJsonDictionary)</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The built-in types and when to pick each are listed in
+    <a href="/docs/configuration" class="text-[var(--color-accent)] hover:underline">Configuration</a>.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Personal dictionary</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    For adding words rather than algorithms, the personal dictionary needs no
+    code: <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu personal add WORD</code>
+    writes to <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.config/kotoshu/personal.dic</code>
+    and applies to every subsequent check.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Document-format plugins</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Format-specific parsers (Markdown, AsciiDoc, and beyond) are plugin gems, not
+    core. A parser responds to <code class="font-mono text-[13px] text-[var(--color-accent)]">from_string(text, language_code:)</code>
+    and registers itself from a file at <code class="font-mono text-[13px] text-[var(--color-accent)]">lib/kotoshu_plugin/document/format.rb</code>
+    via <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu::Documents.register</code>.
+    Kotoshu auto-discovers installed plugin gems, so callers get format support
+    without configuration.
+  </p>
+
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      For worked examples — remote and database-backed dictionaries, composite
+      strategies, testing extensions — see the plugin development guide in the
+      <a href="https://github.com/kotoshu/kotoshu/blob/main/docs/plugins.md" class="text-[var(--color-accent)] hover:underline">gem repository</a>.
+    </p>
+  </div>
+</DocsLayout>

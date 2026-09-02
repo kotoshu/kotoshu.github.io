@@ -7,7 +7,7 @@ import DemoPanel from '~/components/home/DemoPanel.vue'
 import InstallTabs from '~/components/home/InstallTabs.vue'
 import { AUDIENCES } from '~/data/audiences'
 import { PROJECTS } from '~/data/projects'
-import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_STATS } from '~/data/languages'
+import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_STATS, KELLY_LANGUAGES } from '~/data/languages'
 import { SITE } from '~/data/site'
 
 const featured = PROJECTS.filter((p) => p.featured)
@@ -151,21 +151,25 @@ const featured = PROJECTS.filter((p) => p.featured)
         jp="言葉"
         eyebrow="What's supported"
         title="Six languages fully featured, ninety-eight staged"
-        lead="Full feature means spelling with affixes, frequency ranking, semantic reranking, and keyboard-aware suggestions."
+        lead="Full feature means spelling with affixes, semantic reranking, and keyboard-aware suggestions — frequency ranking rides along where Kelly data exists."
       />
 
       <div class="mx-auto mt-12 max-w-4xl animate-in">
         <p class="dict-banner"><span lang="ja">辞書</span> dictionary of supported languages</p>
         <div class="md:grid md:grid-cols-2 md:gap-x-14">
           {FULL_LANGUAGES.map((l) => (
-            <a href="/languages" class="dict-entry group transition-colors hover:bg-[var(--color-bg)]">
+            <a href={`/languages/${l.code}`} class="dict-entry group transition-colors hover:bg-[var(--color-bg)]">
               <span class="dict-headword">{l.code}</span>
               <span>
                 <span class="dict-sense">
                   <strong class="font-semibold">{l.native}</strong>
                   <span class="pos"> n.</span> — full feature
                 </span>
-                <span class="dict-anno block">affixes · frequency · semantic · {l.keyboards}</span>
+                <span class="dict-anno block">
+                  {['affixes', KELLY_LANGUAGES.includes(l.code) ? 'frequency' : null, 'semantic', l.keyboards]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </span>
               </span>
             </a>
           ))}

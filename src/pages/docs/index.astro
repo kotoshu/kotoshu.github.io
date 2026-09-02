@@ -1,0 +1,56 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout title="Documentation" description="Kotoshu documentation index — Ruby API, CLI reference, configuration, caching, plugins, migration, and tool comparison.">
+  <p class="docs-lead">Guides and reference for the Kotoshu gem, the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> CLI, and the resources they manage.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">参照</span>Reference</p>
+  <h2 class="display text-2xl mt-12">Seven pages, one engine</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Kotoshu has a deliberately small surface: one facade module, one CLI, three
+    caches. These pages document each piece as it exists today — where something
+    is a roadmap item rather than a feature, the text says so.
+  </p>
+
+  <div class="mt-8 grid gap-x-10 gap-y-6 sm:grid-cols-2">
+    <div>
+      <a href="/docs/api" class="font-medium text-[var(--color-accent)] hover:underline">Ruby API</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">The facade module: two-stage resources, checking, suggestions, detection, and the optional semantic path.</p>
+    </div>
+    <div>
+      <a href="/docs/cli" class="font-medium text-[var(--color-accent)] hover:underline">CLI reference</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">check</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">setup</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">cache</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">completions</code> — flags, defaults, stdin, and exit codes.</p>
+    </div>
+    <div>
+      <a href="/docs/configuration" class="font-medium text-[var(--color-accent)] hover:underline">Configuration</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">Resolution order, KOTOSHU_* environment variables, XDG paths, dictionary types, and the personal dictionary.</p>
+    </div>
+    <div>
+      <a href="/docs/caching" class="font-medium text-[var(--color-accent)] hover:underline">Caching</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">The three resource caches, SHA-256 integrity, TTLs, offline mode, and management commands.</p>
+    </div>
+    <div>
+      <a href="/docs/plugins" class="font-medium text-[var(--color-accent)] hover:underline">Plugins</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">Custom dictionary types, custom suggestion strategies, and document-format plugin gems.</p>
+    </div>
+    <div>
+      <a href="/docs/migration" class="font-medium text-[var(--color-accent)] hover:underline">Migrating</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">From hunspell, aspell, cspell, or LanguageTool — what transfers and what does not.</p>
+    </div>
+    <div>
+      <a href="/docs/comparison" class="font-medium text-[var(--color-accent)] hover:underline">Comparison</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">An honest feature table next to hunspell, cspell, and LanguageTool.</p>
+    </div>
+  </div>
+
+  <div class="mt-8 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      New here? The <a href="/install" class="text-[var(--color-accent)] hover:underline">install page</a>
+      is the sixty-second path from
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu</code>
+      to a checked document. For the complete generated method reference, see
+      <a href="https://rubydoc.info/gems/kotoshu" class="text-[var(--color-accent)] hover:underline">rubydoc.info/gems/kotoshu</a>.
+    </p>
+  </div>
+</DocsLayout>

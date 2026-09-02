@@ -1,0 +1,105 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout title="Caching" description="Kotoshu's three resource caches: paths, source repos, TTLs, SHA-256 integrity, offline mode, and management commands.">
+  <p class="docs-lead">Three caches under <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.cache/kotoshu/</code> hold everything Kotoshu downloads — nothing else is written to disk.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">記憶</span>Memory</p>
+  <h2 class="display text-2xl mt-12">The three caches</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Each resource kind has its own cache class, source repository, and expiry. All
+    are filled by <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup</code>
+    or <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.setup</code>, and read
+    by the hot path without touching the network.
+  </p>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Cache</th>
+        <th class="px-3 py-2.5 text-left">Path</th>
+        <th class="px-3 py-2.5 text-left">Source repo</th>
+        <th class="px-3 py-2.5 text-left">TTL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">LanguageCache</code></td>
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">languages/&#123;code&#125;/spelling/</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">github.com/kotoshu/dictionaries</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">7 days</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">FrequencyCache</code></td>
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">frequency-lists/&#123;code&#125;/</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">github.com/kotoshu/frequency-list-kelly</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">7 days</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">ModelCache</code></td>
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">models/&#123;code&#125;/</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">github.com/kotoshu/models-fasttext-onnx</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">30 days</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Dictionaries are Hunspell .aff/.dic files; models are FastText vectors
+    converted to ONNX upstream, so no conversion runs on your machine. The
+    frequency lists carry Kelly Project tiers (top 50 / 200 / 1000 words) that
+    feed a ranking bonus — frequent words surface earlier in suggestions. Expired
+    resources are re-downloaded on the next setup, never mid-check.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Integrity</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Every download is verified against a SHA-256 manifest before it is trusted; a
+    mismatch raises an integrity error rather than a silently corrupted cache. When
+    a manifest is absent — say, for a locally registered dictionary — verification
+    degrades gracefully instead of failing. To re-check what is already on disk:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu cache validate en</code></pre>
+
+  <h2 class="display text-2xl mt-12">Offline mode</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Set <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_OFFLINE=1</code> or pass
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--offline</code> to restrict every
+    command to cached resources. Combined with setup, this is the pre-warm pattern
+    for CI and air-gapped hosts:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu setup en --want spelling,frequency,model   # while online
+KOTOSHU_OFFLINE=1 kotoshu check README.md         # never downloads</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Offline with a missing language does not prompt — outside a terminal it exits
+    with code 3, so scripts see a stable failure.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Managing the cache</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu cache list              # what is cached, per type
+kotoshu cache status            # hits, hit rate, disk usage
+kotoshu cache download en       # pre-warm without a full setup
+kotoshu cache purge             # remove cached data
+kotoshu cache clean             # remove only expired entries
+
+kotoshu status                  # setup + cache + runtime, one report</code></pre>
+
+  <h2 class="display text-2xl mt-12">Location overrides</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The cache root follows XDG: <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_CACHE_PATH</code>
+    wins over <code class="font-mono text-[13px] text-[var(--color-accent)]">XDG_CACHE_HOME</code>, which
+    wins over <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.cache/kotoshu/</code>.
+    The full precedence table, including config and data paths, is in
+    <a href="/docs/configuration" class="text-[var(--color-accent)] hover:underline">Configuration</a>.
+  </p>
+
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      The two-stage promise: the hot path never downloads.
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">correct?</code>,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">suggest</code>, and
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">check</code> resolve from cache
+      and raise <code class="font-mono text-[13px] text-[var(--color-accent)]">ResourceNotSetupError</code>
+      on a miss. Downloads happen only where you asked for them — in setup.
+    </p>
+  </div>
+</DocsLayout>

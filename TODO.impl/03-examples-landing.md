@@ -67,4 +67,21 @@ install-command.
 
 ## Status
 
-_Pending._
+**Implemented (2026-09-02)**, with two conscious deferrals:
+
+- Interactive demo: `DemoPanel` island on the home page (paste a
+  sentence, see corrections) — no install needed.
+- "60 seconds" panel: `InstallTabs` on home and `/install` (gem, LSP,
+  Action, server, Go).
+- Live playground: `/playground` against any running `kotoshu-server`
+  (plan 08) — better than a recording because it is the real engine.
+- Comparison table: `/docs/comparison` — honest, dimension-by-dimension.
+- Per-language specimens: `/languages/{code}` pages carry a native
+  sample sentence with underlined misspellings and ranked corrections.
+
+Deferred: the **asciinema cast** (needs a recorded terminal session of
+`kotoshu check --interactive`; the slot is the playground's job until
+one is recorded) and the **WASM try-it** (client-side engine — tracked
+in the gem repo as plans 63/66 via kotoshu-rs; the server-backed
+playground covers the need meanwhile). Performance chart deferred until
+plan 05 publishes benchmark numbers worth charting.

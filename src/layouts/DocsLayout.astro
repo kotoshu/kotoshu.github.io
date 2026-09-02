@@ -1,0 +1,118 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
+import { DOCS_SECTIONS, DOCS_PAGES, docsPath, docsNeighbors } from '~/data/docs'
+import { SITE } from '~/data/site'
+
+interface Props {
+  title: string
+  description?: string
+  /** '' on the landing page; otherwise this page's slug. */
+  slug?: string
+}
+
+const { title, description, slug = '' } = Astro.props
+const path = docsPath(slug)
+const { prev, next } = docsNeighbors(slug)
+const isActive = (href: string) => href === path
+---
+
+<BaseLayout title={title === 'Documentation' ? 'Documentation' : `Docs · ${title}`} description={description}>
+  <section class="relative overflow-hidden border-b border-[var(--color-border)]">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="手引き" />
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+      <p class="eyebrow"><span class="jp" lang="ja">文書</span>Documentation</p>
+      <h1 class="display mt-4 max-w-3xl text-4xl sm:text-5xl text-[var(--color-text)] text-balance">{title}</h1>
+      {description && <p class="docs-lead mt-5">{description}</p>}
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Mobile: page pills, same order as the sidebar -->
+    <nav class="md:hidden -mx-4 mb-10 overflow-x-auto" aria-label="Docs pages">
+      <div class="flex w-max px-4 pb-3 gap-1.5">
+        {DOCS_PAGES.map((p) => (
+          <a
+            href={docsPath(p.slug)}
+            aria-current={isActive(docsPath(p.slug)) ? 'page' : undefined}
+            class:list={[
+              'shrink-0 rounded-full px-3.5 py-1.5 text-[13px] border transition-colors',
+              isActive(docsPath(p.slug))
+                ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)] font-medium'
+                : 'border-[var(--color-border)] text-[var(--color-text-2)]',
+            ]}
+          >
+            {p.nav}
+          </a>
+        ))}
+      </div>
+    </nav>
+
+    <div class="md:grid md:grid-cols-[13rem_minmax(0,1fr)] md:gap-14">
+      <aside class="hidden md:block">
+        <nav class="sticky top-24" aria-label="Docs pages">
+          {DOCS_SECTIONS.map((s) => (
+            <section class="mb-7">
+              <p class="mb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-3)]">{s.label}</p>
+              <ul class="border-l border-[var(--color-border)]">
+                {DOCS_PAGES.filter((p) => p.section === s.id).map((p) => (
+                  <li>
+                    <a
+                      href={docsPath(p.slug)}
+                      aria-current={isActive(docsPath(p.slug)) ? 'page' : undefined}
+                      class:list={[
+                        '-ml-px block border-l py-1 pl-4 text-sm transition-colors',
+                        isActive(docsPath(p.slug))
+                          ? 'border-[var(--color-accent)] font-medium text-[var(--color-accent)]'
+                          : 'border-transparent text-[var(--color-text-2)] hover:border-[var(--color-text-3)] hover:text-[var(--color-text)]',
+                      ]}
+                    >
+                      {p.nav}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+          <a
+            href={`${SITE.siteRepo}/tree/main/src/pages/docs`}
+            class="text-xs text-[var(--color-text-3)] hover:text-[var(--color-accent)] transition-colors"
+          >
+            These pages on GitHub ↗
+          </a>
+        </nav>
+      </aside>
+
+      <div class="docs-body">
+        <slot />
+
+        <nav
+          class="mt-16 grid gap-3 border-t border-[var(--color-border)] pt-6 sm:grid-cols-2"
+          aria-label="Pagination"
+        >
+          {prev ? (
+            <a
+              href={docsPath(prev.slug)}
+              class="group rounded-lg border border-[var(--color-border)] p-4 transition-colors hover:border-[var(--color-accent)]"
+            >
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-text-3)]">← Previous</p>
+              <p class="mt-1.5 text-sm font-medium text-[var(--color-text)] group-hover:text-[var(--color-accent)]">{prev.nav}</p>
+            </a>
+          ) : (
+            <span aria-hidden="true"></span>
+          )}
+          {next && (
+            <a
+              href={docsPath(next.slug)}
+              class="group rounded-lg border border-[var(--color-border)] p-4 text-right transition-colors hover:border-[var(--color-accent)] sm:col-start-2"
+            >
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-text-3)]">Next →</p>
+              <p class="mt-1.5 text-sm font-medium text-[var(--color-text)] group-hover:text-[var(--color-accent)]">{next.nav}</p>
+            </a>
+          )}
+        </nav>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,207 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout title="CLI reference" description="kotoshu check, setup, cache, and completions — flags, defaults, stdin usage, interactive review, and exit codes.">
+  <p class="docs-lead">The <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> command covers checking, setup, dictionaries, cache, your personal dictionary, and shell completions — plus a <code class="font-mono text-[13px] text-[var(--color-accent)]">status</code> overview. The four you will use most are below.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">参照</span>Reference</p>
+  <h2 class="display text-2xl mt-12">check</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check [FILE]</code> checks a
+    file, or stdin when no file is given. It is cache-only — it never downloads.
+    Run <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup LANG</code> first;
+    in a terminal, <code class="font-mono text-[13px] text-[var(--color-accent)]">check</code> offers to
+    do that for you on a missing language.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>echo "helo wrld" | kotoshu check
+kotoshu check README.md --language de
+kotoshu check README.md --format sarif
+kotoshu check README.md --interactive</code></pre>
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Flag</th>
+        <th class="px-3 py-2.5 text-left">Values</th>
+        <th class="px-3 py-2.5 text-left">Default</th>
+        <th class="px-3 py-2.5 text-left">Effect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--language</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">-l</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">en de es fr pt ru auto</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">auto</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Language to check with; auto detects from content</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--format</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">-f</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">text json sarif</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">text</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Output format; sarif emits SARIF 2.1.0 for CI upload</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--interactive</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">-i</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">flag</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Review each error after the check</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--verbose</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">-v</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">flag</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Verbose output</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">check</code> has no offline flag because
+    it needs none: it is cache-only by design and never downloads. To hold the whole
+    session — setup included — to that promise, export
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_OFFLINE=1</code>.
+    The <code class="font-mono text-[13px] text-[var(--color-accent)]">--strict</code> flag belongs to
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">setup</code>, where it turns optional-resource
+    failures into a failed run.
+  </p>
+
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      Interactive mode is navigation-only: it records which suggestions you accept
+      but does not rewrite the file yet. Keys — <code class="font-mono text-[13px] text-[var(--color-accent)]">n</code>/Enter next,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">p</code> previous,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">l</code> list,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">1–9</code> accept suggestion N,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">s</code> skip,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">q</code> quit.
+    </p>
+  </div>
+
+  <h2 class="display text-2xl mt-12">setup</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Stage one, as a command. Downloads spelling, frequency, and model resources —
+    or registers .aff/.dic files you already have on disk. Idempotent;
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--force</code> re-fetches and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--strict</code> turns optional-resource
+    failures into a failed run. With no arguments it lists what is set up.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu setup en                  # spelling only (~5 MB)
+kotoshu setup en de fr            # several languages
+kotoshu setup en --want spelling,frequency,model
+
+# Local files instead of downloads (--aff and --dic go together)
+kotoshu setup en --aff en_US.aff --dic en_US.dic
+kotoshu setup en --from /path/to/dict/dir/    # expects LANG.aff + LANG.dic
+kotoshu setup en --frequency my-frequency.json
+
+kotoshu setup --list              # what is already set up</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The old <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu fetch</code> spelling
+    still works as a hidden, deprecated alias of <code class="font-mono text-[13px] text-[var(--color-accent)]">setup</code>.
+  </p>
+
+  <h2 class="display text-2xl mt-12">cache</h2>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Command</th>
+        <th class="px-3 py-2.5 text-left">What it does</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu cache list</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">List cached resources and their status</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu cache download LANG</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Download a resource into the cache</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu cache info</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Cache statistics — hits, hit rate, disk usage</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu cache purge</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Remove all cached data</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu cache clean</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Remove only expired entries</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu cache evict</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Enforce the configured size cap by evicting the oldest entries</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu cache validate LANG</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Re-verify a language's cached resources against their SHA-256 manifests</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    For a wider picture — setup, cache, and runtime state in one report — run
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu status</code>.
+  </p>
+
+  <h2 class="display text-2xl mt-12">dict &amp; personal</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Two smaller surfaces round out the command.
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu dict list</code> shows the
+    available dictionary types and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu dict info TYPE</code> describes one.
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu personal</code> manages the words
+    only you use — the file lives at
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.config/kotoshu/personal_dictionary</code>.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu personal add Koordinatenverein strahlend     # two words, one command
+kotoshu personal list
+kotoshu personal import project-terms.txt     # one word per line
+kotoshu personal path                          # where the file lives</code></pre>
+
+  <h2 class="display text-2xl mt-12">completions</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># bash (single user)
+kotoshu completions bash > ~/.local/share/bash-completion/completions/kotoshu
+
+# zsh — drop into any directory on your $fpath
+kotoshu completions zsh > "${fpath[1]}/_kotoshu"
+
+# fish
+kotoshu completions fish > ~/.config/fish/completions/kotoshu.fish
+
+# Supported language codes, no install needed
+kotoshu completions languages</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The language list is read dynamically, so newly registered languages complete
+    without reinstalling the script.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Exit codes</h2>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Code</th>
+        <th class="px-3 py-2.5 text-left">Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">0</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">No errors (or setup succeeded)</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">1</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Spelling errors found</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">2</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Usage error — bad flags, file not found</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">3</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Language not set up — run kotoshu setup LANG (also setup failures: network, integrity)</td>
+      </tr>
+    </tbody>
+  </table></div>
+</DocsLayout>

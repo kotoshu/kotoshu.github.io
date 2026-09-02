@@ -1,0 +1,177 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
+import { FULL_LANGUAGES, KELLY_LANGUAGES } from '~/data/languages'
+import { LANGUAGE_DETAILS } from '~/data/language-details'
+
+export function getStaticPaths() {
+  return Object.values(LANGUAGE_DETAILS).map((detail) => ({
+    params: { code: detail.code },
+    props: {
+      detail,
+      lang: FULL_LANGUAGES.find((l) => l.code === detail.code),
+    },
+  }))
+}
+
+const { detail, lang } = Astro.props
+const { sample } = detail
+const hasKelly = KELLY_LANGUAGES.includes(detail.code)
+
+// Wrap the misspelled words so the specimen can underline them.
+const sources = sample.corrections.map((c) => c.from.toLowerCase())
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const re = new RegExp(`(${sample.corrections.map((c) => escapeRe(c.from)).join('|')})`, 'gi')
+const chunks = sample.text.split(re).filter((c) => c !== '')
+
+const siblings = FULL_LANGUAGES.filter((l) => l.code !== detail.code)
+---
+
+<BaseLayout
+  title={lang ? `${lang.name} (${lang.code}) — language support` : `${detail.code} — language support`}
+  description={`${lang?.name ?? detail.code} support in Kotoshu: ${detail.tagline}`}
+>
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="言葉" />
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+      <p class="entry mb-7 animate-in">
+        <span class="headword">{detail.code}</span>
+        <span lang={lang ? undefined : detail.code}>{lang?.native ?? detail.code}</span>
+        <span class="pos">n.</span>
+        {lang && <span>— full feature</span>}
+      </p>
+      <h1 class="display mx-auto max-w-2xl text-4xl sm:text-6xl text-[var(--color-text)] text-balance animate-in">
+        {lang?.name ?? detail.code}
+      </h1>
+      <p class="mx-auto mt-5 max-w-xl text-base leading-8 text-pretty text-[var(--color-text-2)] animate-in">
+        {detail.tagline}
+      </p>
+    </div>
+  </section>
+
+  <!-- Specimen — a sentence with the misspellings underlined, then the
+       corrections set as numbered senses, like an entry's usage notes. -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20">
+      <div class="mx-auto max-w-3xl">
+        <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">標本</span>Specimen</p>
+        <p class="display text-2xl sm:text-3xl leading-snug text-[var(--color-text)] animate-in" lang={detail.code}>
+          {chunks.map((chunk) =>
+            sources.includes(chunk.toLowerCase()) ? (
+              <span class="mend-typo">{chunk}</span>
+            ) : (
+              chunk
+            ),
+          )}
+        </p>
+        <div class="mt-10 border-t border-[var(--color-border)] pt-6 animate-in">
+          {sample.corrections.map((c, i) => (
+            <p class="flex items-baseline gap-4 py-2.5 border-b border-[var(--color-border-subtle)] last:border-b-0">
+              <span class="font-mono text-xs text-[var(--color-text-3)]">{i + 1}.</span>
+              <span class="font-mono text-sm text-[var(--color-gold)]">{c.from}</span>
+              <span class="text-[var(--color-text-3)]" aria-hidden="true">→</span>
+              <span class="font-mono text-sm font-semibold text-[var(--color-accent)]">{c.to}</span>
+            </p>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What arrives on demand -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20">
+      <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">同梱</span>What arrives on demand</p>
+      <div class="grid gap-8 md:grid-cols-2">
+        <div class="animate-in">
+          <dl class="space-y-4">
+            {[
+              ['dictionary', lang ? 'Hunspell dictionary with full affix morphology and compounding' : 'Frequency data via the Kelly Project tiers'],
+              [
+                'frequency',
+                hasKelly
+                  ? 'Kelly frequency tiers — common words rank first in every suggestion list'
+                  : 'No Kelly list published yet; ranking leans on the dictionary and model',
+              ],
+              [
+                'semantic',
+                detail.hasModel
+                  ? 'FastText ONNX embedding model for context-aware reranking'
+                  : 'Semantic model on the roadmap for this language',
+              ],
+              ['keyboard', lang ? `Keyboard proximity on the ${lang.keyboards} layout` : 'Detection from document content'],
+            ].map(([term, def]) => (
+              <div class="grid grid-cols-[7rem_1fr] gap-4 border-b border-[var(--color-border-subtle)] pb-4 last:border-b-0">
+                <dt class="font-mono text-xs uppercase tracking-wider text-[var(--color-gold)] pt-0.5">{term}</dt>
+                <dd class="text-sm leading-7 text-[var(--color-text-2)]">{def}</dd>
+              </div>
+            ))}
+          </dl>
+          {lang && (
+            <p class="mt-6 text-[13px] leading-6 text-[var(--color-text-3)]">
+              Automatic detection is included — a document in this language is found before it is checked.
+            </p>
+          )}
+        </div>
+        <div class="animate-in">
+          <p class="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-3)]">Set it up</p>
+          <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7"><code>gem install kotoshu
+kotoshu setup {detail.code}
+
+# optional, for semantic reranking
+gem install onnxruntime
+kotoshu setup {detail.code} --model</code></pre>
+          {detail.variants.length > 0 && (
+            <p class="mt-6 text-sm leading-7 text-[var(--color-text-2)]">
+              <span class="pos" style="font-style:italic;color:var(--color-text-3)">variants</span>
+              {' '}
+              {detail.variants.join(' · ')}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notes — numbered senses -->
+  {detail.notes.length > 0 && (
+    <section class="border-t border-[var(--color-border)]">
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20">
+        <div class="mx-auto max-w-3xl">
+          <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">注記</span>Notes</p>
+          <ol class="animate-in">
+            {detail.notes.map((note, i) => (
+              <li class="grid grid-cols-[2rem_1fr] gap-2 border-b border-[var(--color-border-subtle)] py-4 last:border-b-0">
+                <span class="font-mono text-xs text-[var(--color-text-3)] pt-1">{i + 1}.</span>
+                <p class="text-[15px] leading-8 text-[var(--color-text-2)]">{note}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- See also -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-14 text-center">
+      <p class="dict-also !p-0 animate-in">
+        <span class="pos">see also</span>
+        {siblings.map((l, i) => (
+          <Fragment>
+            {i > 0 && <span class="text-[var(--color-text-3)]">·</span>}
+            <a
+              href={`/languages/${l.code}`}
+              class="font-mono text-[var(--color-accent)] transition-colors hover:underline"
+            >
+              {l.code}
+            </a>
+          </Fragment>
+        ))}
+        <span class="text-[var(--color-text-3)]">—</span>
+        <a href="/languages" class="text-[var(--color-accent)] hover:underline">the full matrix</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>

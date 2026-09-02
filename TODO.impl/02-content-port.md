@@ -59,4 +59,21 @@ should split this into navigable pages.
 
 ## Status
 
-_Pending._
+**Implemented (2026-09-02)** — as `/docs`, in the Astro site rather than
+the Jekyll structure sketched above:
+
+- `/docs` (overview), `/docs/cli`, `/docs/api`, `/docs/configuration`,
+  `/docs/caching`, `/docs/plugins`, `/docs/migration`, `/docs/comparison`
+  under `src/layouts/DocsLayout.astro` (sidebar nav, prev/next, docs
+  typography in `global.css`), all wired into search.
+- Per-language pages: `/languages/{de,en,es,fr,pt,ru}` dynamic route
+  fed by `src/data/language-details.ts` — specimen sentence with the
+  misspellings underlined, numbered corrections, resource availability,
+  regional variants, notes. Grounded in the dictionaries repo, the
+  models manifest, and the Kelly frequency manifest (which is why the
+  site no longer claims frequency data for languages that lack it).
+- Quickstart lives at `/install`; search was already shipped (plan 07).
+
+Deferred: the YARD-generated API reference (the `/docs/api` page is
+hand-authored against the facade today; a YARD publish job can layer on
+`/api/` later without restructuring).

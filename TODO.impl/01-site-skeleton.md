@@ -78,4 +78,10 @@ for the v1 announcement (cross-references
 
 ## Status
 
-_Pending._
+**Superseded by [04-astro-foundation.md](04-astro-foundation.md) — delivered.**
+The Jekyll recommendation was overtaken by the Astro 7 + Vue islands +
+Tailwind 4 foundation (plans 04–08); the site is live at
+<https://www.kotoshu.org> with CNAME, custom-domain deploy workflow
+(Node 22), OG/SEO meta, brand SVG favicons, and Cmd+K search. Search,
+originally out of scope here, shipped in plan 07. Analytics remains
+opt-in and intentionally absent.

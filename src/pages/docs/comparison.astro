@@ -1,0 +1,121 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout title="Comparison" description="Kotoshu next to hunspell, cspell, and LanguageTool — an honest feature table and guidance on choosing.">
+  <p class="docs-lead">Four tools with overlapping names for the job and different centers of gravity. This table is written to be fair.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">比較</span>Compare</p>
+  <h2 class="display text-2xl mt-12">Feature by feature</h2>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Dimension</th>
+        <th class="px-3 py-2.5 text-left">Kotoshu</th>
+        <th class="px-3 py-2.5 text-left">hunspell CLI</th>
+        <th class="px-3 py-2.5 text-left">cspell</th>
+        <th class="px-3 py-2.5 text-left">LanguageTool</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">Implementation</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Pure Ruby (3.1+)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">C++</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">TypeScript / Node</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Java</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">Dictionaries</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Hunspell-format, downloaded on demand (~98 staged); local .aff/.dic welcome</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">System-installed .aff/.dic</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Many bundled, plus project dictionaries</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Bundled per language</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">Semantic reranking</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Yes — FastText-to-ONNX embeddings, opt-in</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">— (case- and code-aware, not semantic)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ML-ranked suggestions; no embedding rerank</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">Grammar rules</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Roadmap — rule packs planned</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">— (spelling only)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Yes — thousands of rules, the benchmark</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">Editor integration</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">LSP server — VS Code, Neovim, Emacs, JetBrains</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Whatever your editor bundles</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Official VS Code extension; community elsewhere</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Extensions for most editors, Office, Google Docs</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">CI &amp; SARIF</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">SARIF 2.1.0, JSON, stable exit codes, GitHub Action</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Text output; wire it yourself</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">GitHub Action, JSON; SARIF via wrappers</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Community actions; SARIF via wrappers</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">HTTP API / SDKs</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">kotoshu-server, plus Python, JS, Go SDKs</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">— (JS library)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">First-class HTTP API, Docker</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">Offline / self-host</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Yes — two-stage setup, then KOTOSHU_OFFLINE=1</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Yes, fully local</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Yes, local run</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Yes — desktop app or self-host server</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">License</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">BSD-2-Clause (dictionaries vary)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">GPL / LGPL / MPL tri-license</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Apache-2.0 (dictionaries vary)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">LGPL-2.1+</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text)]">Size on disk</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~5 MB per language; ONNX model optional (~230–460 MB)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">A few MB per language</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Tens of MB with Node</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Hundreds of MB with Java and rule data</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="display text-2xl mt-12">Choosing</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Choose Kotoshu if Ruby is your stack and you want to spell-check from Ruby
+    code without shelling out; if fetching dictionaries, frequency lists, and
+    models on demand beats vendoring them; if you want suggestions reranked by
+    context; or if your CI relies on clean exit codes and SARIF.
+  </p>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Choose the incumbents — hunspell for the smallest, fastest, most ubiquitous
+    binary; cspell if committed-in-repo configuration for a polyglot codebase is
+    the deciding factor, which is its strength today — when tooling maturity
+    matters more than semantic ranking or a Ruby-native API.
+  </p>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Choose LanguageTool if grammar breadth is the requirement. Nothing else in
+    this table approaches its rule library, and pretending otherwise would not
+    make it true.
+  </p>
+
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      Migrating from any of these? The per-tool notes are in
+      <a href="/docs/migration" class="text-[var(--color-accent)] hover:underline">Migrating</a>,
+      and the sixty-second install path is on
+      <a href="/install" class="text-[var(--color-accent)] hover:underline">the install page</a>.
+    </p>
+  </div>
+</DocsLayout>

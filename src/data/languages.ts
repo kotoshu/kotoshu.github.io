@@ -48,10 +48,16 @@ export const LANGUAGE_ROADMAP: { title: string; detail: string }[] = [
   },
 ]
 
+/** Languages with a published Kelly frequency list (frequency-list-kelly
+ *  manifest: ar, el, en, it, no, ru, sv, zh). Among full-feature
+ *  languages that is en and ru; the rest of the six rank via dictionary
+ *  and model until a list is published. */
+export const KELLY_LANGUAGES: string[] = ['ar', 'el', 'en', 'it', 'no', 'ru', 'sv', 'zh']
+
 export const FULL_FEATURE_INCLUDES = [
   'Hunspell dictionary with affix morphology and compounding',
-  'Kelly frequency tiers that rank suggestions by usage',
   'FastText ONNX embedding model for semantic reranking',
   'Keyboard-layout proximity suggestions (QWERTY / QWERTZ / AZERTY / JCUKEN)',
+  'Kelly frequency ranking where a list is published (English, Russian)',
   'Automatic detection from document content',
 ]
