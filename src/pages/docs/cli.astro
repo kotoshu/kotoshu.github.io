@@ -84,11 +84,19 @@ kotoshu check README.md --interactive</code></pre>
     or registers .aff/.dic files you already have on disk. Idempotent;
     <code class="font-mono text-[13px] text-[var(--color-accent)]">--force</code> re-fetches and
     <code class="font-mono text-[13px] text-[var(--color-accent)]">--strict</code> turns optional-resource
-    failures into a failed run. With no arguments it lists what is set up.
+    failures into a failed run. When the model is requested with
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--model</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--tier</code> selects its size —
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">full</code> (the default),
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">fluency</code>, or
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">mini</code>; the tiers are detailed in
+    <a href="/docs/caching" class="text-[var(--color-accent)] hover:underline">Caching &amp; resources</a>.
+    With no arguments it lists what is set up.
   </p>
   <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu setup en                  # spelling only (~5 MB)
 kotoshu setup en de fr            # several languages
 kotoshu setup en --want spelling,frequency,model
+kotoshu setup en --model --tier mini   # model at the mini tier (~3 MB)
 
 # Local files instead of downloads (--aff and --dic go together)
 kotoshu setup en --aff en_US.aff --dic en_US.dic

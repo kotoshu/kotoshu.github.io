@@ -67,7 +67,7 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     section: 'reference',
     description:
       'Where dictionaries, frequency lists, and models live (XDG paths), the two-stage setup/resolve lifecycle, TTLs, integrity checks, and cache commands.',
-    keywords: 'cache caching resources dictionaries models download xdg ttl setup resolve manifest offline',
+    keywords: 'cache caching resources dictionaries models download xdg ttl setup resolve manifest offline tier tiers fluency mini full model size',
   },
   {
     slug: 'plugins',

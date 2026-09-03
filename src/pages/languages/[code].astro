@@ -97,7 +97,7 @@ const siblings = FULL_LANGUAGES.filter((l) => l.code !== detail.code)
               [
                 'semantic',
                 detail.hasModel
-                  ? 'FastText ONNX embedding model for context-aware reranking'
+                  ? 'FastText ONNX embedding model for context-aware reranking — available as full (120 MB), fluency (~15 MB), or mini (~3 MB), chosen at setup'
                   : 'Semantic model on the roadmap for this language',
               ],
               ['keyboard', lang ? `Keyboard proximity on the ${lang.keyboards} layout` : 'Detection from document content'],
@@ -121,7 +121,8 @@ kotoshu setup {detail.code}
 
 # optional, for semantic reranking
 gem install onnxruntime
-kotoshu setup {detail.code} --model</code></pre>
+kotoshu setup {detail.code} --model
+kotoshu setup {detail.code} --model --tier fluency   # same model, ~15 MB</code></pre>
           {detail.variants.length > 0 && (
             <p class="mt-6 text-sm leading-7 text-[var(--color-text-2)]">
               <span class="pos" style="font-style:italic;color:var(--color-text-3)">variants</span>

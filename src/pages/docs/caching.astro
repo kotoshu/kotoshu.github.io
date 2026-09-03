@@ -51,6 +51,51 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     resources are re-downloaded on the next setup, never mid-check.
   </p>
 
+  <h2 class="display text-2xl mt-12">Model tiers</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The FastText ONNX model ships in three sizes per language, across the nine
+    languages with models (de en es fr ja ko pt ru zh).
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">full</code> is the
+    default; tiers are explicit — chosen at setup, never substituted underneath you.
+  </p>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Tier</th>
+        <th class="px-3 py-2.5 text-left">Size</th>
+        <th class="px-3 py-2.5 text-left">What it trades</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">full</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~120 MB</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">fp32, 100k words × 300 dims — maximum accuracy, nothing quantized</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">fluency</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~15–18 MB</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">int8, top-50k words, full 300 dims — eval-gated at rank correlation 0.9999 and top-1 agreement ≥ 0.95 against full</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">mini</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~3 MB</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">int8, top-10k words — the wasm/edge tier</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The tier is chosen where the model is:
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup en --model --tier mini</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.setup(:en, want: :model, tier: :mini)</code>,
+    or the <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_MODEL_TIER</code>
+    environment variable. Every tier resolves through the same registry — primary,
+    then mirror, then vocab — and is SHA-256-verified like any other download.
+    Per-tier evaluation reports for each language are public in the
+    <a href="https://github.com/kotoshu/models-fasttext-onnx" class="text-[var(--color-accent)] hover:underline">models repo</a>
+    under <code class="font-mono text-[13px] text-[var(--color-accent)]">eval/reports/</code>.
+  </p>
+
   <h2 class="display text-2xl mt-12">Integrity</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
     Every download is verified against a SHA-256 manifest before it is trusted; a
