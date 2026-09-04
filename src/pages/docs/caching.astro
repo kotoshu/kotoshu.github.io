@@ -55,8 +55,9 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
     The FastText ONNX model ships in three sizes per language, across the nine
     languages with models (de en es fr ja ko pt ru zh).
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">full</code> is the
-    default; tiers are explicit — chosen at setup, never substituted underneath you.
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">fluency</code> is the
+    default — near-lossless at ~15 MB; tiers are explicit — chosen at setup,
+    never substituted underneath you.
   </p>
   <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
     <thead>
@@ -68,14 +69,14 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     </thead>
     <tbody>
       <tr class="border-t border-[var(--color-border)]">
-        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">full</code></td>
-        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~120 MB</td>
-        <td class="px-3 py-2.5 text-[var(--color-text-2)]">fp32, 100k words × 300 dims — maximum accuracy, nothing quantized</td>
-      </tr>
-      <tr class="border-t border-[var(--color-border)]">
-        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">fluency</code></td>
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">fluency</code> <span class="text-[var(--color-text-3)]">(the default)</span></td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">~15–18 MB</td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">int8, top-50k words, full 300 dims — eval-gated at rank correlation 0.9999 and top-1 agreement ≥ 0.95 against full</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">full</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">~120 MB</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">fp32, 100k words × 300 dims — maximum accuracy, nothing quantized; the explicit choice when size is no object</td>
       </tr>
       <tr class="border-t border-[var(--color-border)]">
         <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">mini</code></td>
