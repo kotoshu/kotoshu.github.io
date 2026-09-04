@@ -28,6 +28,18 @@ export const PROJECTS: Project[] = [
     featured: true,
   },
   {
+    id: 'kotoshu-rs',
+    name: 'kotoshu-rs',
+    tagline: 'The Rust core',
+    description:
+      'The checking engines rebuilt in Rust behind a C ABI: dictionary and suggestion engines, reranking with pluggable embedding providers, optional ONNX (ort load-dynamic), and registry/SHA-256-verified resources. Ships magnus Ruby bindings, a WASM package, and a pyo3 wheel — none published to a registry yet. Behavior is verified against the gem by 2,630 conformance vectors plus differential fuzzing, with zero mismatches.',
+    repo: 'https://github.com/kotoshu/kotoshu-rs',
+    lang: 'Rust · C ABI',
+    status: 'pending',
+    audiences: ['ruby-devs', 'polyglot'],
+    featured: false,
+  },
+  {
     id: 'kotoshu-lsp',
     name: 'kotoshu-lsp',
     tagline: 'Language Server Protocol server',

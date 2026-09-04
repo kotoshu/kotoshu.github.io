@@ -104,6 +104,19 @@ curl -X POST localhost:9292/v1/check \
           <a href="https://github.com/kotoshu/kotoshu-go" class="text-[var(--color-accent)] hover:underline">Go</a>;
           an OpenAPI 3.1 spec generates the rest.
         </p>
+        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
+          <span class="font-semibold text-[var(--color-text)]">Offline engines (preview).</span>
+          Both SDKs can also run without the server: kotoshu-python selects a native
+          backend with <code class="font-mono text-xs text-[var(--color-accent)]">KOTOSHU_BACKEND=native|http|auto</code>,
+          and kotoshu-js adds <code class="font-mono text-xs text-[var(--color-accent)]">createWasmDictionary()</code>
+          under the same setting. Today both fall back to HTTP whenever the engine
+          package is absent — offline checking unlocks once the
+          <code class="font-mono text-xs text-[var(--color-accent)]">kotoshu-native</code> wheel and
+          <code class="font-mono text-xs text-[var(--color-accent)]">@kotoshu/wasm</code> package are
+          published to PyPI and npm. The engines live in
+          <a href="https://github.com/kotoshu/kotoshu-rs" class="text-[var(--color-accent)] hover:underline">kotoshu-rs</a>;
+          a native extension for the Ruby gem is in development.
+        </p>
       </div>
 
       <div class="animate-in">

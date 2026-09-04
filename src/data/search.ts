@@ -40,8 +40,8 @@ export function buildSearchIndex(): SearchEntry[] {
       title: 'Projects — the ecosystem',
       section: 'Pages',
       description:
-        'All twelve repositories: the core gem, LSP server, HTTP API, Python / JS / Go SDKs, GitHub Action, Docker image, and the content repos.',
-      keywords: 'ecosystem repositories repos gems sdks action docker',
+        'All thirteen repositories: the core gem and its Rust core, LSP server, HTTP API, Python / JS / Go SDKs, GitHub Action, Docker image, and the content repos.',
+      keywords: 'ecosystem repositories repos gems sdks action docker rust kotoshu-rs native c abi wasm bindings',
     },
     {
       id: 'page-audiences',
@@ -67,8 +67,8 @@ export function buildSearchIndex(): SearchEntry[] {
       title: 'Install & quickstart',
       section: 'Pages',
       description:
-        'Getting started for every surface: the Ruby gem, the CLI, editors via LSP, CI via the GitHub Action, the HTTP server with SDKs, and Docker.',
-      keywords: 'install quickstart getting started setup gem cli lsp action server docker exit codes',
+        'Getting started for every surface: the Ruby gem, the CLI, editors via LSP, CI via the GitHub Action, the HTTP server with SDKs, the offline-engine preview, and Docker.',
+      keywords: 'install quickstart getting started setup gem cli lsp action server docker exit codes offline native backend wasm kotoshu-rs rust engine',
     },
     {
       id: 'page-playground',
