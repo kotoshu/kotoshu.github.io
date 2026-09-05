@@ -1,0 +1,163 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="ignores" title="Ignores & baselines" description="Inline ignore directives per document format, CI baselines that freeze existing spelling debt, and the shipped pre-commit hook — the three tools for real-world prose.">
+  <p class="docs-lead">
+    Real documents are full of words a dictionary will never know — product names, code
+    identifiers quoted in prose, dialect. Kotoshu gives those words three homes: a directive
+    in the document, a baseline for the debt you inherited, and a hook for the commit that
+    would add more.
+  </p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">除外</span>Inline directives</p>
+  <h2 class="display text-2xl mt-12">Ignore words where they live</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Instead of polluting the personal dictionary with words only one file uses, mark them
+    in place. Four directives, one semantics:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu:disable-line                 suppress everything on this line
+kotoshu:disable-next-line            suppress the following line
+kotoshu:disable-next-line foo bar    suppress only these words, next line
+kotoshu:disable-file / enable-file   block suppression (nestable)</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Each document format recognizes the directive inside its own comment syntax — and the
+    directive line itself is never spellchecked, because it is an instruction, not prose.
+    Inside a comment the directive must appear at the very start: prose that merely
+    mentions <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu:disable-line</code>
+    is not a directive.
+  </p>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Format</th>
+        <th class="px-3 py-2.5 text-left">Form</th>
+        <th class="px-3 py-2.5 text-left">Trailing directive</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">Plain text</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">a bare line: <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu:disable-line</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">not supported — in prose, a trailing directive would be ambiguous</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">Markdown</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">&lt;!-- kotoshu:disable-next-line --&gt;</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">supported</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">AsciiDoc</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">// kotoshu:disable-next-line</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">supported — the <code class="font-mono text-[13px] text-[var(--color-accent)]">//</code> must sit at line start or after whitespace, so URLs are not comments</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Word lists are only meaningful on <code class="font-mono text-[13px] text-[var(--color-accent)]">disable-next-line</code> —
+    the one form that scopes to chosen words. Blocks nest, and a
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">disable-file</code> that is never
+    re-enabled runs to the end of the file.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>&lt;!-- kotoshu:disable-next-line Kotoshu FastText --&gt;
+Kotoshu pairs FastText embeddings with Hunspell dictionaries.
+
+// kotoshu:disable-file
+generated section: never proofread this
+// kotoshu:enable-file</code></pre>
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      The Ruby API picks suppressions up automatically:
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.spellchecker_for("en").check(text)</code>
+      moves suppressed words to <code class="font-mono text-[13px] text-[var(--color-accent)]">result.suppressed_errors</code>
+      — each marked <code class="font-mono text-[13px] text-[var(--color-accent)]">suppressed: true</code>,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">suppressed_by: "inline"</code> — so only real
+      errors stay in <code class="font-mono text-[13px] text-[var(--color-accent)]">result.errors</code>. On the CLI,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">check --show-suppressed</code> lists them with
+      their <code class="font-mono text-[13px] text-[var(--color-accent)]">[inline]</code> marker.
+    </p>
+  </div>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">基準</span>CI baselines</p>
+  <h2 class="display text-2xl mt-12">Freeze the debt, fail the new</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Turning Kotoshu on for the first time on a repository with years of documents means one
+    thing: a wall of findings you are not going to fix today. A baseline records that wall
+    — one entry per file and word, with the occurrence count, stable across reformatting —
+    so CI fails only on <em>new</em> errors.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code># Record current findings — writes .kotoshu-baseline.json
+kotoshu baseline init README.md docs/*.adoc
+
+# CI: errors the baseline covers pass, new errors fail
+kotoshu check README.md --baseline .kotoshu-baseline.json</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The budget is per file and word: if the baseline recorded three occurrences of
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">teh</code> in a file, the first three pass and the
+    fourth fails. Words the baseline never saw fail on first sight. Errors suppressed by
+    inline directives were filtered upstream and never touch the budget.
+  </p>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Fix some of the debt and the check tells you: a summary line reports baseline entries
+    that have gone stale — the error no longer exists — so the budget shrinks visibly.
+    Refresh by re-running <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init</code>
+    and committing the smaller file.
+  </p>
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      Machine formats carry the same story: JSON output adds
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">suppressedCount</code> /
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">suppressedErrors</code> plus a
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">baseline</code> block
+      (<code class="font-mono text-[13px] text-[var(--color-accent)]">suppressedCount</code>,
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">staleCount</code>), and SARIF marks
+      baseline-suppressed results with a <code class="font-mono text-[13px] text-[var(--color-accent)]">suppressions</code>
+      entry (<code class="font-mono text-[13px] text-[var(--color-accent)]">justification: "baseline"</code>) at note
+      level — so code-review tools show them without failing the upload. The
+      <a href="/docs/clients/action" class="text-[var(--color-accent)] hover:underline">GitHub Action</a>
+      wraps the whole flow.
+    </p>
+  </div>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">環</span>pre-commit</p>
+  <h2 class="display text-2xl mt-12">Stop the debt at the door</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The gem repository ships a <a href="https://pre-commit.com" class="text-[var(--color-accent)] hover:underline">pre-commit</a>
+    hook definition, so every contributor with the framework gets the same check before
+    the commit lands:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>repos:
+  - repo: https://github.com/kotoshu/kotoshu
+    rev: v0.7.0   # pin to a released tag
+    hooks:
+      - id: kotoshu</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The hook matches prose files — <code class="font-mono text-[13px] text-[var(--color-accent)]">.md</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.adoc</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.rst</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">.org</code>, and
+    the rest of the text-family extensions — and runs <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check</code>
+    on the staged ones. It exits 1 on any unsuppressed misspelling, so the directive and
+    baseline tools above are exactly what keeps it quiet honestly.
+  </p>
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      An honest requirement, stated plainly: the hook is
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">language: system</code> — it runs the
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> executable from PATH, so the
+      machine needs a Ruby environment with the gem installed
+      (<code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu</code>, then
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup en</code> for the languages you
+      write in). A WebAssembly client — the same engine the
+      <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground</a> runs — is the future
+      zero-Ruby path.
+    </p>
+  </div>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Every directive, flag, and exit code on this page was read from the gem source
+    (lib/kotoshu/documents/suppressions, lib/kotoshu/baseline, lib/kotoshu/cli) and the
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline --help</code> output — not
+    inferred. <a href="/docs/cli" class="text-[var(--color-accent)] hover:underline">CLI reference</a> ·
+    <a href="https://github.com/kotoshu/kotoshu/blob/main/README.adoc#ignoring-words-inline" class="text-[var(--color-accent)] hover:underline">gem README</a>
+  </p>
+</DocsLayout>

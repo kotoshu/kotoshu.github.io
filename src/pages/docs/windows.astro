@@ -1,0 +1,155 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="windows" title="Kotoshu on Windows" description="gem install kotoshu on Windows: the tested Ruby versions, path handling, the onnxruntime soft dependency, and the honest status of the native extension.">
+  <p class="docs-lead">
+    The gem installs and runs on Windows the same way it does everywhere else — and the
+    claim is not marketing: the CI matrix runs the full test suite on
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">windows-latest</code> for
+    Ruby 3.3, 3.4, and 4.0, green on every merge to main. What differs on Windows — paths,
+    soft dependencies, the native extension — is what this page documents, honestly.
+  </p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">窓</span>Install &amp; run</p>
+  <h2 class="display text-2xl mt-12">The sixty-second path, on Windows</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>gem install kotoshu
+
+# Stage 1 — download a dictionary once
+kotoshu setup en
+
+# Stage 2 — check, cache-only, instant
+kotoshu check README.md --language en</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Works in PowerShell, cmd, and Windows Terminal alike. The gem requires Ruby 3.1 or
+    newer; the versions CI actually proves are 3.3, 3.4, and 4.0, on
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">windows-latest</code> alongside Ubuntu and macOS
+    — the same job runs the whole spec suite, not a reduced smoke set.
+  </p>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Two Windows bugs were found and fixed by that matrix rather than by users: dictionary
+    files are now read with owned handles closed promptly, so Windows file locking no
+    longer trips a re-check of an open file, and verified downloads write in binary mode,
+    so corruption from text-mode newline translation is gone. Checking, stdin piping, and
+    the SARIF and JSON formats behave identically across platforms.
+  </p>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">場所</span>Paths</p>
+  <h2 class="display text-2xl mt-12">Where things land</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Kotoshu resolves its directories through the XDG convention rooted at your home
+    directory — <code class="font-mono text-[13px] text-[var(--color-accent)]">C:\Users\you</code> on Windows —
+    the same code path on every platform:
+  </p>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Concern</th>
+        <th class="px-3 py-2.5 text-left">Default location</th>
+        <th class="px-3 py-2.5 text-left">Override</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">Dictionaries, frequency lists, models</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">%USERPROFILE%\.cache\kotoshu\</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_CACHE_PATH</code></td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">Personal dictionary, kotoshu.cfg</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">%USERPROFILE%\.config\kotoshu\</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_CONFIG_PATH</code></td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">Personal dictionary file</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">…\.config\kotoshu\personal.dic</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_PERSONAL_DIC</code></td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">Audit log</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">%USERPROFILE%\.local\share\kotoshu\audit.log</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_AUDIT_LOG</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The <code class="font-mono text-[13px] text-[var(--color-accent)]">XDG_CACHE_HOME</code> /
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">XDG_CONFIG_HOME</code> /
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">XDG_DATA_HOME</code> variables are honored too,
+    when set. Run <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu personal path</code> or
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu status</code> to see where yours resolve.
+  </p>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">選択</span>Soft dependencies</p>
+  <h2 class="display text-2xl mt-12">What installs, what waits</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu</code> pulls three pure-Ruby
+    dependencies and nothing else. Two capabilities are deliberately soft — installed
+    separately, detected at load time:
+  </p>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Optional gem</th>
+        <th class="px-3 py-2.5 text-left">Unlocks</th>
+        <th class="px-3 py-2.5 text-left">Without it</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">onnxruntime</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Semantic reranking — context-aware suggestions from the FastText-ONNX models</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Dictionary checking works in full; semantic calls raise a caller-friendly <code class="font-mono text-[13px] text-[var(--color-accent)]">OnnxUnavailable</code> error. <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_NO_ONNX=1</code> forces it off even when present</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">suika</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Japanese morphological tokenization</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Every other language is unaffected; Japanese tokenization raises <code class="font-mono text-[13px] text-[var(--color-accent)]">SuikaUnavailable</code> when requested</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    They are soft precisely so a Windows machine without a build toolchain still gets a
+    working <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install</code> — their native pieces are
+    never required for the traditional spelling path.
+  </p>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">現状</span>Native extension</p>
+  <h2 class="display text-2xl mt-12">The Rust accelerator, stated plainly</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The gem carries an optional Rust extension over the kotoshu-rs core — an accelerator,
+    not a requirement. Its Windows status, honestly: <strong>not yet built on Windows in
+    CI</strong>. The matrix above runs the pure-Ruby engine, which is the complete
+    implementation; the extension is exercised through separate compile and conformance
+    tasks that are not part of the Windows job today. That is tracked work, not a hidden
+    limitation.
+  </p>
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      What happens on <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install</code> when the
+      extension tries to build: RubyGems invokes the extconf, and if no Rust
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">cargo</code> is found, rb-sys bootstraps a rustup
+      toolchain into the build directory. If the build still does not produce the
+      extension — as can happen on Windows today — the install succeeds and the pure-Ruby
+      engine serves everything; <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu::Native.available?</code>
+      reports <code class="font-mono text-[13px] text-[var(--color-accent)]">false</code>. No feature you can call is
+      missing without it.
+    </p>
+  </div>
+
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Editing on Windows but checking in CI? The <a href="/docs/clients/action" class="text-[var(--color-accent)] hover:underline">GitHub Action</a>
+    runs the check on the runner, so your local platform never constrains the pipeline —
+    and the <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">baseline and ignore tools</a>
+    keep it green while you work.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified against the gem source (paths.rb, kotoshu.gemspec, lib/kotoshu/models) and the
+    repository's CI runs — Ruby 3.3/3.4/4.0 on windows-latest, green on main. The native
+    extension statement reflects what the workflows actually build today. The
+    <a href="/docs/cli" class="text-[var(--color-accent)] hover:underline">CLI reference</a> and
+    <a href="/docs/caching" class="text-[var(--color-accent)] hover:underline">Caching &amp; resources</a> pages
+    apply on Windows unchanged.
+  </p>
+</DocsLayout>

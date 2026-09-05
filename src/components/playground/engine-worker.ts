@@ -76,20 +76,27 @@ async function ensureEngine(): Promise<void> {
   engineBytes = bytes.byteLength
 }
 
+// Two layouts exist at the pin: the six full-feature languages keep
+// their dictionaries under {lang}/spelling/, the staged set sits flat
+// at {lang}/index.aff. Try the wired layout first, fall back to flat.
+async function fetchDictFile(lang: string, ext: 'aff' | 'dic'): Promise<string> {
+  const paths = [`${lang}/spelling/index.${ext}`, `${lang}/index.${ext}`]
+  let lastStatus = 0
+  for (const path of paths) {
+    const res = await fetch(`${DICT_BASE}/${path}`)
+    if (res.ok) return res.text()
+    lastStatus = res.status
+  }
+  throw new Error(`dictionary download failed: no index.${ext} for ${lang} at the pin (HTTP ${lastStatus})`)
+}
+
 async function loadLanguage(lang: string): Promise<LoadedLang> {
   if (active && activeLang === lang) return active
   await ensureEngine()
 
   let sources = sourceCache.get(lang)
   if (!sources) {
-    const [affRes, dicRes] = await Promise.all([
-      fetch(`${DICT_BASE}/${lang}/spelling/index.aff`),
-      fetch(`${DICT_BASE}/${lang}/spelling/index.dic`),
-    ])
-    if (!affRes.ok || !dicRes.ok) {
-      throw new Error(`dictionary download failed: aff HTTP ${affRes.status}, dic HTTP ${dicRes.status}`)
-    }
-    const [aff, dic] = await Promise.all([affRes.text(), dicRes.text()])
+    const [aff, dic] = await Promise.all([fetchDictFile(lang, 'aff'), fetchDictFile(lang, 'dic')])
     sources = { aff, dic, sizeBytes: aff.length + dic.length }
     sourceCache.set(lang, sources)
   }

@@ -44,6 +44,15 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     keywords: 'cli command line kotoshu check setup interactive sarif json format cache exit code',
   },
   {
+    slug: 'windows',
+    title: 'Kotoshu on Windows',
+    nav: 'Windows',
+    section: 'start',
+    description:
+      'gem install kotoshu on Windows: the tested Ruby versions, path handling, the onnxruntime soft dependency, and the honest status of the native extension.',
+    keywords: 'windows win32 powershell gem install onnxruntime native extension rust rb_sys path xdg',
+  },
+  {
     slug: 'clients/python',
     title: 'Python client',
     nav: 'Python',
@@ -141,6 +150,15 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     description:
       'Registering suggestion algorithms, custom dictionary backends, per-language modules, and project dictionaries — extending the engine without forking it.',
     keywords: 'plugin plugins custom dictionary backend register algorithm extend language module hook',
+  },
+  {
+    slug: 'ignores',
+    title: 'Ignoring words, baselines & the pre-commit hook',
+    nav: 'Ignores & baselines',
+    section: 'adopt',
+    description:
+      'Inline ignore directives per document format, CI baselines that freeze existing spelling debt, and the shipped pre-commit hook — the three tools for real-world prose.',
+    keywords: 'ignore suppress disable-line disable-next-line disable-file baseline ci debt pre-commit hook inline directive',
   },
   {
     slug: 'migration',

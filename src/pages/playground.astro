@@ -2,7 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import VerticalAccent from '~/components/VerticalAccent.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
-import { FULL_LANGUAGES } from '~/data/languages'
+import { PLAYGROUND_LANGUAGES } from '~/data/languages'
 ---
 
 <BaseLayout
@@ -37,9 +37,9 @@ import { FULL_LANGUAGES } from '~/data/languages'
               id="lab-lang"
               class="rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-xs text-[var(--color-text)]"
             >
-              {FULL_LANGUAGES.map((l) => (
+              {PLAYGROUND_LANGUAGES.map((l) => (
                 <option value={l.code} selected={l.code === 'en'}>
-                  {l.native} · {l.code}
+                  {l.native} · {l.code}{l.mb ? ` · ${l.mb}` : ''}
                 </option>
               ))}
             </select>
@@ -112,8 +112,8 @@ import { FULL_LANGUAGES } from '~/data/languages'
         <div class="dict-entry">
           <span class="dict-headword">langs</span>
           <div>
-            <p class="dict-sense">de · en · es · fr · pt · ru <span class="pos">n.</span> — the languages with Hunspell dictionaries in the repo.</p>
-            <p class="dict-anno">Japanese, Korean, and Chinese are not here: CJK checking rides on the gem's tokenizer, not on Hunspell files. See the <a href="/languages" class="text-[var(--color-accent)] hover:underline">language matrix</a>.</p>
+            <p class="dict-sense">Thirty-two languages <span class="pos">n.</span> — every Hunspell dictionary the pinned CDN commit carries under ~5 MB, from Български to Tiếng Việt.</p>
+            <p class="dict-anno">Over the budget and staying gem-only for now: el, ko, tr, uk, he, nb (5–19 MB each). Japanese and Chinese are absent at any size — CJK checking rides on the gem's tokenizer, not on Hunspell files. The biggest entries carry their size in the list. See the <a href="/languages" class="text-[var(--color-accent)] hover:underline">language matrix</a>.</p>
           </div>
         </div>
         <div class="dict-entry">

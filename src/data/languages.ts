@@ -30,6 +30,56 @@ export const LANGUAGE_STATS = {
   detectionLanguages: 176,
 } as const
 
+export interface PlaygroundLanguage {
+  code: string
+  native: string
+  /** Approximate aff+dic download size; shown for the largest dictionaries. */
+  mb?: string
+}
+
+/** Languages the browser playground serves: every Hunspell dictionary
+ *  under ~5 MB (aff + dic, measured against the CDN pin in
+ *  engine-worker.ts) minus CJK — ja and zh have no Hunspell files; their
+ *  checking rides the gem tokenizer — and minus the over-budget giants
+ *  (he 5.8, nb 5.4, tr 9.4, uk 8.7, ko 14, el 19 MB), which stay
+ *  gem-only until the CDN story changes. The six full-feature languages
+ *  lead the list; the rest load the same staged files the gem downloads
+ *  at setup. Dictionary-only behavior — no model in wasm yet. */
+export const PLAYGROUND_LANGUAGES: PlaygroundLanguage[] = [
+  { code: 'bg', native: 'Български' },
+  { code: 'ca', native: 'Català' },
+  { code: 'cs', native: 'Čeština', mb: '3.8 MB' },
+  { code: 'cy', native: 'Cymraeg' },
+  { code: 'da', native: 'Dansk', mb: '3.8 MB' },
+  { code: 'de', native: 'Deutsch' },
+  { code: 'en', native: 'English' },
+  { code: 'es', native: 'Español' },
+  { code: 'et', native: 'Eesti', mb: '4.7 MB' },
+  { code: 'fr', native: 'Français' },
+  { code: 'ga', native: 'Gaeilge' },
+  { code: 'hr', native: 'Hrvatski' },
+  { code: 'hu', native: 'Magyar', mb: '4.0 MB' },
+  { code: 'hy', native: 'Հայերեն' },
+  { code: 'is', native: 'Íslenska' },
+  { code: 'it', native: 'Italiano' },
+  { code: 'ka', native: 'ქართული', mb: '3.9 MB' },
+  { code: 'lt', native: 'Lietuvių' },
+  { code: 'lv', native: 'Latviešu' },
+  { code: 'mk', native: 'Македонски' },
+  { code: 'nl', native: 'Nederlands' },
+  { code: 'nn', native: 'Nynorsk', mb: '3.4 MB' },
+  { code: 'pl', native: 'Polski', mb: '5.0 MB' },
+  { code: 'pt', native: 'Português', mb: '5.5 MB' },
+  { code: 'ro', native: 'Română' },
+  { code: 'ru', native: 'Русский', mb: '3.5 MB' },
+  { code: 'sk', native: 'Slovenčina', mb: '3.6 MB' },
+  { code: 'sl', native: 'Slovenščina', mb: '3.1 MB' },
+  { code: 'sr', native: 'Српски', mb: '4.4 MB' },
+  { code: 'sr-Latn', native: 'Srpski latinica' },
+  { code: 'sv', native: 'Svenska' },
+  { code: 'vi', native: 'Tiếng Việt' },
+]
+
 /** Languages with a semantic model in the models registry — mirror of
  *  models-fasttext-onnx registry v1.1.0 (22 languages x 3 tiers).
  *  The gem resolves models registry-driven at setup time, so this list
