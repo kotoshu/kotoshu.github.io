@@ -10,9 +10,13 @@ import {
   FULL_FEATURE_INCLUDES,
   MODEL_LANGUAGES,
 } from '~/data/languages'
+
+const wiredModelCount = MODEL_LANGUAGES.filter((code) =>
+  FULL_LANGUAGES.some((l) => l.code === code),
+).length
 ---
 
-<BaseLayout title="Languages — what we support" description="Kotoshu language support: six full-feature languages, frequency data for six more, 98 staged Hunspell dictionaries, and automatic detection across 176 languages.">
+<BaseLayout title="Languages — what we support" description={`Kotoshu language support: ${LANGUAGE_STATS.fullFeature} full-feature languages, semantic models for ${MODEL_LANGUAGES.length}, frequency data for ${LANGUAGE_STATS.frequencyOnly} more, 98 staged Hunspell dictionaries, and automatic detection across 176 languages.`}>
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
     <VerticalAccent text="言葉の世界" />
@@ -66,11 +70,12 @@ import {
   <!-- Frequency -->
   <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
-      <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">頻度</span>Frequency-ranked — {LANGUAGE_STATS.frequencyOnly} more, plus Russian</p>
+      <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">頻度</span>Frequency-ranked — Kelly tiers, {LANGUAGE_STATS.frequencyOnly} languages</p>
       <p class="max-w-2xl text-sm leading-7 text-[var(--color-text-2)] animate-in">
         These languages have Kelly Project frequency tiers feeding the ranking
-        engine today; full dictionaries arrive as language modules are wired
-        from the staged corpus.
+        engine today. Greek, Italian, and Swedish pair them with a full
+        dictionary as full-feature languages; Arabic, Chinese, and Norwegian
+        rank on frequency until their language module is wired.
       </p>
       <div class="mt-8 flex flex-wrap gap-3 animate-in">
         {[...FREQUENCY_LANGUAGES, { code: 'ru', name: 'Russian' }].map((l) => (
@@ -101,8 +106,8 @@ import {
         ))}
       </div>
       <p class="mt-6 text-[13px] leading-6 text-[var(--color-text-3)] animate-in">
-        Full-feature languages get dictionary, model, keyboard, and detection composed;
-        the rest pair a staged dictionary with the model until their language module is wired.
+        The {wiredModelCount} full-feature languages above compose dictionary, model, keyboard, and detection;
+        the remaining {MODEL_LANGUAGES.length - wiredModelCount} pair a staged dictionary with the model until their language module is wired.
       </p>
     </div>
   </section>

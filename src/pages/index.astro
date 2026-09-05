@@ -153,7 +153,7 @@ const featured = PROJECTS.filter((p) => p.featured)
       <SectionHeading
         jp="言葉"
         eyebrow="What's supported"
-        title="Six languages fully featured, ninety-eight staged"
+        title={`${LANGUAGE_STATS.fullFeature} languages fully featured, ninety-eight staged`}
         lead="Full feature means spelling with affixes, semantic reranking, and keyboard-aware suggestions — frequency ranking rides along where Kelly data exists."
       />
 
@@ -179,7 +179,7 @@ const featured = PROJECTS.filter((p) => p.featured)
         </div>
         <p class="dict-also">
           <span class="pos">see also</span>
-          {[...FREQUENCY_LANGUAGES.map((l) => l.code), 'ru'].join(', ')} — frequency tiers only
+          {FREQUENCY_LANGUAGES.filter((l) => !FULL_LANGUAGES.some((f) => f.code === l.code)).map((l) => l.code).join(', ')} — frequency tiers only
         </p>
       </div>
 

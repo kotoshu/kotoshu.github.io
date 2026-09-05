@@ -76,9 +76,10 @@ async function ensureEngine(): Promise<void> {
   engineBytes = bytes.byteLength
 }
 
-// Two layouts exist at the pin: the six full-feature languages keep
-// their dictionaries under {lang}/spelling/, the staged set sits flat
-// at {lang}/index.aff. Try the wired layout first, fall back to flat.
+// Two layouts exist at the pin: the original six full-feature languages
+// keep their dictionaries under {lang}/spelling/, everything else —
+// including the thirteen new full-feature languages — sits flat at
+// {lang}/index.aff. Try the wired layout first, fall back to flat.
 async function fetchDictFile(lang: string, ext: 'aff' | 'dic'): Promise<string> {
   const paths = [`${lang}/spelling/index.${ext}`, `${lang}/index.${ext}`]
   let lastStatus = 0
