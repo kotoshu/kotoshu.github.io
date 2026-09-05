@@ -2,38 +2,399 @@
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import VerticalAccent from '~/components/VerticalAccent.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
+import { FULL_LANGUAGES } from '~/data/languages'
 ---
 
-<BaseLayout title="Playground" description="Try Kotoshu in the browser — point the playground at any running kotoshu-server and see live diagnostics and suggestions.">
+<BaseLayout
+  title="Playground"
+  description="Try the Kotoshu engine in your browser — zero install. The wasm engine and a Hunspell dictionary load once from a CDN and checking runs entirely on this page."
+>
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
     <VerticalAccent text="実験" />
     <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-12">
       <SectionHeading
-        jp="実験"
+        jp="見本"
         eyebrow="Playground"
-        title="Try it against a live server"
-        lead="The playground below talks to any running kotoshu-server over /v1/check. Point it at your own instance — the text never has to leave your network."
+        title="Nothing installs. It checks."
+        lead="The real engine — the same Rust core the gem and the SDKs use — compiled to WebAssembly, fetched once from a CDN, running on this page. Your text never leaves the browser."
       />
       <p class="mx-auto mt-6 max-w-2xl text-center text-xs leading-6 text-[var(--color-text-3)]">
-        No server running? Start one with
-        <code class="font-mono text-[var(--color-accent)]">gem install kotoshu-server && kotoshu-server</code>,
-        or open the playground in a new tab and configure it there.
-        <a href="/playground/app/" class="text-[var(--color-accent)] hover:underline">Open standalone ↗</a>
+        Against your own instance instead? The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a>
+        wraps a live kotoshu-server with document checking and language detection.
       </p>
     </div>
   </section>
 
   <section class="border-t border-[var(--color-border)]">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
-      <div class="overflow-hidden rounded-xl border border-[var(--color-border)]">
-        <iframe
-          src="/playground/app/"
-          title="Kotoshu playground"
-          class="h-[75vh] w-full bg-white dark:bg-[#0b0d0a]"
-          loading="lazy"
-        ></iframe>
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12">
+      <div class="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+        <!-- Toolbar -->
+        <div class="flex flex-wrap items-center gap-3 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-inset)] px-4 py-2.5">
+          <label class="flex items-center gap-2 text-xs text-[var(--color-text-2)]">
+            <span class="font-mono uppercase tracking-[0.14em] text-[var(--color-text-3)]">lang</span>
+            <select
+              id="lab-lang"
+              class="rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-xs text-[var(--color-text)]"
+            >
+              {FULL_LANGUAGES.map((l) => (
+                <option value={l.code} selected={l.code === 'en'}>
+                  {l.native} · {l.code}
+                </option>
+              ))}
+            </select>
+          </label>
+          <span
+            class="rounded-full bg-[var(--color-gold-soft)] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-[var(--color-gold)]"
+            title="This demo runs the dictionary engine. Semantic reranking needs the embedding models, which run in the gem and the server, not in wasm."
+          >
+            <span lang="ja">辞書</span> tier: dictionary
+          </span>
+          <span id="lab-readout" class="ml-auto min-h-4 font-mono text-[10.5px] leading-4 tracking-wide text-[var(--color-text-3)]" aria-live="polite"></span>
+        </div>
+
+        <!-- Editor: the backdrop renders decorated text, the textarea sits on top -->
+        <div id="lab-wrap" class="relative">
+          <div
+            id="lab-backdrop"
+            class="lab-editor pointer-events-none absolute inset-0 overflow-hidden text-[var(--color-text)]"
+            aria-hidden="true"
+          ></div>
+          <textarea
+            id="lab-text"
+            class="lab-editor relative h-72 w-full resize-none border-0 bg-transparent text-transparent caret-[var(--color-text)] outline-none"
+            spellcheck="false"
+            autocorrect="off"
+            autocapitalize="off"
+            aria-label="Text to check"
+          >The quick brown fox jumps over the lazy dog. Teh sentence has a few mispellings to mend — try recieve, definately, wrold.</textarea>
+
+          <!-- Suggestion popover — inside the wrap so it positions and clips with the editor -->
+          <div
+            id="lab-pop"
+            class="pointer-events-none absolute z-20 hidden min-w-40 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-raised)] p-1.5 shadow-lg shadow-black/10"
+            role="listbox"
+            aria-label="Suggestions"
+          >
+            <p class="px-2 pb-1 pt-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-text-3)]">
+              <span id="lab-pop-word"></span> — suggestions
+            </p>
+            <div id="lab-pop-list" class="max-h-56 overflow-y-auto"></div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="flex items-center gap-2 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-inset)] px-4 py-2">
+          <span id="lab-dot" class="size-1.5 shrink-0 rounded-full bg-[var(--color-text-3)]" aria-hidden="true"></span>
+          <p id="lab-status" class="font-mono text-[11px] leading-5 text-[var(--color-text-3)]" aria-live="polite">loading engine…</p>
+        </div>
+      </div>
+      <p class="mt-4 text-center text-xs leading-6 text-[var(--color-text-3)]">
+        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.1.0" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.1.0</a>
+        · dictionaries from the <a href="https://github.com/kotoshu/dictionaries" class="text-[var(--color-accent)] hover:underline">dictionaries repo</a>,
+        commit-pinned · both via jsDelivr, cached by your browser.
+      </p>
+    </div>
+  </section>
+
+  <!-- What this demo is, honestly -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="dict-banner"><span lang="ja">注記</span> specimen notes</p>
+      <div class="mt-6">
+        <div class="dict-entry">
+          <span class="dict-headword">tier</span>
+          <div>
+            <p class="dict-sense">Dictionary engine only <span class="pos">n.</span> — suggestions from edit distance, phonetics, keyboard proximity, and n-grams.</p>
+            <p class="dict-anno">Semantic reranking needs the FastText-ONNX models, and today those run in the gem and the HTTP server — the wasm surface has no model API, and the models registry serves from GitHub release assets, which do not send CORS headers to browsers. The full pipeline is on the <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a>.</p>
+          </div>
+        </div>
+        <div class="dict-entry">
+          <span class="dict-headword">langs</span>
+          <div>
+            <p class="dict-sense">de · en · es · fr · pt · ru <span class="pos">n.</span> — the languages with Hunspell dictionaries in the repo.</p>
+            <p class="dict-anno">Japanese, Korean, and Chinese are not here: CJK checking rides on the gem's tokenizer, not on Hunspell files. See the <a href="/languages" class="text-[var(--color-accent)] hover:underline">language matrix</a>.</p>
+          </div>
+        </div>
+        <div class="dict-entry">
+          <span class="dict-headword">speed</span>
+          <div>
+            <p class="dict-sense">Underlines as you type <span class="pos">n.</span> — word lookups are instant; the engine runs in a Web Worker so typing never blocks.</p>
+            <p class="dict-anno">Ranked suggestions sweep the dictionary, so they appear on click — usually under a second for English, slower for very long or garbled words.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* The backdrop and the textarea must set type identically or the
+     underlines drift. Both carry .lab-editor; this is the shared spec. */
+  :global(.lab-editor) {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    letter-spacing: 0;
+    padding: 1.25rem;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    tab-size: 4;
+  }
+  #lab-backdrop :global(.misspelled) {
+    text-decoration: underline wavy var(--color-gold);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 0.25em;
+  }
+</style>
+
+<script>
+  type Suggestion = { word: string; distance: number; confidence: number; source: string }
+
+  // Same token definition as the worker — the two must agree.
+  const WORD_RE = /[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu
+
+  const el = {
+    lang: document.getElementById('lab-lang') as HTMLSelectElement,
+    backdrop: document.getElementById('lab-backdrop')!,
+    text: document.getElementById('lab-text') as HTMLTextAreaElement,
+    wrap: document.getElementById('lab-wrap')!,
+    pop: document.getElementById('lab-pop')!,
+    popWord: document.getElementById('lab-pop-word')!,
+    popList: document.getElementById('lab-pop-list')!,
+    status: document.getElementById('lab-status')!,
+    dot: document.getElementById('lab-dot')!,
+    readout: document.getElementById('lab-readout')!,
+  }
+
+  const worker = new Worker(
+    new URL('../components/playground/engine-worker.ts', import.meta.url),
+    { type: 'module' },
+  )
+
+  let misspelled = new Set<string>()
+  let debounce: ReturnType<typeof setTimeout> | undefined
+  let popRange: { start: number; end: number } | null = null
+
+  const kib = (n: number) => `${Math.max(1, Math.round(n / 1024))} KiB`
+
+  // — engine wiring ——————————————————————————————
+
+  function load(lang: string) {
+    el.status.textContent = `loading ${lang} — engine + dictionary…`
+    el.dot.style.background = 'var(--color-gold)'
+    worker.postMessage({ type: 'load', lang })
+  }
+
+  worker.addEventListener('message', (event: MessageEvent) => {
+    const m = event.data as {
+      type: string
+      lang?: string
+      words?: string[]
+      word?: string
+      suggestions?: Suggestion[]
+      engineBytes?: number
+      dictionaryBytes?: number
+      engineVersion?: string
+      loadMs?: number
+      message?: string
+    }
+
+    if (m.type === 'loaded') {
+      misspelled = new Set()
+      el.status.textContent = `engine ${m.engineVersion} ready — ${m.lang} loaded in ${m.loadMs} ms`
+      el.dot.style.background = 'var(--color-accent)'
+      el.readout.textContent = `engine ${kib(m.engineBytes!)} · dict ${kib(m.dictionaryBytes!)}`
+      scheduleCheck(0)
+    } else if (m.type === 'load-error') {
+      el.status.textContent = `offline or blocked — ${m.message}`
+      el.status.appendChild(retryButton())
+      el.dot.style.background = '#c0392b'
+    } else if (m.type === 'checked') {
+      misspelled = new Set(m.words ?? [])
+      render()
+    } else if (m.type === 'suggested') {
+      if (popRange && el.popWord.textContent === m.word) renderSuggestions(m.suggestions ?? [])
+    }
+  })
+
+  function retryButton() {
+    const btn = document.createElement('button')
+    btn.textContent = 'retry'
+    btn.className = 'ml-2 rounded border border-[var(--color-border)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-accent)] hover:border-[var(--color-accent)]'
+    btn.addEventListener('click', () => {
+      btn.remove()
+      load(el.lang.value)
+    })
+    return btn
+  }
+
+  // — checking ——————————————————————————————————
+
+  function scheduleCheck(delay = 150) {
+    clearTimeout(debounce)
+    debounce = setTimeout(() => worker.postMessage({ type: 'check', text: el.text.value }), delay)
+  }
+
+  function render() {
+    hidePopover()
+    const frag = document.createDocumentFragment()
+    let last = 0
+    for (const match of el.text.value.matchAll(WORD_RE)) {
+      const [word] = match
+      const start = match.index ?? 0
+      const end = start + word.length
+      if (!misspelled.has(word) && !misspelled.has(word.toLowerCase())) continue
+      frag.append(document.createTextNode(el.text.value.slice(last, start)))
+      const span = document.createElement('span')
+      span.className = 'misspelled'
+      span.dataset.start = String(start)
+      span.dataset.end = String(end)
+      span.textContent = word
+      frag.append(span)
+      last = end
+    }
+    frag.append(document.createTextNode(el.text.value.slice(last)))
+    el.backdrop.replaceChildren(frag)
+    // Underlines may push nothing (decoration only) — sync scroll anyway.
+    el.backdrop.scrollTop = el.text.scrollTop
+  }
+
+  // — popover ——————————————————————————————————
+
+  function hidePopover() {
+    el.pop.classList.add('hidden')
+    el.pop.classList.add('pointer-events-none')
+    el.pop.classList.remove('pointer-events-auto')
+    popRange = null
+  }
+
+  function showPopoverFor(span: HTMLElement) {
+    popRange = { start: Number(span.dataset.start), end: Number(span.dataset.end) }
+    const word = span.textContent ?? ''
+    el.popWord.textContent = word
+    el.popList.replaceChildren(thinkingRow())
+    positionPopover(span)
+    worker.postMessage({ type: 'suggest', word })
+  }
+
+  function thinkingRow() {
+    const p = document.createElement('p')
+    p.className = 'px-2 py-1.5 font-mono text-[11px] text-[var(--color-text-3)]'
+    p.textContent = 'sweeping the dictionary…'
+    return p
+  }
+
+  function positionPopover(span: HTMLElement) {
+    el.pop.classList.remove('hidden')
+    el.pop.classList.remove('pointer-events-none')
+    el.pop.classList.add('pointer-events-auto')
+    const wrapBox = el.wrap.getBoundingClientRect()
+    const spanBox = span.getBoundingClientRect()
+    const left = Math.min(
+      Math.max(0, spanBox.left - wrapBox.left),
+      Math.max(0, el.wrap.clientWidth - 220),
+    )
+    // Flip above the word when there is no room below the editor edge.
+    const below = spanBox.bottom - wrapBox.top + 6
+    const popHeight = el.pop.offsetHeight || 140
+    const top =
+      below + popHeight <= el.wrap.clientHeight ? below : Math.max(0, spanBox.top - wrapBox.top - popHeight - 6)
+    el.pop.style.top = `${top}px`
+    el.pop.style.left = `${left}px`
+  }
+
+  function renderSuggestions(suggestions: Suggestion[]) {
+    if (!popRange) return
+    el.popList.replaceChildren()
+    if (suggestions.length === 0) {
+      const none = document.createElement('p')
+      none.className = 'px-2 py-1.5 font-mono text-[11px] text-[var(--color-text-3)]'
+      none.textContent = 'no suggestions'
+      el.popList.append(none)
+    }
+    for (const s of suggestions) {
+      const btn = document.createElement('button')
+      btn.className =
+        'flex w-full items-baseline justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[13px] text-[var(--color-text)] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent)]'
+      btn.setAttribute('role', 'option')
+      const word = document.createElement('span')
+      word.textContent = s.word
+      const meta = document.createElement('span')
+      meta.className = 'font-mono text-[10px] text-[var(--color-text-3)]'
+      meta.textContent = `${s.source} ${s.confidence.toFixed(2)}`
+      btn.append(word, meta)
+      btn.addEventListener('click', () => apply(s.word))
+      el.popList.append(btn)
+    }
+  }
+
+  function apply(replacement: string) {
+    if (!popRange) return
+    const { start, end } = popRange
+    el.text.value = el.text.value.slice(0, start) + replacement + el.text.value.slice(end)
+    hidePopover()
+    el.text.focus()
+    el.text.setSelectionRange(start + replacement.length, start + replacement.length)
+    scheduleCheck(0)
+  }
+
+  // — events ———————————————————————————————————
+
+  el.text.addEventListener('input', () => {
+    hidePopover()
+    scheduleCheck()
+  })
+
+  el.text.addEventListener('scroll', () => {
+    el.backdrop.scrollTop = el.text.scrollTop
+    el.backdrop.scrollLeft = el.text.scrollLeft
+    hidePopover()
+  })
+
+  el.text.addEventListener('click', () => {
+    const caret = el.text.selectionStart ?? 0
+    const span = spanAt(caret)
+    if (span) {
+      showPopoverFor(span)
+    } else {
+      hidePopover()
+    }
+  })
+
+  el.text.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') hidePopover()
+  })
+
+  function spanAt(caret: number): HTMLElement | null {
+    const spans = el.backdrop.querySelectorAll<HTMLElement>('.misspelled')
+    for (const span of spans) {
+      const start = Number(span.dataset.start)
+      const end = Number(span.dataset.end)
+      if (caret >= start && caret <= end) return span
+    }
+    return null
+  }
+
+  el.lang.addEventListener('change', () => {
+    hidePopover()
+    misspelled = new Set()
+    render()
+    load(el.lang.value)
+  })
+
+  document.addEventListener('click', (event) => {
+    if (event.target instanceof Node && !el.pop.contains(event.target) && event.target !== el.text) {
+      hidePopover()
+    }
+  })
+
+  // Default to the reader's language when we serve it.
+  const preferred = (navigator.languages ?? [navigator.language]).map((l) => l.split('-')[0])
+  const match = preferred.find((l) => [...el.lang.options].some((o) => o.value === l))
+  if (match) el.lang.value = match
+
+  render()
+  load(el.lang.value)
+</script>
