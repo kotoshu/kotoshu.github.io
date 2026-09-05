@@ -1,0 +1,103 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="clients/python" title="Python client" description="pip install kotoshu — the Python client over the HTTP API, plus the kotoshu-native wheel for offline word-level checking with the Rust engine in-process.">
+  <p class="docs-lead">
+    Two packages on PyPI: <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code>, the
+    client, and <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu-native</code>, the Rust
+    engine as a maturin wheel. Same result types either way.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Install</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>pip install kotoshu              # the HTTP client (pure Python)
+pip install kotoshu-native       # optional: the Rust engine as a wheel (macOS arm64, more platforms coming)</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Python 3.10+. The client is a thin, dependency-light wrapper; the native wheel embeds
+    <a href="/docs/clients/rust" class="text-[var(--color-accent)] hover:underline">the Rust engine</a>
+    for offline checking.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Quick start — over HTTP</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Point the client at a running <a href="/docs/clients/http" class="text-[var(--color-accent)] hover:underline">kotoshu-server</a>:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>from kotoshu import Client
+
+client = Client("http://127.0.0.1:9292", language="en")
+
+result = client.check("helo wrold", language="en")
+for err in result.errors:
+    print(err.word, "->", err.top_suggestions[:3])
+
+for sug in client.suggest("recieve", max_suggestions=3):
+    print(sug.word, round(sug.confidence, 2))
+
+print(client.correct("hello", language="en"))</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>helo -> ['hello', 'help', 'hell']
+wrold -> ['world', 'wold', 'weld']
+receive 1.0
+relieve 0.91
+recife 0.5
+True</code></pre>
+
+  <h2 class="display text-2xl mt-12">Offline — the native engine</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    With <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu-native</code> installed, checking
+    runs in-process against local Hunspell files — no server, no network:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>from kotoshu.native import dictionary
+
+d = dictionary("en_US.aff", "en_US.dic")   # paths to Hunspell sources
+
+d.correct("hello")                       # True
+d.correct("helo")                        # False
+d.suggest("hlelo", max_suggestions=3)
+# [Suggestion(word="hello", distance=1, confidence=1.0, source="edit_distance"),
+#  Suggestion(word="halo",  distance=1, confidence=0.5, source="phonetic"),
+#  Suggestion(word="heel",  distance=1, confidence=0.5, source="phonetic")]</code></pre>
+
+  <h2 class="display text-2xl mt-12">Choosing a backend</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_BACKEND</code> — or nothing at all:
+  </p>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Value</th>
+        <th class="px-3 py-2.5 text-left">Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">auto</code> <span class="text-[var(--color-text-3)]">(the default)</span></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">native when <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu_native</code> imports, else HTTP</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">native</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">require the engine — <code class="font-mono text-[13px] text-[var(--color-accent)]">NativeUnavailableError</code> when missing</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">http</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">always the HTTP API</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu.backend()</code> reports the backend in
+    effect. The offline engine is word-level — <code class="font-mono text-[13px] text-[var(--color-accent)]">correct</code>
+    and <code class="font-mono text-[13px] text-[var(--color-accent)]">suggest</code> — while the HTTP client also
+    checks whole documents and detects language. Errors are typed:
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KotoshuError</code> as the base,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">ResourceNotSetupError</code> for the 422 the server
+    returns when a language has not been set up.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — both quick starts executed against kotoshu 0.1.0 and kotoshu-native 0.1.0 on Python 3.10,
+    server from source. Registry:
+    <a href="https://pypi.org/project/kotoshu/" class="text-[var(--color-accent)] hover:underline">kotoshu on PyPI</a> ·
+    <a href="https://pypi.org/project/kotoshu-native/" class="text-[var(--color-accent)] hover:underline">kotoshu-native on PyPI</a> ·
+    <a href="https://github.com/kotoshu/kotoshu-python" class="text-[var(--color-accent)] hover:underline">kotoshu-python repo</a>
+  </p>
+</DocsLayout>

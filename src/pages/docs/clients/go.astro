@@ -1,0 +1,76 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="clients/go" title="Go client" description="go get github.com/kotoshu/kotoshu-go — the Go client over the HTTP API: check, suggest, detect, correct, all context-aware.">
+  <p class="docs-lead">
+    A single dependency-free package over the HTTP API — every method takes a
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">context.Context</code> first, the Go way.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Install</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>go get github.com/kotoshu/kotoshu-go@v0.1.0</code></pre>
+
+  <h2 class="display text-2xl mt-12">Quick start</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Point the client at a running <a href="/docs/clients/http" class="text-[var(--color-accent)] hover:underline">kotoshu-server</a>:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>package main
+
+import (
+	"context"
+	"fmt"
+
+	kotoshu "github.com/kotoshu/kotoshu-go"
+)
+
+func main() {
+	ctx := context.Background()
+	client, _ := kotoshu.New("http://127.0.0.1:9292", kotoshu.WithLanguage("en"))
+
+	result, _ := client.Check(ctx, "helo wrold", nil)
+	for _, e := range result.Errors {
+		fmt.Println(e.Word, "->", e.Suggestions[:3])
+	}
+
+	sugs, _ := client.Suggest(ctx, "recieve", &kotoshu.SuggestOptions{Max: 3})
+	for _, s := range sugs {
+		fmt.Println("suggest:", s.Word)
+	}
+
+	ok, _ := client.Correct(ctx, "hello", nil)
+	fmt.Println("correct:", ok)
+}</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>helo -> [hello help hell]
+wrold -> [world wold weld]
+suggest: receive
+suggest: relieve
+suggest: recife
+correct: true</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Options configure the client once:
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">WithLanguage("en")</code> sets the default
+    language, <code class="font-mono text-[13px] text-[var(--color-accent)]">WithTimeout(30 * time.Second)</code>
+    the HTTP timeout, <code class="font-mono text-[13px] text-[var(--color-accent)]">WithHTTPClient(...)</code>
+    injects your own <code class="font-mono text-[13px] text-[var(--color-accent)]">*http.Client</code>.
+    Per-call options (<code class="font-mono text-[13px] text-[var(--color-accent)]">*CheckOptions</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">*SuggestOptions</code>) override the defaults —
+    pass <code class="font-mono text-[13px] text-[var(--color-accent)]">nil</code> to accept them.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Errors</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Server errors come back as <code class="font-mono text-[13px] text-[var(--color-accent)]">*kotoshu.APIError</code>
+    with <code class="font-mono text-[13px] text-[var(--color-accent)]">.Code</code> and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.Message</code>;
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu.IsResourceNotSetup(err)</code> tests the
+    422 case — the language is not set up on the server.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — the quick start executed against kotoshu-go v0.1.0 on Go 1.26.
+    Registry:
+    <a href="https://github.com/kotoshu/kotoshu-go" class="text-[var(--color-accent)] hover:underline">kotoshu-go repo</a> ·
+    <a href="https://pkg.go.dev/github.com/kotoshu/kotoshu-go" class="text-[var(--color-accent)] hover:underline">pkg.go.dev reference</a>
+  </p>
+</DocsLayout>

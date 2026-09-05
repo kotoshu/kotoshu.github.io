@@ -1,0 +1,108 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="clients/http" title="HTTP API server" description="kotoshu-server: seven JSON endpoints over Rack, Sinatra, and Puma — check, suggest, detect, health, version, languages. The contract every SDK speaks.">
+  <p class="docs-lead">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu-server</code> is the deployment
+    surface for every SDK — Python, JavaScript, and Go all speak this contract, and an OpenAPI 3.1 spec
+    generates the rest.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Run it</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Today the server runs from source — the 0.1.0 gem on RubyGems was published with an empty file
+    list (a packaging bug: the gemspec collects files with <code class="font-mono text-[13px] text-[var(--color-accent)]">git ls-files</code>,
+    which came up empty in the build environment), so <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu-server</code>
+    installs nothing runnable. Until the fixed gem lands:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>git clone https://github.com/kotoshu/kotoshu-server && cd kotoshu-server
+bundle install
+
+# Default: :9292, English pre-warmed. Pre-warm happens off the boot
+# critical path — the server serves first, warms in background.
+KOTOSHU_SERVER_PORT=9292 KOTOSHU_SERVER_BIND=127.0.0.1 \
+  bundle exec exe/kotoshu-server</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The Docker image installs the gem from RubyGems and therefore inherits the same bug; it returns
+    with the fixed gem. Languages are set up through the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code>
+    gem underneath — <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup en de</code> before
+    boot, or <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_SERVER_LANGUAGES="en de"</code> to
+    pre-warm on start.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Endpoints</h2>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Method</th>
+        <th class="px-3 py-2.5 text-left">Path</th>
+        <th class="px-3 py-2.5 text-left">Body</th>
+        <th class="px-3 py-2.5 text-left">Returns</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">GET</code></td><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">service metadata</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">GET</code></td><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/v1/health</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; status, ready, timestamp &#125;</code></td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">GET</code></td><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/v1/version</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; server, kotoshu, ruby &#125;</code></td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">GET</code></td><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/v1/languages</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; cached: [...] &#125;</code></td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">POST</code></td><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/v1/check</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; text, language?, format? &#125;</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; file, word_count, errors: [...] &#125;</code></td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">POST</code></td><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/v1/suggest</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; word, language?, max? &#125;</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; word, suggestions: [...] &#125;</code></td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">POST</code></td><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/v1/detect</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; text &#125;</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]"><code class="font-mono text-[13px]">&#123; language, confidence &#125;</code></td></tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Each <code class="font-mono text-[13px] text-[var(--color-accent)]">error</code> and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">suggestion</code> row mirrors the engine's
+    serialization — <code class="font-mono text-[13px] text-[var(--color-accent)]">word</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">distance</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">confidence</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">source</code>. Omit
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">language</code> and the server default applies.
+    Language detection needs the gem's detection model; without it the server falls back to its
+    default language. A 422 means the language is not set up — the response carries a hint.
+  </p>
+
+  <h2 class="display text-2xl mt-12">curl</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># Check a document
+curl -X POST http://127.0.0.1:9292/v1/check \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"helo wrold","language":"en"}'
+
+# Suggestions for one word
+curl -X POST http://127.0.0.1:9292/v1/suggest \
+  -H 'Content-Type: application/json' \
+  -d '{"word":"helo","language":"en","max":3}'</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>{"file":null,"word_count":2,"errors":[{"word":"helo","position":0,
+ "suggestions":[{"word":"hello","distance":1,"confidence":1.0,"source":"edit_distance"}, ...]},
+ ...]}
+
+{"word":"helo","suggestions":[{"word":"hello","distance":1,"confidence":1.0,
+ "source":"edit_distance"}, ...]}</code></pre>
+
+  <h2 class="display text-2xl mt-12">Configuration</h2>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Env var</th>
+        <th class="px-3 py-2.5 text-left">Default</th>
+        <th class="px-3 py-2.5 text-left">Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_SERVER_PORT</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">9292</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">listen port</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_SERVER_BIND</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">0.0.0.0</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">bind address</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_SERVER_LANGUAGES</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">en</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">languages to pre-warm on boot</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_SERVER_LAZY</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">0</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">skip pre-warm; load on first request</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_SERVER_DEFAULT_LANG</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">en</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">when the client omits <code class="font-mono text-[13px] text-[var(--color-accent)]">language</code></td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_OFFLINE</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">1 in Docker</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">never trigger downloads</td></tr>
+    </tbody>
+  </table></div>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — server 0.1.0 from source (its lock pins kotoshu 0.6); health, check,
+    suggest, and detect all exercised. The empty-gem and Docker findings are real runs, not assumptions.
+    <a href="https://github.com/kotoshu/kotoshu-server" class="text-[var(--color-accent)] hover:underline">kotoshu-server repo</a> ·
+    <a href="https://github.com/kotoshu/kotoshu-server/blob/main/openapi.yaml" class="text-[var(--color-accent)] hover:underline">OpenAPI 3.1 spec</a>
+  </p>
+</DocsLayout>

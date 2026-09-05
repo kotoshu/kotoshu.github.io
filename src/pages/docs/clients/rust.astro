@@ -1,0 +1,102 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="clients/rust" title="Rust engine" description="cargo add kotoshu — the engine itself as a crate: Dictionary load, correct, ranked suggest, the C ABI batch format, and the models registry behind the resources feature.">
+  <p class="docs-lead">
+    The <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> crate is the engine every
+    other surface wraps — pure Rust, no runtime dependencies by default.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Install</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>cargo add kotoshu</code></pre>
+
+  <h2 class="display text-2xl mt-12">Quick start</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>use std::path::Path;
+
+fn main() {
+    let dict = kotoshu::dict::Dictionary::load(
+        Path::new("en_US.aff"),
+        Path::new("en_US.dic"),
+    )
+    .expect("load dictionary");
+
+    println!("correct(\"hello\") = {}", dict.correct("hello"));
+    println!("correct(\"helo\")  = {}", dict.correct("helo"));
+
+    for s in dict.suggest("hlelo", 3) {
+        println!(
+            "suggest: {} dist={} conf={:.2} source={:?}",
+            s.word, s.distance, s.confidence, s.source
+        );
+    }
+}</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>correct("hello") = true
+correct("helo")  = false
+suggest: hello dist=1 conf=1.00 source=EditDistance
+suggest: halo dist=1 conf=0.50 source=Phonetic
+suggest: heel dist=1 conf=0.50 source=Phonetic</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Dictionary::load</code> takes paths;
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">load_from_sources</code> takes the
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.aff</code>/<code class="font-mono text-[13px] text-[var(--color-accent)]">.dic</code>
+    text directly — byte-symmetric, and the form the wasm binding uses. A
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Suggestion</code> carries
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">word</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">distance</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">confidence</code>, and a
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">SuggestionSource</code> enum
+    (<code class="font-mono text-[13px] text-[var(--color-accent)]">EditDistance</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Phonetic</code>, keyboard, n-gram) — the same row
+    the conformance vectors freeze.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Features</h2>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Feature</th>
+        <th class="px-3 py-2.5 text-left">Adds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">(default)</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">dictionaries, affixes, ranked suggestions — zero dependencies</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">rerank</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">context-aware reranking math — cosine similarity over host-supplied vectors; always compiled, this is the module</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">onnx</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">the <code class="font-mono text-[13px] text-[var(--color-accent)]">OrtProvider</code> over ONNX Runtime — dynamic loading only, never bundled</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">resources</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">the models registry (<code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu.resources/v1</code>): tier resolution, SHA-256 verification, primary→mirror downloads, local cache</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">ruby</code> / <code class="font-mono text-[13px] text-[var(--color-accent)]">wasm</code> / <code class="font-mono text-[13px] text-[var(--color-accent)]">python</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">FFI shims — the gem native extension, <code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/wasm</code>, and the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu_native</code> wheel</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="display text-2xl mt-12">The batch format — KOSH</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    For hosts embedding the engine, the C ABI speaks a single batch wire format defined in
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">ffi::shared</code>: every buffer starts with the
+    4-byte magic <code class="font-mono text-[13px] text-[var(--color-accent)]">KOSH</code>, a version, and a kind
+    tag, followed by length-prefixed records. One serialization serves every binding — measured 3–5× faster than
+    object-by-object FFI — and it is the format the 2630 conformance vectors speak, so all language surfaces agree
+    by construction.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — the quick start executed against kotoshu 0.1.0 on stable Rust.
+    Registry:
+    <a href="https://crates.io/crates/kotoshu" class="text-[var(--color-accent)] hover:underline">kotoshu on crates.io</a> ·
+    <a href="https://github.com/kotoshu/kotoshu-rs" class="text-[var(--color-accent)] hover:underline">kotoshu-rs repo</a>
+  </p>
+</DocsLayout>

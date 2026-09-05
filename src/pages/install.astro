@@ -3,9 +3,87 @@ import BaseLayout from '~/layouts/BaseLayout.astro'
 import VerticalAccent from '~/components/VerticalAccent.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import InstallTabs from '~/components/home/InstallTabs.vue'
+
+interface Channel {
+  /** mono headword — the short channel name */
+  code: string
+  /** jp accent for the row */
+  jp: string
+  name: string
+  note: string
+  command: string
+  docs?: { label: string; href: string }
+}
+
+const channels: Channel[] = [
+  {
+    code: 'ruby',
+    jp: '宝石',
+    name: 'Ruby — library & CLI',
+    note: 'The core gem (0.7.0): two-stage resources, model tiers, optional native extension.',
+    command: 'gem install kotoshu',
+    docs: { label: 'Ruby API', href: '/docs/api' },
+  },
+  {
+    code: 'python',
+    jp: '蛇',
+    name: 'Python — client + native engine',
+    note: 'kotoshu 0.1.0 over HTTP; kotoshu-native 0.1.0 embeds the Rust engine for offline checking.',
+    command: 'pip install kotoshu kotoshu-native',
+    docs: { label: 'Python client', href: '/docs/clients/python' },
+  },
+  {
+    code: 'js',
+    jp: '波',
+    name: 'JavaScript & TypeScript — client + wasm',
+    note: '@kotoshu/client 0.1.0 for Node, Deno, Bun, browsers; @kotoshu/wasm 0.1.0 runs the engine in-process.',
+    command: 'npm install @kotoshu/client',
+    docs: { label: 'JavaScript client', href: '/docs/clients/javascript' },
+  },
+  {
+    code: 'rust',
+    jp: '錆',
+    name: 'Rust — the engine itself',
+    note: 'The kotoshu crate 0.1.0: dictionaries, ranked suggestions, the C ABI batch format.',
+    command: 'cargo add kotoshu',
+    docs: { label: 'Rust engine', href: '/docs/clients/rust' },
+  },
+  {
+    code: 'go',
+    jp: '囲碁',
+    name: 'Go — HTTP client',
+    note: 'kotoshu-go v0.1.0: context-aware check, suggest, detect, correct.',
+    command: 'go get github.com/kotoshu/kotoshu-go@v0.1.0',
+    docs: { label: 'Go client', href: '/docs/clients/go' },
+  },
+  {
+    code: 'http',
+    jp: '服務',
+    name: 'HTTP — the server',
+    note: 'Seven JSON endpoints; the contract every SDK speaks. Runs from source today — the 0.1.0 gem shipped empty.',
+    command: 'git clone https://github.com/kotoshu/kotoshu-server',
+    docs: { label: 'HTTP API', href: '/docs/clients/http' },
+  },
+  {
+    code: 'lsp',
+    jp: '編集',
+    name: 'Editor — via LSP',
+    note: 'kotoshu-lsp 0.1.0: diagnostics, quick-fixes, hover suggestions in any LSP editor.',
+    command: 'gem install kotoshu-lsp',
+    docs: { label: 'Editor integration', href: '/docs/clients/lsp' },
+  },
+  {
+    code: 'ci',
+    jp: '検証',
+    name: 'CI — GitHub Action',
+    note: 'action-kotoshu v1: SARIF in the Security tab, dictionaries cached between runs.',
+    command: 'uses: kotoshu/action-kotoshu@v1',
+    docs: { label: 'GitHub Action', href: '/docs/clients/action' },
+  },
+]
 ---
 
-<BaseLayout title="Install & quickstart" description="Get started with Kotoshu — the Ruby gem and CLI, editor integration via LSP, CI via the GitHub Action, the HTTP API server with SDKs, and Docker.">
+<BaseLayout title="Install & quickstart" description="Every channel to install Kotoshu — the Ruby gem, Python and JavaScript packages, the Rust crate, the Go client, the HTTP server, the editor LSP, and the GitHub Action.">
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
     <VerticalAccent text="導入" />
@@ -13,20 +91,48 @@ import InstallTabs from '~/components/home/InstallTabs.vue'
       <SectionHeading
         jp="導入"
         eyebrow="Install"
-        title="Sixty seconds to a checked document"
-        lead="Pick the surface that matches how you work. Everything below talks to the same engine."
+        title="Pick your channel"
+        lead="Eight channels, one engine. Whatever you install below talks to the same checking core — pick the surface that matches how you work."
       />
       <div class="mx-auto mt-12 max-w-2xl">
         <InstallTabs
           client:visible
           tabs={[
-            { id: 'gem', label: 'Ruby gem', hint: 'Core library', command: 'gem install kotoshu' },
-            { id: 'lsp', label: 'Editor (LSP)', hint: 'VS Code · Neovim · Emacs · JetBrains', command: 'gem install kotoshu-lsp' },
-            { id: 'action', label: 'GitHub Action', hint: 'CI with SARIF output', command: 'uses: kotoshu/action-kotoshu@v1' },
-            { id: 'server', label: 'HTTP API', hint: 'For Python / JS / Go SDKs', command: 'gem install kotoshu-server' },
-            { id: 'go', label: 'Go SDK', hint: 'go get, tagged v0.1.0', command: 'go get github.com/kotoshu/kotoshu-go@v0.1.0' },
+            { id: 'gem', label: 'Ruby', hint: 'Core library & CLI', command: 'gem install kotoshu' },
+            { id: 'python', label: 'Python', hint: 'Client + native engine', command: 'pip install kotoshu kotoshu-native' },
+            { id: 'npm', label: 'npm', hint: 'Client + wasm engine', command: 'npm install @kotoshu/client @kotoshu/wasm' },
+            { id: 'cargo', label: 'Rust', hint: 'The engine crate', command: 'cargo add kotoshu' },
+            { id: 'lsp', label: 'Editor', hint: 'VS Code · Neovim · Emacs', command: 'gem install kotoshu-lsp' },
+            { id: 'action', label: 'GitHub Action', hint: 'SARIF in the Security tab', command: 'uses: kotoshu/action-kotoshu@v1' },
           ]}
         />
+      </div>
+    </div>
+  </section>
+
+  <!-- Channel catalog — one dictionary entry per channel -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="dict-banner animate-in"><span lang="ja">辞書</span> the channel catalog</p>
+      <div class="mt-6">
+        {channels.map((c, i) => (
+          <div class="dict-entry animate-in" style={`transition-delay:${Math.min(i, 5) * 40}ms`}>
+            <span class="dict-headword">{c.code}</span>
+            <div>
+              <p class="dict-sense">
+                <strong class="font-semibold">{c.name}</strong>
+                <span class="kanji ml-2 text-xs text-[var(--color-accent)]" lang="ja">{c.jp}</span>
+              </p>
+              <p class="mt-1 text-[15px] leading-7 text-[var(--color-text-2)]">{c.note}</p>
+              <pre class="code-block mt-2 overflow-x-auto px-3.5 py-2.5 text-[12.5px]"><code>{c.command}</code></pre>
+              {c.docs && (
+                <p class="dict-anno">
+                  <a href={c.docs.href} class="text-[var(--color-accent)] hover:underline">{c.docs.label} →</a>
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   </section>
@@ -34,7 +140,7 @@ import InstallTabs from '~/components/home/InstallTabs.vue'
   <section class="border-t border-[var(--color-border)]">
     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 space-y-14">
       <div class="animate-in">
-        <p class="eyebrow mb-4"><span class="jp" lang="ja">最初</span>Ruby — library & CLI</p>
+        <p class="eyebrow mb-4"><span class="jp" lang="ja">最初</span>Ruby — the sixty-second path</p>
         <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7"><code>gem install kotoshu
 
 # Stage 1 — set up a language once (downloads the dictionary, ~5 MB)
@@ -51,79 +157,6 @@ kotoshu check README.md --interactive</code></pre>
           The model ships in three tiers — fluency (~15 MB, the default), full (~120 MB), or mini (~3 MB) — covered in
           <a href="/docs/caching" class="text-[var(--color-accent)] hover:underline">Caching &amp; resources</a>.
         </p>
-      </div>
-
-      <div class="animate-in">
-        <p class="eyebrow mb-4"><span class="jp" lang="ja">編集</span>Editor — via LSP</p>
-        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7" is:raw><code>gem install kotoshu-lsp
-
-# Neovim (built-in LSP)
-vim.lsp.start({ name = 'kotoshu', cmd = { 'kotoshu-lsp' } })
-
-# Emacs (eglot)
-(add-to-list 'eglot-server-programs '((text-mode markdown-mode) . ("kotoshu-lsp")))</code></pre>
-        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
-          Diagnostics on open and change; quick-fixes ranked by confidence;
-          hover a word for suggestions; add to your personal dictionary from
-          the code-action menu. Full wiring snippets for every editor are in
-          the <a href="https://github.com/kotoshu/kotoshu-lsp#readme" class="text-[var(--color-accent)] hover:underline">kotoshu-lsp README</a>.
-        </p>
-      </div>
-
-      <div class="animate-in">
-        <p class="eyebrow mb-4"><span class="jp" lang="ja">検証</span>CI — GitHub Action</p>
-        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7"><code>jobs:
-  spell-check:
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write   # for the SARIF upload
-    steps:
-      - uses: actions/checkout@v4
-      - uses: kotoshu/action-kotoshu@v1
-        with:
-          files: "*.md docs/**/*.adoc"
-          language: en</code></pre>
-        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
-          Dictionaries are cached between runs; results land in the Security
-          tab as code annotations.
-        </p>
-      </div>
-
-      <div class="animate-in">
-        <p class="eyebrow mb-4"><span class="jp" lang="ja">服務</span>Service — HTTP API & SDKs</p>
-        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7" is:raw><code>gem install kotoshu-server
-KOTOSHU_SERVER_LANGUAGES="en de" kotoshu-server   # :9292
-
-# then, from any language
-curl -X POST localhost:9292/v1/check \
-  -H 'Content-Type: application/json' \
-  -d '{"text":"helo wrold","language":"en"}'</code></pre>
-        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
-          Typed clients for <a href="https://github.com/kotoshu/kotoshu-python" class="text-[var(--color-accent)] hover:underline">Python</a>,
-          <a href="https://github.com/kotoshu/kotoshu-js" class="text-[var(--color-accent)] hover:underline">JavaScript</a>, and
-          <a href="https://github.com/kotoshu/kotoshu-go" class="text-[var(--color-accent)] hover:underline">Go</a>;
-          an OpenAPI 3.1 spec generates the rest.
-        </p>
-        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">
-          <span class="font-semibold text-[var(--color-text)]">Offline engines (preview).</span>
-          Both SDKs can also run without the server: kotoshu-python selects a native
-          backend with <code class="font-mono text-xs text-[var(--color-accent)]">KOTOSHU_BACKEND=native|http|auto</code>,
-          and kotoshu-js adds <code class="font-mono text-xs text-[var(--color-accent)]">createWasmDictionary()</code>
-          under the same setting. Today both fall back to HTTP whenever the engine
-          package is absent — offline checking unlocks once the
-          <code class="font-mono text-xs text-[var(--color-accent)]">kotoshu-native</code> wheel and
-          <code class="font-mono text-xs text-[var(--color-accent)]">@kotoshu/wasm</code> package are
-          published to PyPI and npm. The engines live in
-          <a href="https://github.com/kotoshu/kotoshu-rs" class="text-[var(--color-accent)] hover:underline">kotoshu-rs</a>;
-          a native extension for the Ruby gem is in development.
-        </p>
-      </div>
-
-      <div class="animate-in">
-        <p class="eyebrow mb-4"><span class="jp" lang="ja">容器</span>Docker</p>
-        <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7"><code>git clone https://github.com/kotoshu/docker-kotoshu-ci && cd docker-kotoshu-ci
-docker build -t kotoshu-ci .
-docker run --rm -v "$PWD:/work" -w /work kotoshu-ci check README.md --format json</code></pre>
       </div>
 
       <div class="animate-in">
@@ -151,7 +184,7 @@ docker run --rm -v "$PWD:/work" -w /work kotoshu-ci check README.md --format jso
         <p class="text-sm text-[var(--color-text-2)]">
           Not sure which surface is yours? The
           <a href="/audiences" class="text-[var(--color-accent)] hover:underline">audiences guide</a>
-          matches how you work to what to install.
+          matches how you work to what to install — every persona now links straight to its channel guide.
         </p>
       </div>
     </div>

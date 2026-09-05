@@ -52,6 +52,11 @@ const ICONS: Record<string, string> = {
             <p class="mt-2 text-[15px] font-medium text-[var(--color-accent)]">{a.headline}</p>
             <p class="mt-4 text-sm leading-7 text-[var(--color-text-2)]">{a.who}</p>
             <pre class="code-block mt-6 overflow-x-auto px-3.5 py-2.5 text-xs"><code>{a.install}</code></pre>
+            {a.guide && (
+              <p class="mt-2 font-mono text-[11px] tracking-wide text-[var(--color-text-3)]">
+                <a href={a.guide.href} class="text-[var(--color-accent)] hover:underline">{a.guide.label} →</a>
+              </p>
+            )}
           </div>
 
           <div class="animate-in">

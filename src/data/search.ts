@@ -68,8 +68,8 @@ export function buildSearchIndex(): SearchEntry[] {
       title: 'Install & quickstart',
       section: 'Pages',
       description:
-        'Getting started for every surface: the Ruby gem, the CLI, editors via LSP, CI via the GitHub Action, the HTTP server with SDKs, the offline-engine preview, and Docker.',
-      keywords: 'install quickstart getting started setup gem cli lsp action server docker exit codes offline native backend wasm kotoshu-rs rust engine',
+        'Every channel: the Ruby gem and CLI, Python and JavaScript packages, the Rust crate, the Go client, the HTTP server, the editor LSP, and the GitHub Action.',
+      keywords: 'install quickstart getting started setup gem pip npm cargo client sdks cli lsp action server channels python javascript rust go docker exit codes offline native backend wasm kotoshu-rs rust engine',
     },
     {
       id: 'page-playground',

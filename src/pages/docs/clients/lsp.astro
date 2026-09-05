@@ -1,0 +1,81 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="clients/lsp" title="Editor integration via LSP" description="gem install kotoshu-lsp — diagnostics, quick-fixes, and hover suggestions in Neovim, VS Code, Emacs, and any editor that speaks the Language Server Protocol.">
+  <p class="docs-lead">
+    One binary, every editor. <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu-lsp</code>
+    wraps the gem's <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.check</code> and speaks
+    the Language Server Protocol over stdio.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Install</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>gem install kotoshu-lsp</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Requires the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> gem, installed
+    automatically as a dependency. Set up at least one language first —
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup en</code> — the server never
+    downloads on its own.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Neovim</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>-- built-in LSP, lspconfig entry pending upstream
+vim.lsp.start({
+  name = 'kotoshu',
+  cmd = { 'kotoshu-lsp' },
+  filetypes = { 'text', 'markdown', 'asciidoc' },
+})
+
+-- or, once lspconfig gains an entry:
+require('lspconfig').kotoshu.setup({
+  cmd = { 'kotoshu-lsp' },
+  filetypes = { 'text', 'markdown', 'asciidoc' },
+})</code></pre>
+
+  <h2 class="display text-2xl mt-12">Emacs</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>;; eglot
+(add-to-list 'eglot-server-programs
+             '((text-mode markdown-mode) . ("kotoshu-lsp")))
+
+;; lsp-mode
+(lsp-register-client
+ (make-lsp-client :new-connection (lsp-stdio-connection '("kotoshu-lsp"))
+                  :activation-fn (lsp-activate-on "plaintext" "markdown")
+                  :server-id 'kotoshu))</code></pre>
+
+  <h2 class="display text-2xl mt-12">VS Code</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    A packaged extension is on the roadmap; until then wire the binary manually through the
+    languageServerExample boilerplate — <code class="font-mono text-[13px] text-[var(--color-accent)]">command: "kotoshu-lsp"</code>,
+    languages plaintext and markdown.
+  </p>
+
+  <h2 class="display text-2xl mt-12">What you get</h2>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Method</th>
+        <th class="px-3 py-2.5 text-left">Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">didOpen / didChange</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">publishes one diagnostic per misspelled word, top suggestions attached</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">codeAction</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">one quick-fix per suggestion — e.g. <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu: change to "hello"</code> — plus add-to-personal-dictionary</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">hover</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">top suggestions for the flagged word under the cursor</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">completion</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">not implemented — returns <code class="font-mono text-[13px] text-[var(--color-accent)]">nil</code></td></tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Configuration is environment-based:
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_LSP_LOG</code> (a log path),
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_LSP_LOG_LEVEL</code>
+    (debug/info/warn/error), and <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_OFFLINE</code>
+    to pin the server to cached dictionaries.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — an LSP initialize/didOpen/codeAction handshake executed over stdio against
+    kotoshu-lsp 0.1.0: diagnostics published for both misspellings, quick-fixes returned ranked.
+    <a href="https://github.com/kotoshu/kotoshu-lsp" class="text-[var(--color-accent)] hover:underline">kotoshu-lsp repo</a>
+  </p>
+</DocsLayout>
