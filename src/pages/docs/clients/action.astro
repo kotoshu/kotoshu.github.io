@@ -41,8 +41,8 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
       </tr>
     </thead>
     <tbody>
-      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">files</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">.</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">files or glob patterns, space-separated</td></tr>
-      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">language</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">auto</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">en, de, es, fr, pt, ru — or <code class="font-mono text-[13px] text-[var(--color-accent)]">auto</code> to detect per file</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">files</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">.</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">files or glob patterns, space-separated — expanded by the Action's own bash globstar (see directory mode below)</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">language</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">auto</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">any set-up language code, or <code class="font-mono text-[13px] text-[var(--color-accent)]">auto</code> to detect per file — pair it with <code class="font-mono text-[13px] text-[var(--color-accent)]">prewarm_languages</code> so the language is in cache</td></tr>
       <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">format</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">sarif</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">text, json, or sarif</td></tr>
       <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">fail_on_error</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">true</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">fail the step when errors are found</td></tr>
       <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">version</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">latest</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">pin the kotoshu gem version to install</td></tr>
@@ -60,10 +60,55 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     already assembled.
   </p>
 
+  <h2 class="display text-2xl mt-12">Languages</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">language</code> takes any
+    language the installed gem has set up — check and pre-warm share one cache. The
+    language matrix has nineteen full-feature languages (ca cs da de el en es fr hu
+    it nl pl pt ro ru sv tr uk vi) and semantic models for 54 — see
+    <a href="/languages" class="text-[var(--color-accent)] hover:underline">the matrix</a>.
+    An honest pin: the gem currently published on RubyGems (0.7.0) is the earlier
+    six-language cut — <code class="font-mono text-[13px] text-[var(--color-accent)]">en de es fr pt ru</code> —
+    so pre-warming anything beyond those six warns and skips until the next gem
+    release lands on RubyGems; <code class="font-mono text-[13px] text-[var(--color-accent)]">version:</code>
+    can pin a newer cut once it exists.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Directory mode &amp; baselines</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Today the Action expands <code class="font-mono text-[13px] text-[var(--color-accent)]">files</code>
+    itself, with bash globstar, and checks the matched <em>files</em> one by one —
+    so name real globs like <code class="font-mono text-[13px] text-[var(--color-accent)]">"*.md docs/**/*.adoc"</code>;
+    a bare <code class="font-mono text-[13px] text-[var(--color-accent)]">.</code> matches no file and
+    the step exits 0 with a warning. With the next gem release the Action hands
+    directory targets straight to the engine —
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">files: "."</code> walking the whole
+    tree through the gem's own directory mode (gitignore honored,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">node_modules</code>/<code class="font-mono text-[13px] text-[var(--color-accent)]">vendor</code>
+    skipped) — and gains a baseline input so existing debt never fails the build
+    while new errors still do:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code># coming with the next gem release (per the action-kotoshu README)
+- uses: kotoshu/action-kotoshu@v1
+  with:
+    files: "."
+    baseline: .kotoshu-baseline.json</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Until then the same flow works by running the CLI step yourself:
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init ./*.md docs/**/*.adoc</code>,
+    commit the baseline, then <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check . --baseline .kotoshu-baseline.json --format sarif</code>
+    — the full story is on
+    <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">Ignores &amp; baselines</a>
+    and <a href="/docs/cli" class="text-[var(--color-accent)] hover:underline">CLI reference — directory mode</a>.
+  </p>
+
   <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
     Validated 2026-09-05 — the workflow YAML above parses cleanly and its inputs match
-    action-kotoshu v1's action.yml field for field; a full run against a test repository was judged
-    overkill. <a href="https://github.com/kotoshu/action-kotoshu" class="text-[var(--color-accent)] hover:underline">action-kotoshu repo</a> ·
+    action-kotoshu v1's action.yml field for field; the language input, the glob
+    expansion behavior, and the directory-mode/baseline plan were verified against
+    the action's action.yml and README at its current main. A full run against a test
+    repository was judged overkill.
+    <a href="https://github.com/kotoshu/action-kotoshu" class="text-[var(--color-accent)] hover:underline">action-kotoshu repo</a> ·
     <a href="https://github.com/kotoshu/action-kotoshu/blob/main/action.yml" class="text-[var(--color-accent)] hover:underline">action.yml</a>
   </p>
 </DocsLayout>
