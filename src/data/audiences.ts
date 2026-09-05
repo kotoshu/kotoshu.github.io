@@ -6,6 +6,7 @@ export interface Audience {
   who: string
   needs: string[]
   install: string
+  guide?: { label: string; href: string }
   projects: { label: string; href: string }[]
   icon: 'code' | 'pen' | 'gear' | 'globe' | 'letters'
 }
@@ -25,6 +26,7 @@ export const AUDIENCES: Audience[] = [
       'Optional semantic reranking via ONNX when you install onnxruntime',
     ],
     install: 'gem install kotoshu',
+    guide: { label: 'Ruby API guide', href: '/docs/api' },
     projects: [
       { label: 'kotoshu gem', href: 'https://github.com/kotoshu/kotoshu' },
       { label: 'models-fasttext-onnx', href: 'https://github.com/kotoshu/models-fasttext-onnx' },
@@ -45,6 +47,7 @@ export const AUDIENCES: Audience[] = [
       'One server, every LSP-capable editor',
     ],
     install: 'gem install kotoshu-lsp',
+    guide: { label: 'Editor wiring guide', href: '/docs/clients/lsp' },
     projects: [
       { label: 'kotoshu-lsp', href: 'https://github.com/kotoshu/kotoshu-lsp' },
       { label: 'Editor wiring guide', href: 'https://github.com/kotoshu/kotoshu-lsp#readme' },
@@ -65,6 +68,7 @@ export const AUDIENCES: Audience[] = [
       'Works from markdown to AsciiDoc to plain text',
     ],
     install: 'uses: kotoshu/action-kotoshu@v1',
+    guide: { label: 'Action guide', href: '/docs/clients/action' },
     projects: [
       { label: 'action-kotoshu', href: 'https://github.com/kotoshu/action-kotoshu' },
       { label: 'docker-kotoshu-ci', href: 'https://github.com/kotoshu/docker-kotoshu-ci' },
@@ -79,12 +83,13 @@ export const AUDIENCES: Audience[] = [
     who: 'Python, JavaScript/TypeScript, and Go teams — or anyone with an OpenAPI client — who want Kotoshu as a self-hosted service. Your text never leaves your network.',
     needs: [
       'Self-hostable HTTP API: /v1/check, /v1/suggest, /v1/detect',
-      'Typed SDKs: kotoshu-python, kotoshu-js, kotoshu-go',
+      'Typed SDKs on the registries: kotoshu and kotoshu-native on PyPI, @kotoshu/client and @kotoshu/wasm on npm, kotoshu-go',
       'OpenAPI 3.1 spec — generate clients for Rust, .NET, Java',
       'Docker image with healthcheck; Helm-friendly',
       'Languages pre-warmed on boot; add more without downtime',
     ],
-    install: 'gem install kotoshu-server',
+    install: 'git clone https://github.com/kotoshu/kotoshu-server   # runs from source today',
+    guide: { label: 'HTTP API guide', href: '/docs/clients/http' },
     projects: [
       { label: 'kotoshu-server', href: 'https://github.com/kotoshu/kotoshu-server' },
       { label: 'kotoshu-python', href: 'https://github.com/kotoshu/kotoshu-python' },
@@ -107,6 +112,7 @@ export const AUDIENCES: Audience[] = [
       '98 dictionaries staged and ready as language modules land',
     ],
     install: 'gem install kotoshu',
+    guide: { label: 'Language support matrix', href: '/languages' },
     projects: [
       { label: 'Language support matrix', href: '/languages' },
       { label: 'dictionaries repo', href: 'https://github.com/kotoshu/dictionaries' },

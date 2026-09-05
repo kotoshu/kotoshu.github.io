@@ -1,4 +1,4 @@
-export type DocsSectionId = 'start' | 'reference' | 'extend' | 'adopt'
+export type DocsSectionId = 'start' | 'clients' | 'reference' | 'extend' | 'adopt'
 
 export interface DocsSection {
   id: DocsSectionId
@@ -17,6 +17,7 @@ export interface DocsPageMeta {
 
 export const DOCS_SECTIONS: DocsSection[] = [
   { id: 'start', label: 'Getting started' },
+  { id: 'clients', label: 'Clients & channels' },
   { id: 'reference', label: 'Reference' },
   { id: 'extend', label: 'Extend' },
   { id: 'adopt', label: 'Adopt' },
@@ -41,6 +42,69 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     description:
       'The kotoshu command: setup, check (text, files, stdin, interactive), formats (text, JSON, SARIF), cache management, exit codes, and environment variables.',
     keywords: 'cli command line kotoshu check setup interactive sarif json format cache exit code',
+  },
+  {
+    slug: 'clients/python',
+    title: 'Python client',
+    nav: 'Python',
+    section: 'clients',
+    description:
+      'pip install kotoshu: the Python client over the HTTP API, plus the kotoshu-native wheel for offline word-level checking with the Rust engine in-process.',
+    keywords: 'python pip pypi kotoshu-native maturin wheel native offline client check suggest detect',
+  },
+  {
+    slug: 'clients/javascript',
+    title: 'JavaScript client',
+    nav: 'JavaScript',
+    section: 'clients',
+    description:
+      'npm install @kotoshu/client: typed HTTP client for Node, Deno, Bun, and browsers, plus the @kotoshu/wasm engine for offline checking in-process.',
+    keywords: 'javascript typescript npm node deno bun browser client wasm offline createWasmDictionary',
+  },
+  {
+    slug: 'clients/rust',
+    title: 'Rust engine',
+    nav: 'Rust',
+    section: 'clients',
+    description:
+      'cargo add kotoshu: the engine itself as a crate — Dictionary load, correct, ranked suggest, the C ABI batch format, and the models registry behind the resources feature.',
+    keywords: 'rust cargo crates.io crate engine dictionary correct suggest c abi batch kosh registry',
+  },
+  {
+    slug: 'clients/go',
+    title: 'Go client',
+    nav: 'Go',
+    section: 'clients',
+    description:
+      'go get github.com/kotoshu/kotoshu-go: the Go client over the HTTP API — check, suggest, detect, correct, all context-aware.',
+    keywords: 'golang go get client http check suggest detect context apierror',
+  },
+  {
+    slug: 'clients/http',
+    title: 'HTTP API server',
+    nav: 'HTTP API',
+    section: 'clients',
+    description:
+      'kotoshu-server: seven JSON endpoints over Rack, Sinatra, and Puma — check, suggest, detect, health, version, languages. The contract every SDK speaks.',
+    keywords: 'http api server rest json sinatra puma rack endpoints v1 check suggest detect docker self-host',
+  },
+  {
+    slug: 'clients/lsp',
+    title: 'Editor integration via LSP',
+    nav: 'Editor (LSP)',
+    section: 'clients',
+    description:
+      'gem install kotoshu-lsp: diagnostics, quick-fixes, and hover suggestions in Neovim, VS Code, Emacs, and any editor that speaks the Language Server Protocol.',
+    keywords: 'lsp language server editor neovim vscode emacs eglot lsp-mode diagnostics code action hover',
+  },
+  {
+    slug: 'clients/action',
+    title: 'GitHub Action',
+    nav: 'GitHub Action',
+    section: 'clients',
+    description:
+      'kotoshu/action-kotoshu@v1: spell-check files in CI, cache dictionaries between runs, and upload SARIF to the Security tab.',
+    keywords: 'github action ci sarif security tab workflow yaml prewarm cache fail_on_error',
   },
   {
     slug: 'api',

@@ -1,0 +1,102 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="clients/javascript" title="JavaScript client" description="npm install @kotoshu/client — the typed HTTP client for Node, Deno, Bun, and browsers, plus the @kotoshu/wasm engine for offline checking in-process.">
+  <p class="docs-lead">
+    Two packages on npm: <code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/client</code>,
+    the typed HTTP client, and <code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/wasm</code>,
+    the whole engine compiled to WebAssembly. Same <code class="font-mono text-[13px] text-[var(--color-accent)]">Suggestion</code>
+    shape either way.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Install</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>npm install @kotoshu/client         # the HTTP client (ESM + TypeScript types)
+npm install @kotoshu/wasm           # optional: the engine, 291 KiB gzipped</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Node 18+, Deno, Bun, and browsers. The wasm package is deliberately not a dependency of the
+    client — opt in explicitly.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Quick start — over HTTP</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Point the client at a running <a href="/docs/clients/http" class="text-[var(--color-accent)] hover:underline">kotoshu-server</a>:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>import { Client } from "@kotoshu/client";
+
+const client = new Client("http://127.0.0.1:9292");
+
+const result = await client.check("helo wrold", "en");
+for (const err of result.errors) {
+  console.log(err.word, "->", err.suggestions.slice(0, 3).map((s) => s.word));
+}
+
+const suggestions = await client.suggest("recieve", { max: 3 });
+console.log(suggestions.map((s) => [s.word, s.confidence]));
+
+console.log(await client.correct("hello", "en"));</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>helo -> [ 'hello', 'help', 'hell' ]
+wrold -> [ 'world', 'wold', 'weld' ]
+[ [ 'receive', 1 ], [ 'relieve', 0.91 ], [ 'recife', 0.5 ] ]
+true</code></pre>
+
+  <h2 class="display text-2xl mt-12">Offline — the wasm engine</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    With <code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/wasm</code> installed,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">createWasmDictionary</code> loads the engine
+    in-process. Dictionaries are the string contents of the <code class="font-mono text-[13px] text-[var(--color-accent)]">.aff</code>
+    and <code class="font-mono text-[13px] text-[var(--color-accent)]">.dic</code> files — WebAssembly has no filesystem:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>import { createWasmDictionary } from "@kotoshu/client/dist/wasm.js";
+
+const aff = await (await fetch("/dictionaries/en.aff")).text();
+const dic = await (await fetch("/dictionaries/en.dic")).text();
+
+const dict = await createWasmDictionary(aff, dic);
+if (dict) {
+  dict.correct("hello");      // true
+  dict.correct("helo");       // false
+  dict.suggest("hlelo", 3);   // ["hello", "halo", "heel"]
+} else {
+  // backend resolved to "http" — use the Client instead
+}</code></pre>
+
+  <h2 class="display text-2xl mt-12">Choosing a backend</h2>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left"><code class="font-mono text-[13px]">KOTOSHU_BACKEND</code></th>
+        <th class="px-3 py-2.5 text-left">Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">auto</code> <span class="text-[var(--color-text-3)]">(the default)</span></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">wasm when <code class="font-mono text-[13px] text-[var(--color-accent)]">import("@kotoshu/wasm")</code> resolves, else HTTP</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">native</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">force wasm — <code class="font-mono text-[13px] text-[var(--color-accent)]">NativeUnavailableError</code> when missing</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">http</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">never wasm; the factory resolves <code class="font-mono text-[13px] text-[var(--color-accent)]">null</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The option <code class="font-mono text-[13px] text-[var(--color-accent)]">&#123; backend &#125;</code> wins over the
+    environment variable. Like the Python package, the offline engine is word-level — no document
+    checking, no language detection. Errors are typed, with
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KotoshuError</code> as the base and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">ResourceNotSetupError</code> for the 422 case.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — both quick starts executed against @kotoshu/client 0.1.0 and @kotoshu/wasm 0.1.0 on Node 24.
+    Registry:
+    <a href="https://www.npmjs.com/package/@kotoshu/client" class="text-[var(--color-accent)] hover:underline">@kotoshu/client on npm</a> ·
+    <a href="https://www.npmjs.com/package/@kotoshu/wasm" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm on npm</a> ·
+    <a href="https://github.com/kotoshu/kotoshu-js" class="text-[var(--color-accent)] hover:underline">kotoshu-js repo</a>
+  </p>
+</DocsLayout>

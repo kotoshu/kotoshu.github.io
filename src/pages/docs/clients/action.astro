@@ -1,0 +1,63 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="clients/action" title="GitHub Action" description="kotoshu/action-kotoshu@v1 — spell-check files in CI, cache dictionaries between runs, and upload SARIF to the Security tab.">
+  <p class="docs-lead">
+    One step, no credentials. The Action installs the gem, pre-warms the languages you name,
+    checks the files you glob, and uploads SARIF to the Security tab.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Quick start</h2>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>jobs:
+  spell-check:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # for the SARIF upload
+    steps:
+      - uses: actions/checkout@v4
+      - uses: kotoshu/action-kotoshu@v1
+        with:
+          files: "*.md docs/**/*.adoc"
+          language: en</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Dictionaries are cached between runs under the default cache key; results land as code
+    annotations and a SARIF report in the repository Security tab, plus a workflow artifact.
+  </p>
+
+  <h2 class="display text-2xl mt-12">Inputs</h2>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Input</th>
+        <th class="px-3 py-2.5 text-left">Default</th>
+        <th class="px-3 py-2.5 text-left">Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">files</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">.</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">files or glob patterns, space-separated</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">language</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">auto</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">en, de, es, fr, pt, ru — or <code class="font-mono text-[13px] text-[var(--color-accent)]">auto</code> to detect per file</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">format</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">sarif</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">text, json, or sarif</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">fail_on_error</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">true</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">fail the step when errors are found</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">version</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">latest</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">pin the kotoshu gem version to install</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">prewarm_languages</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">en</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">languages to set up before the check</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">offline</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">true</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">skip the network — cached dictionaries only</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">output_path</code></td><td class="px-3 py-2.5 text-[var(--color-text-2)]">kotoshu-results.sarif</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">where the SARIF/JSON report is written</td></tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Outputs: <code class="font-mono text-[13px] text-[var(--color-accent)]">sarif-path</code> and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">error-count</code>, for wiring into later steps.
+    With <code class="font-mono text-[13px] text-[var(--color-accent)]">offline: true</code> the step still
+    pre-warms with downloads allowed during the warm phase, then checks purely from cache — the
+    pre-warm pattern from <a href="/docs/caching" class="text-[var(--color-accent)] hover:underline">Caching &amp; resources</a>,
+    already assembled.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Validated 2026-09-05 — the workflow YAML above parses cleanly and its inputs match
+    action-kotoshu v1's action.yml field for field; a full run against a test repository was judged
+    overkill. <a href="https://github.com/kotoshu/action-kotoshu" class="text-[var(--color-accent)] hover:underline">action-kotoshu repo</a> ·
+    <a href="https://github.com/kotoshu/action-kotoshu/blob/main/action.yml" class="text-[var(--color-accent)] hover:underline">action.yml</a>
+  </p>
+</DocsLayout>

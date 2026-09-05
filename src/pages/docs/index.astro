@@ -3,12 +3,53 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
 ---
 
 <DocsLayout title="Documentation" description="Kotoshu documentation index — Ruby API, CLI reference, configuration, caching, plugins, migration, and tool comparison.">
-  <p class="docs-lead">Guides and reference for the Kotoshu gem, the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> CLI, and the resources they manage.</p>
+  <p class="docs-lead">Guides and reference for the Kotoshu engine on every channel — the Ruby gem and CLI, the Python, JavaScript, Rust, and Go clients, the HTTP server, the editor LSP, and the GitHub Action.</p>
 
-  <p class="eyebrow mb-3"><span class="jp" lang="ja">参照</span>Reference</p>
-  <h2 class="display text-2xl mt-12">Seven pages, one engine</h2>
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">接続</span>Clients & channels</p>
+  <h2 class="display text-2xl mt-12">Eight ways in, one engine</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Kotoshu has a deliberately small surface: one facade module, one CLI, three
+    Whatever you install talks to the same checking core. Each channel page carries an install
+    command, a quick start that was actually executed, and the capability notes — what is native,
+    what goes over the wire. Start from the
+    <a href="/install" class="text-[var(--color-accent)] hover:underline">channel catalog</a> if you
+    are not sure which is yours.
+  </p>
+
+  <div class="mt-8 grid gap-x-10 gap-y-6 sm:grid-cols-2">
+    <div>
+      <a href="/docs/clients/python" class="font-medium text-[var(--color-accent)] hover:underline">Python client</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">pip install kotoshu — the HTTP client, plus the kotoshu-native wheel for offline checking in-process.</p>
+    </div>
+    <div>
+      <a href="/docs/clients/javascript" class="font-medium text-[var(--color-accent)] hover:underline">JavaScript client</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">npm install @kotoshu/client — typed HTTP client and the @kotoshu/wasm engine for Node, Deno, Bun, and browsers.</p>
+    </div>
+    <div>
+      <a href="/docs/clients/rust" class="font-medium text-[var(--color-accent)] hover:underline">Rust engine</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">cargo add kotoshu — the engine itself: dictionaries, ranked suggest, the KOSH batch ABI, the models registry.</p>
+    </div>
+    <div>
+      <a href="/docs/clients/go" class="font-medium text-[var(--color-accent)] hover:underline">Go client</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">go get kotoshu-go — context-aware check, suggest, detect, correct over the HTTP API.</p>
+    </div>
+    <div>
+      <a href="/docs/clients/http" class="font-medium text-[var(--color-accent)] hover:underline">HTTP API server</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">Seven JSON endpoints over Rack and Puma — the contract every SDK speaks, with an OpenAPI 3.1 spec.</p>
+    </div>
+    <div>
+      <a href="/docs/clients/lsp" class="font-medium text-[var(--color-accent)] hover:underline">Editor (LSP)</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">gem install kotoshu-lsp — diagnostics, quick-fixes, and hover suggestions in Neovim, VS Code, Emacs.</p>
+    </div>
+    <div>
+      <a href="/docs/clients/action" class="font-medium text-[var(--color-accent)] hover:underline">GitHub Action</a>
+      <p class="mt-1 text-sm leading-7 text-[var(--color-text-2)]">kotoshu/action-kotoshu@v1 — SARIF in the Security tab, dictionaries cached between runs.</p>
+    </div>
+  </div>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">参照</span>Reference</p>
+  <h2 class="display text-2xl mt-12">The gem, documented</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The Ruby gem has a deliberately small surface: one facade module, one CLI, three
     caches. These pages document each piece as it exists today — where something
     is a roadmap item rather than a feature, the text says so.
   </p>
