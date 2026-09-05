@@ -1,0 +1,257 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro'
+---
+
+<DocsLayout slug="integrations" title="Framework integrations" description="The Rails/ActiveModel spelling validator, RSpec matchers, rake kotoshu:check, and a Jekyll build gate — four opt-in layers inside the gem, no new runtime dependencies.">
+  <p class="docs-lead">
+    The gem ships four integration layers, all opt-in and all inside
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu</code>
+    with no new runtime dependencies: a validator for Rails and plain ActiveModel
+    models, RSpec matchers with real failure messages, a Rake task over your
+    repository text files, and a Jekyll generator that fails the build on new
+    spelling errors. Each follows the soft-dependency pattern — the framework
+    it plugs into is required at your side, and a missing one raises a
+    caller-friendly error, never a stack trace at load time.
+  </p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">検証</span>ActiveModel</p>
+  <h2 class="display text-2xl mt-12">Rails &amp; ActiveModel validator</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    An <code class="font-mono text-[13px] text-[var(--color-accent)]">ActiveModel::EachValidator</code>
+    that adds one validation error per misspelling, with the top suggestion in the
+    message. Rails is not required — standalone ActiveModel models validate the
+    same way. For the <code class="font-mono text-[13px] text-[var(--color-accent)]">validates ... spelling: true</code>
+    short syntax, alias the class constant where Rails resolves it (an initializer
+    or the model file itself); <code class="font-mono text-[13px] text-[var(--color-accent)]">validates_with</code>
+    takes the fully qualified name with no alias.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># Gemfile — activemodel ships with Rails; standalone apps add it themselves
+gem "kotoshu"
+gem "activemodel"</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># app/models/post.rb
+SpellingValidator = Kotoshu::Validators::SpellingValidator
+
+class Post &lt; ApplicationRecord
+  validates :body, spelling: true
+  validates :summary, spelling: { language: :en, personal_words: %w[kotoshu] }
+end
+
+# Without the alias:
+# validates_with Kotoshu::Validators::SpellingValidator, attributes: [:body]</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Running the model against
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">body = "This is a smal tesst of the validator"</code>
+    and <code class="font-mono text-[13px] text-[var(--color-accent)]">summary = "kotoshu checks the smal things"</code>
+    produces the errors below (executed against ActiveModel 8.1.3.1). Two notes:
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">personal_words</code>
+    accepted <em>kotoshu</em> on the summary while its own misspelling still failed —
+    and <em>validator</em> genuinely is outside this dictionary, which is exactly
+    what <code class="font-mono text-[13px] text-[var(--color-accent)]">personal_words</code>
+    is for:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>Body 'smal' is misspelled - did you mean 'small'?
+Body 'tesst' is misspelled - did you mean 'test'?
+Body 'validator' is misspelled - did you mean 'validation'?
+Summary 'smal' is misspelled - did you mean 'small'?'</code></pre>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Option</th>
+        <th class="px-3 py-2.5 text-left">Takes</th>
+        <th class="px-3 py-2.5 text-left">Effect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">language</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">language code</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Check with one language; unset means auto-detection from the content</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">personal_words</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">array of words</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Words accepted in addition to the dictionary, compared downcased</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      The error details carry the data alongside the message:
+      <code class="font-mono text-[13px] text-[var(--color-accent)]">errors.details[:body]</code>
+      holds one <code class="font-mono text-[13px] text-[var(--color-accent)]">&#123; error: :spelling, word:, suggestions: &#125;</code>
+      entry per misspelling, with the top three suggestions — so forms and API
+      serializers can offer fixes without parsing English.
+    </p>
+  </div>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">試験</span>RSpec</p>
+  <h2 class="display text-2xl mt-12">RSpec matchers</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Two matchers over the real checking pipeline. A bare word goes word-at-a-time
+    through <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.correct?</code>;
+    a string containing whitespace — or a file via
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">expect_document</code> —
+    runs the full document check. Failure messages list each misspelling with its
+    suggestions, so a red spec tells you what to fix.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># spec/spec_helper.rb
+require "kotoshu/rspec"
+
+RSpec.configure do |config|
+  config.include Kotoshu::Rspec::Matchers
+end</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code>expect_words("helo", "world").to all_be_spelled_correctly
+expect("helo").not_to be_spelled_correctly
+expect("helo wrold").not_to be_spelled_correctly(in: "en")
+expect_document("README.adoc").to be_spelled_correctly</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    What a failing word list actually prints — one
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">"word" (suggestions)</code>
+    pair per misspelling, top three suggestions first:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>expected all words to be spelled correctly, but found "helo" (hello, help, hell),
+"wrold" (world, wold, weld)</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">be_spelled_correctly</code>
+    reads as a document check when the target has whitespace — the same matcher,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">expected the document to be
+    spelled correctly, but found ...</code> — and takes
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">in:</code> for an explicit
+    language instead of auto-detection.
+  </p>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">課題</span>Rake</p>
+  <h2 class="display text-2xl mt-12">rake kotoshu:check</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    One require installs a <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu:check</code>
+    task over the repository text files, using the same selection the CLI directory
+    mode uses — known extensions, <code class="font-mono text-[13px] text-[var(--color-accent)]">.gitignore</code>
+    and <code class="font-mono text-[13px] text-[var(--color-accent)]">.ignore</code> honored,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.git</code> /
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">node_modules</code> /
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">vendor</code> /
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">target</code> skipped:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># Rakefile
+require "kotoshu"      # Bundler apps have the gem loaded already
+require "kotoshu/tasks"</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>$ rake kotoshu:check
+.../docs/guide.md: helo -> hello, help, hell
+2 file(s) checked, 1 error(s)
+rake aborted!
+kotoshu: 1 spelling error(s) in 2 file(s)</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The task reports one line per misspelling — the walked path, the word, its top
+    suggestions — then the summary; with <code class="font-mono text-[13px] text-[var(--color-accent)]">fail_on_error</code>
+    on (the default) it aborts the task with a nonzero exit, so it slots into a
+    default CI task. Configure or add more tasks with
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu::Tasks::CheckTask</code>:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># Rakefile — configured task, requires the class file instead of the default task
+require "kotoshu"
+require "kotoshu/tasks/check_task"
+
+Kotoshu::Tasks::CheckTask.new do |t|
+  t.files = Rake::FileList["app/views/**/*.md"]
+  t.language = "en"
+  t.fail_on_error = false    # report without failing the build
+  t.baseline_path = ".kotoshu-baseline.json"
+end</code></pre>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Setting</th>
+        <th class="px-3 py-2.5 text-left">Default</th>
+        <th class="px-3 py-2.5 text-left">Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">files</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">repository selection</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">A file list to check instead of the walked repository files</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">root</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">working directory</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Where the default selection walks</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">language</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">auto</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Fix one language for every file instead of per-file detection</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">fail_on_error</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">true</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Abort the task (exit 1) when errors are found</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">baseline_path</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Apply a <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">baseline</a> per file — covered errors pass</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">静的</span>Jekyll</p>
+  <h2 class="display text-2xl mt-12">Jekyll generator</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    A <code class="font-mono text-[13px] text-[var(--color-accent)]">safe</code>
+    generator that checks every post and draft and <em>fails the build</em> on new
+    spelling errors. A <code class="font-mono text-[13px] text-[var(--color-accent)]">.kotoshu-baseline.json</code>
+    in the site source — the same file
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init</code>
+    writes — is respected, so existing debt does not block builds while new
+    misspellings still do.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># Gemfile
+gem "kotoshu"
+gem "jekyll"</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># _config.yml
+plugins:
+  - kotoshu</code></pre>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4" is:raw><code># _plugins/kotoshu.rb — registers the generator
+require "kotoshu"
+require "kotoshu/jekyll"</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    A post with two misspellings stops the build (executed against Jekyll 4.4.1):
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu: spelling errors in 3 location(s):
+  _posts/2026-09-05-first.md: helo -> hello, help, hell
+  _posts/2026-09-05-first.md: jekyll -> jell, jewell
+  _posts/2026-09-05-first.md: wrold -> world, wold, weld</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    All three lines come from one post with two misspellings — the dictionary does
+    not know <em>jekyll</em> either. Freeze that debt and the same build completes
+    (verified): <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init _posts/*.md</code>
+    from the site source, commit <code class="font-mono text-[13px] text-[var(--color-accent)]">.kotoshu-baseline.json</code>,
+    rebuild — the generator reads the baseline from the site source at build time
+    and passes.
+  </p>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">環</span>The wider net</p>
+  <h2 class="display text-2xl mt-12">At the commit and in CI</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Two more integration points ship with the ecosystem and are documented on their
+    own pages: the <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">pre-commit
+    hook</a> — <code class="font-mono text-[13px] text-[var(--color-accent)]">- repo: https://github.com/kotoshu/kotoshu</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">id: kotoshu</code> — checks staged
+    prose files before the commit lands; and the
+    <a href="/docs/clients/action" class="text-[var(--color-accent)] hover:underline">GitHub Action</a>
+    wraps the same CLI for CI with SARIF in the Security tab. The
+    <a href="/docs/cli" class="text-[var(--color-accent)] hover:underline">CLI reference</a>
+    covers directory mode — <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check .</code>
+    walking a tree the same way the Rake task does.
+  </p>
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Every behavior on this page was executed against the gem source — the validator
+    under ActiveModel 8.1.3.1, the matchers under RSpec, the Rake task in a scratch
+    repository, the generator under Jekyll 4.4.1 including the baseline unblock —
+    with terminal paths shortened; the option tables read from lib/kotoshu/validators,
+    /rspec, /tasks and /jekyll.
+    <a href="/docs/cli" class="text-[var(--color-accent)] hover:underline">CLI reference</a> ·
+    <a href="https://github.com/kotoshu/kotoshu/blob/main/CHANGELOG.md" class="text-[var(--color-accent)] hover:underline">gem CHANGELOG</a>
+  </p>
+</DocsLayout>

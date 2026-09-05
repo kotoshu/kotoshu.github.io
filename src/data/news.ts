@@ -64,6 +64,8 @@ export const NEWS: NewsEntry[] = [
     ],
     links: [
       { label: 'kotoshu — CHANGELOG', href: 'https://github.com/kotoshu/kotoshu/blob/main/CHANGELOG.md' },
+      { label: 'Framework integrations — docs', href: '/docs/integrations' },
+      { label: 'Directory mode — CLI reference', href: '/docs/cli' },
       { label: 'Language matrix', href: '/languages' },
     ],
   },

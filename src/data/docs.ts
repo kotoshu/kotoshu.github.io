@@ -161,6 +161,15 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     keywords: 'ignore suppress disable-line disable-next-line disable-file baseline ci debt pre-commit hook inline directive',
   },
   {
+    slug: 'integrations',
+    title: 'Framework integrations — Rails, RSpec, Rake & Jekyll',
+    nav: 'Integrations',
+    section: 'adopt',
+    description:
+      'The Rails/ActiveModel spelling validator with its options, RSpec matchers that print each misspelling with suggestions, rake kotoshu:check, and the Jekyll generator that fails the build on new errors.',
+    keywords: 'integrations rails activemodel validates spelling validator rspec matcher expect_words be_spelled_correctly rake task jekyll generator pre-commit action ci',
+  },
+  {
     slug: 'migration',
     title: 'Migrating from hunspell & aspell',
     nav: 'Migration',

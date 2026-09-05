@@ -8,8 +8,8 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
   <p class="eyebrow mb-3"><span class="jp" lang="ja">参照</span>Reference</p>
   <h2 class="display text-2xl mt-12">check</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check [FILE]</code> checks a
-    file, or stdin when no file is given. It is cache-only — it never downloads.
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check [FILE] [DIR ...]</code> checks a
+    file, a directory tree, or stdin when no target is given. It is cache-only — it never downloads.
     Run <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup LANG</code> first;
     in a terminal, <code class="font-mono text-[13px] text-[var(--color-accent)]">check</code> offers to
     do that for you on a missing language.
@@ -31,9 +31,9 @@ kotoshu check README.md --interactive</code></pre>
     <tbody>
       <tr class="border-t border-[var(--color-border)]">
         <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--language</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">-l</code></td>
-        <td class="px-3 py-2.5 text-[var(--color-text-2)]">en de es fr pt ru auto</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">any set-up language code + auto</td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">auto</td>
-        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Language to check with; auto detects from content</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Language to check with; auto detects from content — the nineteen full-feature codes are on <a href="/languages" class="text-[var(--color-accent)] hover:underline">the matrix</a></td>
       </tr>
       <tr class="border-t border-[var(--color-border)]">
         <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--format</code>, <code class="font-mono text-[13px] text-[var(--color-accent)]">-f</code></td>
@@ -65,8 +65,143 @@ kotoshu check README.md --interactive</code></pre>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">List entries suppressed by inline directives or the baseline</td>
       </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--include</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">globs, repeatable</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">known extensions</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Check only matching files — replaces the extension default (directory mode)</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--exclude</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">globs, repeatable</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Skip matching files — always wins over --include and the extension default</td>
+      </tr>
     </tbody>
   </table></div>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">木歩</span>Directory mode</p>
+  <h2 class="display text-2xl mt-12">Check a whole tree</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Pass a directory and <code class="font-mono text-[13px] text-[var(--color-accent)]">check</code>
+    walks it: every file with a known text extension —
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.md .markdown .asciidoc .adoc .txt .rst .mdx</code> —
+    is checked, one section per file in the output and a summary at the end. Explicit
+    files and directories can be mixed; explicit files are checked as given, in
+    argument order. Language detection runs per file, so a multilingual tree is fine.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>$ kotoshu check .
+# Detected: en.
+# Detected: en.
+FAIL ./README.md (2 errors)
+  helo -> hello, help, hell
+  readme -> ready, realm, redye
+
+FAIL ./docs/guide.md (1 errors)
+  helo -> hello, help, hell
+
+2 files checked, 4 words, 3 errors</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    JSON and SARIF formats emit one <em>combined</em> document over the whole walk —
+    a <code class="font-mono text-[13px] text-[var(--color-accent)]">files</code> array in JSON,
+    one SARIF run per file — so CI uploads a single report. Interactive mode stays
+    file-only; on a directory target it prints an explicit notice instead.
+  </p>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The walker always skips hidden (dot-prefixed) files and directories, plus
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.git</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">node_modules</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">vendor</code> and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">target</code>, and honors
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.gitignore</code> and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.ignore</code> files through a
+    standard glob subset implemented in Ruby — no shelling out to git:
+  </p>
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Pattern form</th>
+        <th class="px-3 py-2.5 text-left">Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">foo.md</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">No slash — matches the basename at any depth</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">/foo.md</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Leading slash (or any interior slash) — anchored to the ignore file's directory</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">build/</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Trailing slash — directories only</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">* ?</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Never cross <code class="font-mono text-[13px] text-[var(--color-accent)]">/</code> — one segment only</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">**</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">As a whole segment — <code class="font-mono text-[13px] text-[var(--color-accent)]">**/x</code> any depth, <code class="font-mono text-[13px] text-[var(--color-accent)]">x/**</code> everything below x, <code class="font-mono text-[13px] text-[var(--color-accent)]">a/**/b</code> between</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">!pattern</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Negates — and like git, the last matching line wins</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">nested ignore files</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Each is scoped to its own subtree; a file inside an ignored directory cannot be re-included</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      All of it executed on a scratch tree: <code class="font-mono text-[13px] text-[var(--color-accent)]">*.gen.md</code>
+      ignored while <code class="font-mono text-[13px] text-[var(--color-accent)]">!kept.gen.md</code>
+      was re-checked; <code class="font-mono text-[13px] text-[var(--color-accent)]">/rootonly.md</code>
+      ignored at the root while <code class="font-mono text-[13px] text-[var(--color-accent)]">deep/rootonly.md</code>
+      was checked; <code class="font-mono text-[13px] text-[var(--color-accent)]">docs/**/skip.md</code>
+      gone at any depth; an <code class="font-mono text-[13px] text-[var(--color-accent)]">archive/</code>
+      pattern hiding the directory; a nested <code class="font-mono text-[13px] text-[var(--color-accent)]">sub/.gitignore</code>
+      scoping its own <code class="font-mono text-[13px] text-[var(--color-accent)]">nested.md</code>.
+      Five files checked, exactly the five the rules allow.
+    </p>
+  </div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--include</code> and
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--exclude</code> select
+    within the walk: include globs <em>replace</em> the extension default, exclude
+    always wins, and both use the same glob conventions — no slash matches the
+    basename, a slash matches the path from the checked root. Ignored files stay
+    ignored: an include glob cannot resurrect a
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.gitignore</code>d file.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu check .                          # every known text extension in the tree
+kotoshu check . --include "*.adoc"       # only .adoc files, anywhere in the tree
+kotoshu check . --exclude "vendor/**/*"  # drop a subtree (note /**/* for nested files)
+kotoshu check src README.md              # explicit files and directories, mixed</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Baselines apply per file across the walk. One truth to know: the baseline
+    matches the file path <em>exactly as the check reports it</em> — walking
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.</code> yields
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">./docs/guide.md</code>, so record the
+    baseline with the same spelling of paths:
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu baseline init ./*.md docs/**/*.adoc   # paths as the walk from . sees them
+kotoshu check . --baseline .kotoshu-baseline.json
+
+OK ./README.md (2 words, no errors)
+2 error(s) suppressed by baseline
+
+2 files checked, 4 words, 0 errors</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The same walker selection backs <code class="font-mono text-[13px] text-[var(--color-accent)]">rake kotoshu:check</code>
+    and the Jekyll generator — the <a href="/docs/integrations" class="text-[var(--color-accent)] hover:underline">integrations
+    page</a> covers both. Inline directives and the personal dictionary work in
+    directory mode exactly as they do per file; see
+    <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">Ignores &amp; baselines</a>.
+  </p>
 
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
     <code class="font-mono text-[13px] text-[var(--color-accent)]">check</code> has no offline flag because
