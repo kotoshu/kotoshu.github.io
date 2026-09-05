@@ -53,6 +53,18 @@ kotoshu check README.md --interactive</code></pre>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">Verbose output</td>
       </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--baseline</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">baseline JSON path</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Errors the baseline covers pass; only new errors fail — see <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">Ignores &amp; baselines</a></td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5"><code class="font-mono text-[13px] text-[var(--color-accent)]">--show-suppressed</code></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">flag</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">List entries suppressed by inline directives or the baseline</td>
+      </tr>
     </tbody>
   </table></div>
 
@@ -153,6 +165,28 @@ kotoshu setup --list              # what is already set up</code></pre>
     <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu status</code>.
   </p>
 
+  <h2 class="display text-2xl mt-12">baseline</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init FILE [FILE ...]</code>
+    records the spelling errors a file has <em>right now</em> — one entry per file and word
+    with the occurrence count, stable across reformatting — into
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">.kotoshu-baseline.json</code>
+    (<code class="font-mono text-[13px] text-[var(--color-accent)]">--output</code> names another file).
+    It takes <code class="font-mono text-[13px] text-[var(--color-accent)]">-l/--language</code>
+    like <code class="font-mono text-[13px] text-[var(--color-accent)]">check</code> does.
+  </p>
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu baseline init README.md docs/*.adoc
+kotoshu baseline init src/*.txt --output .kotoshu-baseline.json
+
+# CI: covered errors pass, new errors fail the build
+kotoshu check README.md --baseline .kotoshu-baseline.json</code></pre>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Stale entries — debt you have since fixed — are reported in the summary so the
+    budget shrinks visibly. The whole story, including JSON and SARIF output and the
+    inline ignore directives, is on
+    <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">Ignores &amp; baselines</a>.
+  </p>
+
   <h2 class="display text-2xl mt-12">dict &amp; personal</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
     Two smaller surfaces round out the command.
@@ -161,7 +195,10 @@ kotoshu setup --list              # what is already set up</code></pre>
     <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu dict info TYPE</code> describes one.
     <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu personal</code> manages the words
     only you use — the file lives at
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.config/kotoshu/personal_dictionary</code>.
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.config/kotoshu/personal.dic</code>
+    (override with <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_PERSONAL_DIC</code>;
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu personal path</code> prints wherever
+    yours resolves).
   </p>
   <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>kotoshu personal add Koordinatenverein strahlend     # two words, one command
 kotoshu personal list

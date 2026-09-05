@@ -24,6 +24,12 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     Dictionaries are cached between runs under the default cache key; results land as code
     annotations and a SARIF report in the repository Security tab, plus a workflow artifact.
   </p>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Switching CI on for an old repository with years of findings? Freeze the existing debt
+    with <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init</code> and keep inline
+    ignore directives close to the words they excuse — the whole toolkit is on
+    <a href="/docs/ignores" class="text-[var(--color-accent)] hover:underline">Ignores &amp; baselines</a>.
+  </p>
 
   <h2 class="display text-2xl mt-12">Inputs</h2>
   <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
