@@ -1,0 +1,103 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
+import { NEWS, newsNeighbors, type NewsEntry } from '~/data/news'
+
+export function getStaticPaths() {
+  return NEWS.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }))
+}
+
+const { entry } = Astro.props as { entry: NewsEntry }
+const { prev, next } = newsNeighbors(entry.slug)
+
+const fmt = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
+
+// Senses may carry `backtick` spans, rendered as inline code — the same
+// mono-code voice the docs pages use.
+const renderInline = (text: string) =>
+  text.split(/(`[^`]+`)/g).filter(Boolean).map((chunk) =>
+    chunk.startsWith('`') && chunk.endsWith('`')
+      ? { code: true, text: chunk.slice(1, -1) }
+      : { code: false, text: chunk },
+  )
+---
+
+<BaseLayout title={entry.title} description={entry.summary}>
+  <Fragment slot="head">
+    <link rel="alternate" type="application/rss+xml" title="Kotoshu — news" href="/news/rss.xml" />
+    <link rel="alternate" type="application/atom+xml" title="Kotoshu — news" href="/news/atom.xml" />
+  </Fragment>
+
+  <section class="relative overflow-hidden border-b border-[var(--color-border)]">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="報せ" />
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-16 pb-12 text-center">
+      <a href="/news" class="eyebrow hover:text-[var(--color-accent)] transition-colors"><span class="jp" lang="ja">報せ</span>News</a>
+      <p class="entry mt-6 mb-6 animate-in">
+        <span class="headword">{entry.date}</span>
+        <span class="jp" lang="ja">報</span>
+        <span class="pos">{entry.kind}.</span>
+        <span>{fmt(entry.date)}</span>
+      </p>
+      <h1 class="display mx-auto max-w-2xl text-3xl sm:text-5xl text-[var(--color-text)] text-balance animate-in">
+        {entry.title}
+      </h1>
+      <p class="mx-auto mt-5 max-w-xl text-[15px] leading-8 text-pretty text-[var(--color-text-2)] animate-in">
+        {entry.summary}
+      </p>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-14">
+      <div class="docs-body">
+        <ol class="mt-0">
+          {entry.senses.map((sense) => (
+            <li>{renderInline(sense).map(({ code, text }) => (code ? <code>{text}</code> : text))}</li>
+          ))}
+        </ol>
+
+        {entry.links && (
+          <p class="dict-also mt-10 border-t border-[var(--color-border-subtle)] pt-6">
+            <span class="pos">see also</span>
+            {entry.links.map((link, i) => (
+              <>
+                {i > 0 && <span class="mx-2 text-[var(--color-text-3)]" aria-hidden="true">·</span>}
+                <a href={link.href}>{link.label}</a>
+              </>
+            ))}
+          </p>
+        )}
+      </div>
+
+      <nav class="mt-14 grid gap-3 border-t border-[var(--color-border)] pt-6 sm:grid-cols-2" aria-label="Entry navigation">
+        {prev ? (
+          <a
+            href={`/news/${prev.slug}`}
+            class="group rounded-lg border border-[var(--color-border)] p-4 transition-colors hover:border-[var(--color-accent)]"
+          >
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-text-3)]">← Older</p>
+            <p class="mt-1.5 text-sm font-medium text-[var(--color-text)] group-hover:text-[var(--color-accent)]">{prev.title}</p>
+          </a>
+        ) : (
+          <span aria-hidden="true"></span>
+        )}
+        {next && (
+          <a
+            href={`/news/${next.slug}`}
+            class="group rounded-lg border border-[var(--color-border)] p-4 text-right transition-colors hover:border-[var(--color-accent)] sm:col-start-2"
+          >
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-text-3)]">Newer →</p>
+            <p class="mt-1.5 text-sm font-medium text-[var(--color-text)] group-hover:text-[var(--color-accent)]">{next.title}</p>
+          </a>
+        )}
+      </nav>
+    </div>
+  </section>
+</BaseLayout>

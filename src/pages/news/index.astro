@@ -1,0 +1,88 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import { NEWS, type NewsEntry } from '~/data/news'
+
+const kindLabel: Record<NewsEntry['kind'], string> = {
+  release: 'release',
+  event: 'event',
+}
+
+const fmt = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
+---
+
+<BaseLayout
+  title="News & releases"
+  description="Kotoshu releases and events, newest first — every channel: the Ruby gem, Python and JavaScript packages, the Rust core, models, and the site."
+>
+  <Fragment slot="head">
+    <link rel="alternate" type="application/rss+xml" title="Kotoshu — news" href="/news/rss.xml" />
+    <link rel="alternate" type="application/atom+xml" title="Kotoshu — news" href="/news/atom.xml" />
+  </Fragment>
+
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="報せ" />
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <SectionHeading
+        jp="報せ"
+        eyebrow="News"
+        title="The record, newest first"
+        lead="Releases and events across every channel — dated from the registries and the repository history, never guessed."
+      />
+      <p class="mx-auto mt-6 flex items-center justify-center gap-4 font-mono text-[11px] tracking-wide text-[var(--color-text-3)]">
+        <span>follow:</span>
+        <a href="/news/rss.xml" class="text-[var(--color-accent)] hover:underline">RSS</a>
+        <span aria-hidden="true">·</span>
+        <a href="/news/atom.xml" class="text-[var(--color-accent)] hover:underline">Atom</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="dict-banner animate-in"><span lang="ja">報</span> news · {NEWS.length} entries</p>
+
+      <div class="mt-6">
+        {NEWS.map((entry, i) => (
+          <article class="dict-entry group animate-in" style={`transition-delay:${Math.min(i, 5) * 40}ms`}>
+            <span class="dict-headword">{entry.date}</span>
+            <div>
+              <h2 class="dict-sense">
+                <a
+                  href={`/news/${entry.slug}`}
+                  class="font-semibold text-[var(--color-text)] decoration-[var(--color-accent)] decoration-2 underline-offset-4 hover:underline"
+                >
+                  {entry.title}
+                </a>
+              </h2>
+              <p class="mt-1 text-[15px] leading-7 text-[var(--color-text-2)]">{entry.summary}</p>
+              <p class="dict-anno">
+                <span class="mr-2 inline-block rounded-full bg-[var(--color-gold-soft)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-gold)]">
+                  {kindLabel[entry.kind]}
+                </span>
+                <span class="group-hover:text-[var(--color-accent)] transition-colors">{fmt(entry.date)}</span>
+                <span class="mx-2" aria-hidden="true">—</span>
+                <a href={`/news/${entry.slug}`} class="hover:text-[var(--color-accent)] hover:underline">read the entry →</a>
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="mt-14 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-6 text-center">
+        <p class="text-sm text-[var(--color-text-2)]">
+          Want the artifacts themselves? The <a href="/install" class="text-[var(--color-accent)] hover:underline">install page</a>
+          lists every channel — gem, wheel, npm, crate, Docker — one command each.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
