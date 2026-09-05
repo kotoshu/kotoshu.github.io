@@ -30,6 +30,15 @@ export const LANGUAGE_STATS = {
   detectionLanguages: 176,
 } as const
 
+/** Languages with a semantic model in the models registry — mirror of
+ *  models-fasttext-onnx registry v1.1.0 (22 languages x 3 tiers).
+ *  The gem resolves models registry-driven at setup time, so this list
+ *  is presentation truth, not engine truth. */
+export const MODEL_LANGUAGES: string[] = [
+  'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'fr', 'hu', 'it', 'ja',
+  'ko', 'nl', 'pl', 'pt', 'ro', 'ru', 'sv', 'tr', 'uk', 'vi', 'zh',
+]
+
 export const LANGUAGE_ROADMAP: { title: string; detail: string }[] = [
   {
     title: 'CJK morphological support',
