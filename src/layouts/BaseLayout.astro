@@ -34,6 +34,7 @@ const fullTitle = title === SITE.name ? `${SITE.name} 「言修」 — ${SITE.me
     <meta property="og:image" content="/assets/kotoshu-logo_logo-light.png" />
     <meta name="twitter:card" content="summary" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <slot name="head" />
     <script is:inline>
       // Apply theme before paint. data-theme drives the Tailwind 4
       // custom dark variant and the token overrides in global.css.

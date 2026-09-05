@@ -6,7 +6,14 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   site: 'https://www.kotoshu.org',
   output: 'static',
-  integrations: [vue(), sitemap()],
+  integrations: [
+    vue(),
+    sitemap({
+      // Pages only — the news feeds and the sitemap itself stay out of
+      // the URL list.
+      filter: (page) => !page.endsWith('.xml'),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

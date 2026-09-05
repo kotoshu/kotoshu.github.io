@@ -3,6 +3,7 @@ import { PROJECTS } from './projects'
 import { AUDIENCES } from './audiences'
 import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_ROADMAP } from './languages'
 import { DOCS_PAGES, docsPath } from './docs'
+import { NEWS } from './news'
 
 export interface SearchEntry {
   id: string
@@ -79,7 +80,27 @@ export function buildSearchIndex(): SearchEntry[] {
         'Try Kotoshu in the browser — point the playground at any running kotoshu-server and see live diagnostics.',
       keywords: 'playground demo try browser live server',
     },
+    {
+      id: 'page-news',
+      url: '/news',
+      title: 'News & releases',
+      section: 'Pages',
+      description:
+        'Kotoshu releases and events, newest first — the gem, Python and JavaScript packages, the Rust core, models, keyless publishing.',
+      keywords: 'news releases changelog announcements rss atom feed versions 0.7.0 0.1.0',
+    },
   )
+
+  for (const entry of NEWS) {
+    entries.push({
+      id: `news-${entry.slug}`,
+      url: `/news/${entry.slug}`,
+      title: entry.title,
+      section: 'News',
+      description: entry.summary,
+      keywords: `${entry.date} ${entry.kind} release`,
+    })
+  }
 
   for (const p of PROJECTS) {
     entries.push({
