@@ -77,8 +77,8 @@ export function buildSearchIndex(): SearchEntry[] {
       title: 'Playground',
       section: 'Pages',
       description:
-        'Try Kotoshu in the browser — point the playground at any running kotoshu-server and see live diagnostics.',
-      keywords: 'playground demo try browser live server',
+        'Try the engine in the browser with zero install — wasm engine and dictionary load from a CDN and checking runs on the page.',
+      keywords: 'playground demo try browser live wasm zero install offline dictionary underline suggestions',
     },
     {
       id: 'page-news',
@@ -88,6 +88,15 @@ export function buildSearchIndex(): SearchEntry[] {
       description:
         'Kotoshu releases and events, newest first — the gem, Python and JavaScript packages, the Rust core, models, keyless publishing.',
       keywords: 'news releases changelog announcements rss atom feed versions 0.7.0 0.1.0',
+    },
+    {
+      id: 'page-playground-server',
+      url: '/playground/server',
+      title: 'Server playground',
+      section: 'Pages',
+      description:
+        'The full pipeline against a live kotoshu-server — document checking, language detection, semantic reranking.',
+      keywords: 'playground server live kotoshu-server document checking semantic reranking iframe',
     },
   )
 

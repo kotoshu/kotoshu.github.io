@@ -55,6 +55,9 @@ const featured = PROJECTS.filter((p) => p.featured)
         >
           Get started
         </a>
+        <a href="/playground" class="text-[var(--color-text-2)] hover:text-[var(--color-accent)] transition-colors">
+          Try it in the browser →
+        </a>
         <a href="/projects" class="text-[var(--color-text-2)] hover:text-[var(--color-accent)] transition-colors">
           Explore the ecosystem →
         </a>
@@ -74,7 +77,7 @@ const featured = PROJECTS.filter((p) => p.featured)
       <div class="mx-auto mt-12 max-w-3xl">
         <DemoPanel client:visible />
         <p class="mt-4 text-center text-xs text-[var(--color-text-3)]">
-          Want the real thing against a running server? Try the <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground</a>.
+          No install at all? The <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground</a> runs the engine itself in your browser — or point one at <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">your own server</a>.
         </p>
       </div>
     </div>

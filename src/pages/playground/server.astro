@@ -1,0 +1,44 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import VerticalAccent from '~/components/VerticalAccent.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+---
+
+<BaseLayout
+  title="Server playground"
+  description="Try Kotoshu against a live kotoshu-server — document checking, suggestions, and language detection over the full pipeline, including semantic reranking."
+>
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <VerticalAccent text="実験" />
+    <div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-20 pb-12">
+      <SectionHeading
+        jp="実験"
+        eyebrow="Server playground"
+        title="Try it against a live server"
+        lead="The full pipeline — document checking, language detection, and semantic reranking with the FastText-ONNX models — over /v1/check, from your own kotoshu-server."
+      />
+      <p class="mx-auto mt-6 max-w-2xl text-center text-xs leading-6 text-[var(--color-text-3)]">
+        The in-browser demo on the <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground page</a>
+        needs no server — dictionary engine only. This one needs a server running:
+        <code class="font-mono text-[var(--color-accent)]">git clone https://github.com/kotoshu/kotoshu-server</code>
+        then <code class="font-mono text-[var(--color-accent)]">bundle exec exe/kotoshu-server</code> — see the
+        <a href="/docs/clients/http" class="text-[var(--color-accent)] hover:underline">HTTP guide</a>.
+        <a href="/playground/app/" class="text-[var(--color-accent)] hover:underline">Open standalone ↗</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+      <div class="overflow-hidden rounded-xl border border-[var(--color-border)]">
+        <iframe
+          src="/playground/app/"
+          title="Kotoshu server playground"
+          class="h-[75vh] w-full bg-white dark:bg-[#0b0d0a]"
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
