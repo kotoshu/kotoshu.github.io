@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'models-v1-1-0',
+    date: '2026-09-05',
+    kind: 'release',
+    title: 'Semantic models: 22 languages',
+    summary:
+      'The models registry grows from 9 to 22 languages — thirteen new FastText reranking tiers shipped behind the same eval gates.',
+    senses: [
+      'Registry v1.1.0 adds ca, cs, da, el, hu, it, nl, pl, ro, sv, tr, uk, and vi — every batch-one language whose dictionary exists — for a total of 22 languages × 3 tiers, 66 registry resources.',
+      'The gates did not move: every fluency tier holds rank correlation 0.9999 with top-1 ≥ 0.958; every mini tier is near-lossless. A language that fails gates ships nothing.',
+      'The keyboard-aware eval grew with them — QWERTY/QWERTZ supplements plus curated Turkish-Q, Ukrainian ЙЦУКЕН, and Greek-phonetic noise grids — so newcomer languages are judged on their own keyboards.',
+      'The released registry.json is byte-identical to the committed one: local rebuilds reproduce the CI sha256 exactly, so future expansions are verifiable, not trusted.',
+    ],
+    links: [
+      { label: 'models-fasttext-onnx v1.1.0', href: 'https://github.com/kotoshu/models-fasttext-onnx/releases/tag/v1.1.0' },
+      { label: 'Language matrix', href: '/languages' },
+    ],
+  },
+  {
     slug: 'keyless-publishing',
     date: '2026-09-05',
     kind: 'event',

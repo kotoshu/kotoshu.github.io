@@ -8,6 +8,7 @@ import {
   LANGUAGE_STATS,
   LANGUAGE_ROADMAP,
   FULL_FEATURE_INCLUDES,
+  MODEL_LANGUAGES,
 } from '~/data/languages'
 ---
 
@@ -79,6 +80,30 @@ import {
           </span>
         ))}
       </div>
+    </div>
+  </section>
+
+  <!-- Semantic models -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="eyebrow mb-8 animate-in"><span class="jp" lang="ja">意味</span>Semantic models — {MODEL_LANGUAGES.length} languages</p>
+      <p class="max-w-2xl text-sm leading-7 text-[var(--color-text-2)] animate-in">
+        FastText ONNX reranking models, three tiers each, resolved from the
+        models registry at setup time — any language in this list runs
+        <code class="font-mono text-xs text-[var(--color-accent)]">kotoshu setup LANG --model</code>.
+        Every tier ships behind the same keyboard-aware eval gates.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3 animate-in">
+        {MODEL_LANGUAGES.map((code) => (
+          <span class="flex items-baseline gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-inset)] px-4 py-2">
+            <span class="font-mono text-xs uppercase tracking-wider text-[var(--color-gold)]">{code}</span>
+          </span>
+        ))}
+      </div>
+      <p class="mt-6 text-[13px] leading-6 text-[var(--color-text-3)] animate-in">
+        Full-feature languages get dictionary, model, keyboard, and detection composed;
+        the rest pair a staged dictionary with the model until their language module is wired.
+      </p>
     </div>
   </section>
 
