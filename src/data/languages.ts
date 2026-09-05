@@ -6,12 +6,25 @@ export interface FullLanguage {
 }
 
 export const FULL_LANGUAGES: FullLanguage[] = [
+  { code: 'ca', name: 'Catalan', native: 'Català', keyboards: 'Catalan-QWERTY' },
+  { code: 'cs', name: 'Czech', native: 'Čeština', keyboards: 'Czech-QWERTZ' },
+  { code: 'da', name: 'Danish', native: 'Dansk', keyboards: 'Danish-QWERTY' },
   { code: 'de', name: 'German', native: 'Deutsch', keyboards: 'QWERTZ' },
+  { code: 'el', name: 'Greek', native: 'Ελληνικά', keyboards: 'Greek-Phonetic' },
   { code: 'en', name: 'English', native: 'English', keyboards: 'QWERTY' },
   { code: 'es', name: 'Spanish', native: 'Español', keyboards: 'QWERTY' },
   { code: 'fr', name: 'French', native: 'Français', keyboards: 'AZERTY' },
+  { code: 'hu', name: 'Hungarian', native: 'Magyar', keyboards: 'Hungarian-QWERTZ' },
+  { code: 'it', name: 'Italian', native: 'Italiano', keyboards: 'Italian-QWERTY' },
+  { code: 'nl', name: 'Dutch', native: 'Nederlands', keyboards: 'Dutch-QWERTY' },
+  { code: 'pl', name: 'Polish', native: 'Polski', keyboards: 'Polish-QWERTY' },
   { code: 'pt', name: 'Portuguese', native: 'Português', keyboards: 'QWERTY' },
+  { code: 'ro', name: 'Romanian', native: 'Română', keyboards: 'Romanian-QWERTY' },
   { code: 'ru', name: 'Russian', native: 'Русский', keyboards: 'JCUKEN' },
+  { code: 'sv', name: 'Swedish', native: 'Svenska', keyboards: 'Swedish-QWERTY' },
+  { code: 'tr', name: 'Turkish', native: 'Türkçe', keyboards: 'Turkish-Q' },
+  { code: 'uk', name: 'Ukrainian', native: 'Українська', keyboards: 'Ukrainian-JCUKEN' },
+  { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt', keyboards: 'Vietnamese-QWERTY' },
 ]
 
 export const FREQUENCY_LANGUAGES: { code: string; name: string }[] = [
@@ -42,9 +55,9 @@ export interface PlaygroundLanguage {
  *  engine-worker.ts) minus CJK — ja and zh have no Hunspell files; their
  *  checking rides the gem tokenizer — and minus the over-budget giants
  *  (he 5.8, nb 5.4, tr 9.4, uk 8.7, ko 14, el 19 MB), which stay
- *  gem-only until the CDN story changes. The six full-feature languages
- *  lead the list; the rest load the same staged files the gem downloads
- *  at setup. Dictionary-only behavior — no model in wasm yet. */
+ *  gem-only until the CDN story changes. Everything loads the same
+ *  staged files the gem downloads at setup. Dictionary-only behavior —
+ *  no model in wasm yet. */
 export const PLAYGROUND_LANGUAGES: PlaygroundLanguage[] = [
   { code: 'bg', native: 'Български' },
   { code: 'ca', native: 'Català' },
@@ -80,13 +93,18 @@ export const PLAYGROUND_LANGUAGES: PlaygroundLanguage[] = [
   { code: 'vi', native: 'Tiếng Việt' },
 ]
 
-/** Languages with a semantic model in the models registry — mirror of
- *  models-fasttext-onnx registry v1.1.0 (22 languages x 3 tiers).
- *  The gem resolves models registry-driven at setup time, so this list
- *  is presentation truth, not engine truth. */
+/** Languages with a semantic model in the models registry — the exact
+ *  roster of models-fasttext-onnx registry v1.2.0 (54 languages x 3
+ *  tiers, 162 registry resources; unique language codes extracted from
+ *  its kotoshu://models/<lang>/<tier> resource keys). The gem resolves
+ *  models registry-driven at setup time, so this list is presentation
+ *  truth, not engine truth. */
 export const MODEL_LANGUAGES: string[] = [
-  'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'fr', 'hu', 'it', 'ja',
-  'ko', 'nl', 'pl', 'pt', 'ro', 'ru', 'sv', 'tr', 'uk', 'vi', 'zh',
+  'ar', 'bg', 'br', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es',
+  'et', 'eu', 'fa', 'fr', 'fy', 'ga', 'gd', 'gl', 'he', 'hr', 'hu', 'hy',
+  'ia', 'id', 'is', 'it', 'ja', 'ka', 'ko', 'la', 'lb', 'lt', 'lv', 'mk',
+  'mn', 'ne', 'nl', 'nn', 'oc', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sr',
+  'sv', 'tk', 'tr', 'uk', 'vi', 'zh',
 ]
 
 export const LANGUAGE_ROADMAP: { title: string; detail: string }[] = [
@@ -109,14 +127,14 @@ export const LANGUAGE_ROADMAP: { title: string; detail: string }[] = [
 
 /** Languages with a published Kelly frequency list (frequency-list-kelly
  *  manifest: ar, el, en, it, no, ru, sv, zh). Among full-feature
- *  languages that is en and ru; the rest of the six rank via dictionary
- *  and model until a list is published. */
+ *  languages those are el, en, it, ru, and sv; the rest rank via
+ *  dictionary and model until a list is published. */
 export const KELLY_LANGUAGES: string[] = ['ar', 'el', 'en', 'it', 'no', 'ru', 'sv', 'zh']
 
 export const FULL_FEATURE_INCLUDES = [
   'Hunspell dictionary with affix morphology and compounding',
   'FastText ONNX embedding model for semantic reranking',
-  'Keyboard-layout proximity suggestions (QWERTY / QWERTZ / AZERTY / JCUKEN)',
-  'Kelly frequency ranking where a list is published (English, Russian)',
+  'Keyboard-layout proximity suggestions across 19 layouts (QWERTY, QWERTZ, AZERTY, JCUKEN, Turkish-Q, Greek-Phonetic, and the Nordic and programmer Latin grids)',
+  'Kelly frequency ranking where a list is published (English, Greek, Italian, Russian, Swedish)',
   'Automatic detection from document content',
 ]

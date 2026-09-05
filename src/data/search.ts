@@ -1,7 +1,7 @@
 import { SITE, NAV } from './site'
 import { PROJECTS } from './projects'
 import { AUDIENCES } from './audiences'
-import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_ROADMAP } from './languages'
+import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_ROADMAP, MODEL_LANGUAGES } from './languages'
 import { DOCS_PAGES, docsPath } from './docs'
 import { NEWS } from './news'
 
@@ -58,8 +58,7 @@ export function buildSearchIndex(): SearchEntry[] {
       url: '/languages',
       title: 'Languages — what we support',
       section: 'Pages',
-      description:
-        'Six full-feature languages, frequency data for six more, 98 staged dictionaries, automatic detection in 176 languages, and the roadmap.',
+      description: `${FULL_LANGUAGES.length} full-feature languages, semantic models for ${MODEL_LANGUAGES.length}, frequency data for ${FREQUENCY_LANGUAGES.length} more, 98 staged dictionaries, automatic detection in 176 languages, and the roadmap.`,
       keywords: 'languages support german english spanish french portuguese russian detection matrix roadmap cjk rtl',
     },
     {

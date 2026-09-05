@@ -32,6 +32,42 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'models-v1-2-0',
+    date: '2026-09-05',
+    kind: 'release',
+    title: 'Semantic models: 54 languages',
+    summary:
+      'The models registry grows from 22 to 54 languages — 32 shipped, the first right-to-left languages among them — behind unchanged eval gates.',
+    senses: [
+      'Registry v1.2.0 ships 32 new languages × 3 tiers for a total of 54 languages and 162 registry resources. Arabic, Persian, and Hebrew arrive as the registry’s first right-to-left languages, with new dictionaries verified against upstream license headers where none existed.',
+      'The gates did not move — fluency at rank correlation 0.97 / top-1 0.95 and mini at 0.90 / 0.85, never weakened — and the whole batch clears them comfortably (fluency 0.9999–1.0000 correlation, mini near-lossless). The keyboard-aware eval grew ten more curated national grids so the newcomers are judged on their own keyboards.',
+      'Not everything that converts ships. nds passed both gates but is ISO 639-2 only and the registry’s language contract is two-letter codes; fi has no license-clear Hunspell source upstream; fo, rw, ie, fur, and tlh have no fastText Common Crawl vectors at all. Every drop is recorded with its reason in the README.',
+      'The candidate pool is now exhausted: every convertible language either ships or is dropped for a stated reason, so the coverage backlog is empty. What remains — the no→nb/nn alias, fi sourcing, the nds Resource Spec call — is an owner decision, not pending work.',
+    ],
+    links: [
+      { label: 'models-fasttext-onnx v1.2.0', href: 'https://github.com/kotoshu/models-fasttext-onnx/releases/tag/v1.2.0' },
+      { label: 'Language matrix', href: '/languages' },
+    ],
+  },
+  {
+    slug: 'full-feature-19',
+    date: '2026-09-05',
+    kind: 'release',
+    title: 'Nineteen full-feature languages',
+    summary:
+      'Thirteen language modules and a wave of keyboard layouts land in the gem — full feature grows from six languages to nineteen.',
+    senses: [
+      'Language modules for ca, cs, da, el, hu, it, nl, pl, ro, sv, tr, uk, and vi — thin compositions over the shared Latin tokenizer and normalizer, with real care where the script demands it: Turkish dotless-i case folding, Greek final-sigma and accent normalization, and Greek and Cyrillic script tokenizers that keep non-Latin words whole.',
+      'Keyboard layouts grow from five to nineteen: the Turkish-Q, Ukrainian-JCUKEN, and Greek-Phonetic national grids are mirrored from the models-repo eval harness with a drift spec guarding the mirror, and an eleven-member Latin family carries the real Nordic å/æ/ø and å/ä/ö keys over the qwerty and qwertz base grids.',
+      'The CLI learns directory mode — `kotoshu check DIR` walks trees, honors `.gitignore` and `.ignore`, and applies baselines per file — with baselines wired into CI so existing errors never block a build while new ones still fail it.',
+      'Framework integrations with no new runtime dependencies: a Rails/ActiveModel spelling validator, RSpec matchers that print each misspelling with its suggestions, a Rake task over repository text files, and a Jekyll generator that fails the build on new spelling errors.',
+    ],
+    links: [
+      { label: 'kotoshu — CHANGELOG', href: 'https://github.com/kotoshu/kotoshu/blob/main/CHANGELOG.md' },
+      { label: 'Language matrix', href: '/languages' },
+    ],
+  },
+  {
     slug: 'models-v1-1-0',
     date: '2026-09-05',
     kind: 'release',
