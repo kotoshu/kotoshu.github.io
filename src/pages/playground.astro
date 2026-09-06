@@ -209,6 +209,19 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
 
   const kib = (n: number) => `${Math.max(1, Math.round(n / 1024))} KiB`
   let progressHideTimer = 0
+
+  // The idle line the status returns to whenever no load or sweep is in
+  // flight — the misspelling count once checking has run.
+  let idleStatus = 'loading engine…'
+  const PHASE_LABEL: Record<string, string> = {
+    engine: 'engine',
+    dictionary: 'dictionary',
+    semantic: 'semantic',
+  }
+  const setStatus = (text: string, busy = false) => {
+    el.status.textContent = text
+    el.dot.classList.toggle('lab-dot-busy', busy)
+  }
   // The readout is the inventory: exactly what is resident in this
   // tab, where each artifact came from, and how big it is.
   const updateReadout = () => {
@@ -247,18 +260,30 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       dictCached?: boolean
       modelCached?: boolean
       kind?: string
+      phase?: string
       loaded?: number
       total?: number
+      ms?: number
+      sweepMs?: number
+      edit1Ms?: number
+      semanticMs?: number
+      rerankMs?: number
+      semantic?: boolean
     }
 
     if (m.type === 'load-progress') {
       const loaded = m.loaded ?? 0
       const total = m.total ?? 0
+      const unknown = total === 0
       el.progress.classList.remove('hidden')
       el.progress.classList.add('flex')
-      const pct = total > 0 ? Math.min(100, (loaded / total) * 100) : 0
-      el.progressFill.style.width = total > 0 ? `${pct.toFixed(1)}%` : '100%'
-      el.progressLabel.textContent = `${m.kind ?? ''} ${kib(loaded)}${total > 0 ? ` / ${kib(total)}` : ''}`
+      const pct = unknown ? 100 : Math.min(100, (loaded / total) * 100)
+      el.progressFill.style.width = `${pct.toFixed(1)}%`
+      el.progressFill.classList.toggle('lab-progress-indet', unknown)
+      const phase = PHASE_LABEL[m.phase ?? ''] ?? 'load'
+      el.progressLabel.textContent =
+        `${phase} · ${m.kind ?? ''} ` +
+        (unknown ? `${kib(loaded)} · ?` : `${kib(loaded)} / ${kib(total)}`)
       clearTimeout(progressHideTimer)
       progressHideTimer = window.setTimeout(() => {
         el.progress.classList.add('hidden')
@@ -276,6 +301,8 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         `engine ${m.engineVersion} ready — ${m.lang} loaded in ${m.loadMs} ms` +
         (m.dictCached ? ' (dictionary from cache)' : '')
       el.dot.style.background = 'var(--color-accent)'
+      el.dot.classList.remove('lab-dot-busy')
+      idleStatus = el.status.textContent
       updateReadout()
       scheduleCheck(0)
       // The checkbox survives language switches - re-request the new
@@ -289,6 +316,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary + semantic'
         el.tier.title = 'Semantic reranking on - candidates are reordered by the mini embedding tier running in the worker.'
         el.status.textContent = `semantic reranking on — ${m.lang} mini tier resident, ${kib(modelBytes)}`
+        idleStatus = el.status.textContent
         updateReadout()
       } else if (m.state === 'loading') {
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary + semantic…'
@@ -299,12 +327,14 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary'
         el.tier.title = 'Semantic model unavailable - mirror unreachable or no mini tier for this language. Dictionary-only.'
         el.status.textContent = `semantic model unavailable — ${m.detail ?? 'mirror unreachable'} · dictionary-only`
+        idleStatus = el.status.textContent
         updateReadout()
       } else if (semanticReady || modelBytes > 0) {
         semanticReady = false
         modelBytes = 0
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary'
         el.status.textContent = 'semantic reranking off — model memory freed'
+        idleStatus = el.status.textContent
         updateReadout()
       }
     } else if (m.type === 'load-error') {
@@ -313,13 +343,28 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       el.dot.style.background = '#c0392b'
     } else if (m.type === 'checked') {
       misspelled = new Set(m.words ?? [])
+      const n = misspelled.size
+      idleStatus =
+        n === 0
+          ? `no misspellings · ${m.ms ?? 0} ms`
+          : `${n} misspelled · ${m.ms ?? 0} ms`
+      updateSuggestStatus()
       render()
       renderPane()
     } else if (m.type === 'suggested') {
-      if (popRange && el.popWord.textContent === m.word) renderSuggestions(m.suggestions ?? [])
+      const timing = {
+        sweepMs: m.sweepMs ?? 0,
+        edit1Ms: m.edit1Ms ?? 0,
+        semanticMs: m.semanticMs ?? 0,
+        rerankMs: m.rerankMs ?? 0,
+        semantic: m.semantic ?? false,
+      }
+      if (popRange && el.popWord.textContent === m.word) renderSuggestions(m.suggestions ?? [], timing)
       if (paneRequests.has(m.word ?? '')) {
         paneRequests.delete(m.word ?? '')
+        paneDone++
         fillPaneItem(m.word ?? '', m.suggestions ?? [])
+        updateSuggestStatus()
       }
     }
   })
@@ -339,7 +384,10 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
 
   function scheduleCheck(delay = 150) {
     clearTimeout(debounce)
-    debounce = setTimeout(() => worker.postMessage({ type: 'check', text: el.text.value }), delay)
+    debounce = setTimeout(() => {
+      setStatus(`checking text…`, true)
+      worker.postMessage({ type: 'check', text: el.text.value })
+    }, delay)
   }
 
   function render() {
@@ -369,6 +417,18 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   // — misspellings pane ————————————————————————
 
   let paneRequests = new Set<string>()
+  let paneTotal = 0
+  let paneDone = 0
+
+  // The status line while the pane fills: how many sweeps are back. Falls
+  // back to the idle line (misspelling count) when the queue drains.
+  function updateSuggestStatus() {
+    if (paneTotal > 0 && paneDone < paneTotal) {
+      setStatus(`suggesting — ${paneDone}/${paneTotal} words…`, true)
+    } else {
+      setStatus(idleStatus)
+    }
+  }
 
   function renderPane() {
     el.paneList.replaceChildren()
@@ -379,6 +439,8 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       p.className = 'px-3.5 py-3 font-mono text-[11px] text-[var(--color-text-3)]'
       p.textContent = 'nothing misspelled'
       el.paneList.append(p)
+      paneTotal = 0
+      paneDone = 0
       return
     }
     const text = el.text.value
@@ -402,7 +464,6 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       head.append(w, ln)
       const senses = document.createElement('div')
       senses.className = 'mt-1 flex flex-wrap gap-1.5'
-      senses.textContent = '…'
       senses.dataset.role = 'senses'
       li.append(head, senses)
       li.addEventListener('click', (event) => {
@@ -410,38 +471,62 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         jumpToWord(start)
       })
       el.paneList.append(li)
-      if (paneRequests.size < 12) {
+      if (paneRequests.size < 12 && !paneRequests.has(word)) {
         paneRequests.add(word)
+        // A live sweep indicator per item — the worker answers one word
+        // at a time, so this is where the wait is visible.
+        const spin = document.createElement('span')
+        spin.className = 'lab-spinner size-2.5 shrink-0'
+        const lbl = document.createElement('span')
+        lbl.className = 'font-mono text-[10.5px] text-[var(--color-text-3)]'
+        lbl.textContent = 'sweeping…'
+        senses.append(spin, lbl)
         worker.postMessage({ type: 'suggest', word, context: contextWindow(start) })
+      } else if (paneRequests.size >= 12 && !paneRequests.has(word)) {
+        // Beyond the request cap: the word is still flagged and clickable
+        // — the popover sweeps it on click — but no spinner, because no
+        // sweep is coming for this row.
+        const lbl = document.createElement('span')
+        lbl.className = 'font-mono text-[10.5px] text-[var(--color-text-3)]'
+        lbl.textContent = '· · ·'
+        lbl.title = 'suggestions here are capped at 12 words — click the word in the editor for its full sweep'
+        senses.append(lbl)
       }
     }
+    paneTotal = paneRequests.size
+    paneDone = 0
+    updateSuggestStatus()
   }
 
   function fillPaneItem(word: string, suggestions: Suggestion[]) {
-    const li = el.paneList.querySelector<HTMLElement>(`li[data-word="${CSS.escape(word)}"]`)
-    if (!li) return
-    const senses = li.querySelector<HTMLElement>('[data-role="senses"]')!
-    senses.replaceChildren()
-    if (suggestions.length === 0) {
-      senses.className = 'mt-1 font-mono text-[10.5px] text-[var(--color-text-3)]'
-      senses.textContent = 'no suggestions'
-      return
-    }
-    senses.className = 'mt-1 flex flex-wrap gap-1.5'
-    for (const s of suggestions.slice(0, 3)) {
-      const btn = document.createElement('button')
-      btn.className =
-        'rounded-md border border-[var(--color-border)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--color-accent)] hover:border-[var(--color-accent)]'
-      btn.dataset.role = 'mend'
-      btn.textContent = s.word
-      btn.addEventListener('click', () => {
-        const start = Number(li.dataset.start ?? 0)
-        const span = spanAt(start)
-        if (!span) return
-        popRange = { start, end: start + word.length }
-        apply(s.word)
-      })
-      senses.append(btn)
+    // One word can sit in several rows (duplicates) — fill them all.
+    const rows = [...el.paneList.querySelectorAll<HTMLElement>(`li[data-word="${CSS.escape(word)}"]`)]
+    for (const li of rows) {
+      const senses = li.querySelector<HTMLElement>('[data-role="senses"]')!
+      senses.replaceChildren()
+      senses.className =
+        suggestions.length === 0
+          ? 'mt-1 font-mono text-[10.5px] text-[var(--color-text-3)]'
+          : 'mt-1 flex flex-wrap gap-1.5'
+      if (suggestions.length === 0) {
+        senses.textContent = 'no suggestions'
+        continue
+      }
+      for (const s of suggestions.slice(0, 3)) {
+        const btn = document.createElement('button')
+        btn.className =
+          'rounded-md border border-[var(--color-border)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--color-accent)] hover:border-[var(--color-accent)]'
+        btn.dataset.role = 'mend'
+        btn.textContent = s.word
+        btn.addEventListener('click', () => {
+          const start = Number(li.dataset.start ?? 0)
+          const span = spanAt(start)
+          if (!span) return
+          popRange = { start, end: start + word.length }
+          apply(s.word)
+        })
+        senses.append(btn)
+      }
     }
   }
 
@@ -468,14 +553,16 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     el.pop.classList.add('pointer-events-none')
     el.pop.classList.remove('pointer-events-auto')
     popRange = null
+    stopPopTicker()
   }
 
   function showPopoverFor(span: HTMLElement) {
     popRange = { start: Number(span.dataset.start), end: Number(span.dataset.end) }
     const word = span.textContent ?? ''
     el.popWord.textContent = word
-    el.popList.replaceChildren(thinkingRow())
+    el.popList.replaceChildren(thinkingRow(word))
     positionPopover(span)
+    setStatus(`sweeping for ${word}…`, true)
     worker.postMessage({ type: 'suggest', word, context: contextWindow(popRange.start) })
   }
 
@@ -488,10 +575,44 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     return tokens.slice(Math.max(0, i - 3), i + 4).map((match) => match[0]).join(' ')
   }
 
-  function thinkingRow() {
+  // The sweep can take real time (dictionary-wide); the ticker keeps the
+  // wait visibly alive instead of a static ellipsis.
+  let popTicker = 0
+
+  function stopPopTicker() {
+    if (popTicker) clearInterval(popTicker)
+    popTicker = 0
+  }
+
+  function thinkingRow(word: string) {
     const p = document.createElement('p')
     p.className = 'px-2 py-1.5 font-mono text-[11px] text-[var(--color-text-3)]'
-    p.textContent = 'sweeping the dictionary…'
+    p.textContent = `sweeping for ${word}…`
+    const t0 = performance.now()
+    stopPopTicker()
+    popTicker = window.setInterval(() => {
+      p.textContent = `sweeping for ${word}… ${Math.round(performance.now() - t0)} ms`
+    }, 100)
+    return p
+  }
+
+  interface SuggestTiming {
+    sweepMs: number
+    edit1Ms: number
+    semanticMs: number
+    rerankMs: number
+    semantic: boolean
+  }
+
+  function timingFooter(t: SuggestTiming) {
+    const parts: string[] = []
+    if (t.sweepMs) parts.push(`sweep ${t.sweepMs} ms`)
+    if (t.edit1Ms) parts.push(`near-miss ${t.edit1Ms} ms`)
+    if (t.semantic) parts.push(`semantic ${t.semanticMs} ms · rerank ${t.rerankMs} ms`)
+    if (parts.length === 0) return null
+    const p = document.createElement('p')
+    p.className = 'border-t border-[var(--color-border-subtle)] px-2 pb-1 pt-1.5 font-mono text-[9.5px] text-[var(--color-text-3)]'
+    p.textContent = parts.join(' · ')
     return p
   }
 
@@ -514,8 +635,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     el.pop.style.left = `${left}px`
   }
 
-  function renderSuggestions(suggestions: Suggestion[]) {
+  function renderSuggestions(suggestions: Suggestion[], timing?: SuggestTiming) {
     if (!popRange) return
+    stopPopTicker()
     el.popList.replaceChildren()
     if (suggestions.length === 0) {
       const none = document.createElement('p')
@@ -537,6 +659,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       btn.addEventListener('click', () => apply(s.word))
       el.popList.append(btn)
     }
+    const footer = timing ? timingFooter(timing) : null
+    if (footer) el.popList.append(footer)
+    setStatus(idleStatus)
   }
 
   function apply(replacement: string) {
