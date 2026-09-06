@@ -23,6 +23,11 @@ const fullTitle = title === SITE.name ? `${SITE.name} 「言修」 — ${SITE.me
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
+    <!-- Favicon tiers: Safari does not render SVG favicons, so PNG
+         comes first as the universal fallback; the scheme-aware SVGs
+         follow for browsers that support them. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/kotoshu-logo_logo-light.png" />
+    <link rel="apple-touch-icon" href="/assets/kotoshu-logo_logo-light.png" />
     <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: light)" href="/assets/kotoshu-logo_logo-light.svg" />
     <link rel="icon" type="image/svg+xml" media="(prefers-color-scheme: dark)" href="/assets/kotoshu-logo_logo-dark.svg" />
     <meta name="theme-color" content="#fbfbf8" media="(prefers-color-scheme: light)" />
