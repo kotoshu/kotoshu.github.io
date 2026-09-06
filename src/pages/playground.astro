@@ -62,6 +62,16 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
             <span id="lab-readout" class="ml-auto min-h-4 font-mono text-[10.5px] leading-4 tracking-wide text-[var(--color-text-3)]" aria-live="polite"></span>
         </div>
 
+        <!-- Load progress: spinner + byte-accurate bar while any
+             artifact streams (engine, dictionary, semantic pair) -->
+        <div id="lab-progress" class="hidden items-center gap-2.5 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-inset)] px-4 py-2">
+          <span id="lab-progress-spinner" class="lab-spinner size-3.5 shrink-0" aria-hidden="true"></span>
+          <div class="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-[var(--color-border)]">
+            <div id="lab-progress-fill" class="h-full w-0 rounded-full bg-[var(--color-gold)] transition-[width] duration-150"></div>
+          </div>
+          <span id="lab-progress-label" class="shrink-0 font-mono text-[10px] text-[var(--color-text-3)]"></span>
+        </div>
+
         <!-- Editor + misspellings pane: the pane lists every flagged word
              with suggestions, so nothing hides behind a click -->
         <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">
@@ -161,6 +171,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     lang: document.getElementById('lab-lang') as HTMLSelectElement,
     backdrop: document.getElementById('lab-backdrop')!,
     paneCount: document.getElementById('lab-pane-count')!,
+    progress: document.getElementById('lab-progress')!,
+    progressFill: document.getElementById('lab-progress-fill')!,
+    progressLabel: document.getElementById('lab-progress-label')!,
     paneList: document.getElementById('lab-pane-list')!,
     text: document.getElementById('lab-text') as HTMLTextAreaElement,
     wrap: document.getElementById('lab-wrap')!,
@@ -195,6 +208,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   let modelFromCache = false
 
   const kib = (n: number) => `${Math.max(1, Math.round(n / 1024))} KiB`
+  let progressHideTimer = 0
   // The readout is the inventory: exactly what is resident in this
   // tab, where each artifact came from, and how big it is.
   const updateReadout = () => {
@@ -232,9 +246,25 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       engineCached?: boolean
       dictCached?: boolean
       modelCached?: boolean
+      kind?: string
+      loaded?: number
+      total?: number
     }
 
-    if (m.type === 'loaded') {
+    if (m.type === 'load-progress') {
+      const loaded = m.loaded ?? 0
+      const total = m.total ?? 0
+      el.progress.classList.remove('hidden')
+      el.progress.classList.add('flex')
+      const pct = total > 0 ? Math.min(100, (loaded / total) * 100) : 0
+      el.progressFill.style.width = total > 0 ? `${pct.toFixed(1)}%` : '100%'
+      el.progressLabel.textContent = `${m.kind ?? ''} ${kib(loaded)}${total > 0 ? ` / ${kib(total)}` : ''}`
+      clearTimeout(progressHideTimer)
+      progressHideTimer = window.setTimeout(() => {
+        el.progress.classList.add('hidden')
+        el.progress.classList.remove('flex')
+      }, 1200)
+    } else if (m.type === 'loaded') {
       misspelled = new Set()
       langLoaded = m.lang ?? null
       engineBytes = m.engineBytes ?? 0
