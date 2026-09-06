@@ -32,6 +32,64 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-8-0',
+    date: '2026-09-06',
+    kind: 'release',
+    title: 'Ruby gem 0.8.0 — the integrations cut',
+    summary:
+      'The wave-1 gem reaches RubyGems — Unicode word detection for Greek and Cyrillic, directory-mode checking, baselines, inline ignores, and framework integrations for Rails, RSpec, Rake, and Jekyll.',
+    senses: [
+      'Ruby gem 0.8.0 puts the whole wave-1 program on RubyGems in one cut — the thirteen language modules and nineteen keyboard layouts, directory-mode checking, CI baselines, inline ignore directives, a pre-commit hook, and four framework integrations — with no new runtime dependencies anywhere. It also repairs remote `kotoshu setup` for staged languages (sublayout first, flat fallback), lets `kotoshu/tasks` and `kotoshu/jekyll` load standalone, and compares baseline paths canonically.',
+      'Unicode word detection is the headline fix: word extraction accepted only ASCII letters, so Greek and Ukrainian users could not check any text through the CLI. Extraction now follows the configured language’s tokenizer — Greek for `el`, Cyrillic for `uk` with the in-word apostrophe kept (Мар’яна), Latin capitals such as Å and Ä for Latin languages — while languages without a script tokenizer keep the historical behavior and the frozen conformance vectors are unchanged. Swedish dictionary loading is fixed alongside: `COMPOUNDRULE )k` uses `)` itself as a flag character, and every flag is now escaped at compile time so the affix reader no longer raises.',
+      'Directory mode — `kotoshu check DIR [DIR ...]` — checks every file with a known text extension under `--include` / `--exclude` control, honoring `.gitignore` and `.ignore` through a standard glob subset (last-match wins, anchoring, nested scoping; files inside ignored directories cannot be re-included) and skipping hidden files plus `.git`, `node_modules`, `vendor`, and `target` by default. JSON and SARIF emit one combined document with per-file entries, `--baseline` applies per file, and single-file and stdin behavior is byte-identical to before.',
+      'Ignores and baselines arrive as a pair: `kotoshu:disable-line`, `disable-next-line [WORDS]`, and the nestable `disable-file` / `enable-file` block are recognized in each format’s comment syntax, with suppressed words moving to `suppressed_errors` — listed by `--show-suppressed` and marked in result JSON and SARIF. `kotoshu baseline init` records existing debt count-based, so baselines survive reformatting; `check --baseline` lets covered errors pass, fails new ones, and reports stale entries as the debt shrinks.',
+      'The integrations are opt-in and dependency-free: an ActiveModel `SpellingValidator` that raises one validation error per misspelling with the top suggestion in the message (real ActiveModel standalone — Rails not required), RSpec matchers whose failures list each misspelling and its suggestions, a Rake task over repository text files, and a safe Jekyll generator that fails the build on new spelling errors while a `.kotoshu-baseline.json` in the site source keeps baselined debt from blocking builds. The pre-commit hook (id `kotoshu`, `language: system`) ships too — honestly documented as requiring Ruby and the gem on PATH.',
+      'Norwegian is not in this cut. The registry added nb at v1.3.0 today, but the gem-side `no` → `nb` alias and the Norwegian language module are next-cut work; 0.8.0’s thirteen new modules are the wave-1 thirteen and no more.',
+    ],
+    links: [
+      { label: 'kotoshu 0.8.0 on RubyGems', href: 'https://rubygems.org/gems/kotoshu/versions/0.8.0' },
+      { label: 'CHANGELOG', href: 'https://github.com/kotoshu/kotoshu/blob/main/CHANGELOG.md' },
+      { label: 'Integrations — docs', href: '/docs/integrations' },
+      { label: 'Ignores & baselines — docs', href: '/docs/ignores' },
+    ],
+  },
+  {
+    slug: 'wasm-0-2-0',
+    date: '2026-09-06',
+    kind: 'release',
+    title: 'Semantic reranking in the browser — @kotoshu/wasm 0.2.0',
+    summary:
+      'The wasm engine gains the semantic path — loadModel + rerank over the int8 tiers — and CORS-open mirrors put all 55 languages within reach of a browser tab.',
+    senses: [
+      '`loadModel(model_bytes, vocab_bytes)` loads an int8-per-row embedding tier — mini ~3 MB, fluency ~15 MB — from ONNX bytes plus its `.vocab.json` sibling, returning a `KotoshuModel` that is the wasm twin of the gem’s ONNX provider, scored in pure Rust. `rerank(model, word, context)` returns the mean-cosine context score in [-1, 1] — 0.0 when the word or every token is out of vocabulary — so suggestion lists can be reordered in the browser the way the server does it. TypeScript declarations ship in the package.',
+      'The mirrors make that fetchable: registry mirror URLs send `Access-Control-Allow-Origin: *` while GitHub release assets send no CORS header at all, so a browser tab can resolve a model tier for any of the 55 languages and pull it without a server in between. 0.2.0 was built and signed by the kotoshu-rs release workflow with a provenance attestation and zero dependencies.',
+      'The Ruby API got its hosted reference the same morning: the YARD documentation is live at kotoshu.github.io/kotoshu/ — served from the site domain, deployed from the gem repository’s main branch — and already covers the 0.8.0 surfaces: model tiers and the confidence cascade, inline ignores, CI baselines, and the pre-commit hook.',
+    ],
+    links: [
+      { label: '@kotoshu/wasm on npm', href: 'https://www.npmjs.com/package/@kotoshu/wasm' },
+      { label: 'kotoshu-rs', href: 'https://github.com/kotoshu/kotoshu-rs' },
+      { label: 'YARD API reference', href: 'https://kotoshu.github.io/kotoshu/' },
+    ],
+  },
+  {
+    slug: 'models-v1-3-0',
+    date: '2026-09-06',
+    kind: 'release',
+    title: 'Semantic models: 55 languages — nb arrives',
+    summary:
+      'The registry adds Norwegian Bokmål — nb converted from fastText’s cc.no while nn keeps cc.nn — for 55 languages and 165 tiered models behind the same eval gates.',
+    senses: [
+      'Registry v1.3.0 ships nb × 3 tiers — mini 2.9 MiB, fluency 14.5 MiB, full 114.4 MiB — bringing the registry to 55 languages, 165 resources, and 7.1 GiB at ONNX opset 11, behind the same measured per-tier evals that gate every other language.',
+      'fastText publishes no `cc.nb`: the nb models are converted from `cc.no` and carry Bokmål provenance — `models/nb/metadata.json` records the source URL and sha256 of `cc.no.300.vec` — while `nn` ships separately from `cc.nn`, so both written standards of Norwegian are in the registry under their own codes.',
+      'The registry itself carries no `no` entries: the ISO macro-language code resolves to `nb` on the engine side, and that alias — with the Norwegian language module — is next-cut gem work, not part of 0.8.0.',
+      'That answers the no→nb/nn question this record left as an owner decision at v1.2.0, and it exhausts the convertible pool: what remains — fi sourcing and the nds resource-spec call — is owner decision, not pending work.',
+    ],
+    links: [
+      { label: 'models-fasttext-onnx v1.3.0', href: 'https://github.com/kotoshu/models-fasttext-onnx/releases/tag/v1.3.0' },
+      { label: 'Language matrix', href: '/languages' },
+    ],
+  },
+  {
     slug: 'models-v1-2-0',
     date: '2026-09-05',
     kind: 'release',
