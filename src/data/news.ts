@@ -32,6 +32,23 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-9-0',
+    date: '2026-09-06',
+    kind: 'release',
+    title: 'Ruby gem 0.9.0 — Norwegian arrives, corruption fixed',
+    summary:
+      'nb and the no alias join the twenty language modules, and the long-reported remove_word corruption bug is fixed on RubyGems.',
+    senses: [
+      'Norwegian joins the module roster: registry v1.3.0 ships nb converted from fastText’s Bokmål-dominated cc.no while nn keeps cc.nn — and the gem now resolves both `nb` and the ISO macro-language `no` to the same Bokmål module, with å æ ø tokenizing as word characters through the shared Latin tokenizer.',
+      'The dictionary-mutation bugs first reported in PR #93 are fixed and released: remove_word deleted the wrong word after a prior removal, the PlainText length index drifted out of sync on add and remove, and the suggest hot path could download implicitly — it is now cache-only with offline mode enforced, and `KOTOSHU_OFFLINE` genuinely works through default configuration.',
+      'Also in the cut: `NearestNeighbor` accepts the full cosine range (in-vocabulary words no longer crash semantic analysis on rounding drift or true negatives), and the plan corpus — every TODO.impl record from 01 to 98 — is finally tracked in the repository.',
+    ],
+    links: [
+      { label: 'kotoshu 0.9.0 on RubyGems', href: 'https://rubygems.org/gems/kotoshu/versions/0.9.0' },
+      { label: 'CHANGELOG', href: 'https://github.com/kotoshu/kotoshu/blob/main/CHANGELOG.md' },
+    ],
+  },
+  {
     slug: 'gem-0-8-0',
     date: '2026-09-06',
     kind: 'release',
