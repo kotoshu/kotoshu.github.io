@@ -12,12 +12,12 @@
 // esm.sh's transform replaces the wasm import with uninstantiated
 // bytes — the class exists but every call throws. Loading the two
 // published files and instantiating them here is the delivery both
-// transforms were trying to produce. Pinned to the exact 0.3.0 -
-// the Damerau edit sweep (an adjacent swap is one step) plus the
-// loadModel/rerank pair and semanticSuggest the semantic layer uses.
+// transforms were trying to produce. Pinned to the exact 0.3.1 - the
+// Damerau edit sweep (an adjacent swap is one step), semanticSuggest,
+// and the indexed sweep that cut full-dictionary sweeps 10-200x.
 import { SEMANTIC_SUGGEST_K, mergeSemanticCandidates } from './semantic-merge'
 
-const WASM_VERSION = '0.3.0'
+const WASM_VERSION = '0.3.1'
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@kotoshu/wasm@${WASM_VERSION}`
 const GLUE_URL = `${WASM_BASE}/kotoshu_wasm_bg.js`
 
@@ -441,17 +441,69 @@ function rerankSuggestions(suggestions: Suggestion[], context: string): Suggesti
     .map((entry) => entry.row)
 }
 
+// - suggest queue ————————————————————————————
+// The pane sends ONE batch message for all its flagged words; the
+// popover sends priority singles. Words are swept one at a time here
+// (the engine is single-threaded) but with a yield between words, so a
+// click mid-batch jumps ahead of the remaining pane words. A fresh
+// batch drops the pending pane words it supersedes — the worker cache
+// makes any repeated word instant, so nothing is recomputed twice.
+interface SuggestTask {
+  word: string
+  context: string
+  priority: boolean
+}
+
+let suggestQueue: SuggestTask[] = []
+let draining = false
+
+function enqueueSuggest(tasks: SuggestTask[], replaceBatch: boolean) {
+  if (replaceBatch) suggestQueue = suggestQueue.filter((task) => task.priority)
+  suggestQueue.push(...tasks)
+  void drainSuggest()
+}
+
+async function drainSuggest() {
+  if (draining) return
+  draining = true
+  try {
+    while (suggestQueue.length > 0 && active) {
+      let next = suggestQueue.findIndex((task) => task.priority)
+      if (next < 0) next = 0
+      const task = suggestQueue.splice(next, 1)[0]
+      const result = suggest(task.word, task.context)
+      post('suggested', {
+        word: task.word,
+        suggestions: result.suggestions,
+        sweepMs: result.sweepMs,
+        semanticMs: result.semanticMs,
+        rerankMs: result.rerankMs,
+        semantic: semanticState === 'ready',
+      })
+      // Let newly arrived messages (a click, a fresh batch) reorder the
+      // queue before the next word.
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+  } finally {
+    draining = false
+  }
+}
+
 self.onmessage = async (event: MessageEvent) => {
   const data = event.data as {
-    type: 'load' | 'check' | 'suggest' | 'semantic'
+    type: 'load' | 'check' | 'suggest' | 'suggest-batch' | 'semantic'
     lang?: string
     text?: string
     word?: string
     context?: string
     enable?: boolean
+    items?: { word: string; context: string }[]
   }
 
   if (data.type === 'load') {
+    // Words queued for the previous language are stale - the pane
+    // re-requests after 'loaded' anyway.
+    suggestQueue = []
     // One model at a time: switching language frees the previous tier's
     // ~3 MB of wasm memory before the new dictionary even loads. The
     // main thread re-requests the new language's tier on 'loaded'.
@@ -481,15 +533,11 @@ self.onmessage = async (event: MessageEvent) => {
     post('checked', { words, ms })
   } else if (data.type === 'suggest') {
     if (!active) return
-    const result = suggest(data.word!, data.context ?? '')
-    post('suggested', {
-      word: data.word,
-      suggestions: result.suggestions,
-      sweepMs: result.sweepMs,
-      semanticMs: result.semanticMs,
-      rerankMs: result.rerankMs,
-      semantic: semanticState === 'ready',
-    })
+    enqueueSuggest([{ word: data.word!, context: data.context ?? '', priority: true }], false)
+  } else if (data.type === 'suggest-batch') {
+    if (!active) return
+    const items = (data.items ?? []).map((item) => ({ ...item, priority: false }))
+    enqueueSuggest(items, true)
   } else if (data.type === 'semantic') {
     if (data.enable) await enableSemantic(data.lang ?? activeLang ?? '')
     else disableSemantic()
