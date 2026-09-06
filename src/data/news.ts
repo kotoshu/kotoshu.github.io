@@ -32,6 +32,25 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'wasm-0-3-0',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'The right word, rank one — @kotoshu/wasm 0.3.0',
+    summary:
+      'The Damerau edit sweep and model-generated candidates reach the browser: Teh suggests The first, definately suggests definitely, and the playground shows every load and inference step.',
+    senses: [
+      'The engine-side fix: the suggestion sweep now enumerates adjacent transpositions at cost 1 (a swap is one step, not two), substitutions and insertions over the aff TRY string, and deletions — each validated through affix-aware lookup, so dictionary forms like `definite/IYVP` surface with their surface spelling. Root causes fixed: the sweep only ever enumerated stems, so suffixed words like `definitely` could not appear at any distance; the INITCAP form `The` was lookup-valid but charged case plus transposition as two steps; the phonetic and keyboard strategies carried private edit-distance copies that still charged swaps double. Acceptance on full en_US, byte-identical across both engines: `Teh` → `The` at rank 1, `definately` → `definitely` at rank 1, `recieve` → `receive` and `wrold` → `world` unregressed.',
+      '`semanticSuggest(model, word, k)` joins the wasm surface: the int8 tier embeds an out-of-vocabulary word through its character n-grams and returns the nearest vocabulary words — candidate generation the edit-distance sweep cannot produce. The playground merges those neighbors into suggestion lists ahead of its context rerank, labeled with their cosine.',
+      'The playground itself grew instrumentation: every artifact download — engine, dictionary, the optional semantic tier — reports a phase-labeled byte bar, checking reports the busy dot and elapsed milliseconds, the misspellings pane sweeps with per-word spinners and a done-of-total count, and the suggestion popover closes with a sweep and rerank timing footer. 2630 conformance vectors regenerated for the new sweep, zero divergence between the Ruby and Rust engines.',
+    ],
+    links: [
+      { label: '@kotoshu/wasm on npm', href: 'https://www.npmjs.com/package/@kotoshu/wasm' },
+      { label: 'gem PR #146 — the Damerau sweep', href: 'https://github.com/kotoshu/kotoshu/pull/146' },
+      { label: 'kotoshu-rs PR #19 — the Rust port', href: 'https://github.com/kotoshu/kotoshu-rs/pull/19' },
+      { label: 'Playground', href: 'https://www.kotoshu.org/playground/' },
+    ],
+  },
+  {
     slug: 'server-lsp-0-1-1',
     date: '2026-09-06',
     kind: 'release',

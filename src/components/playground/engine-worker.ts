@@ -12,17 +12,12 @@
 // esm.sh's transform replaces the wasm import with uninstantiated
 // bytes — the class exists but every call throws. Loading the two
 // published files and instantiating them here is the delivery both
-// transforms were trying to produce. Pinned to the exact 0.2.0 -
-// 0.1.0 plus the loadModel/rerank pair the semantic layer below uses;
-// a strict superset, the dictionary surface is unchanged. The
-// semanticSuggest candidate-generation call is optional in the glue
-// surface: at the 0.2.0 pin it is absent and the layer runs
-// dictionary-only; it activates when the pin moves to a release that
-// carries it (0.3.0, the owner's version call).
+// transforms were trying to produce. Pinned to the exact 0.3.0 -
+// the Damerau edit sweep (an adjacent swap is one step) plus the
+// loadModel/rerank pair and semanticSuggest the semantic layer uses.
 import { SEMANTIC_SUGGEST_K, mergeSemanticCandidates } from './semantic-merge'
-import { mergeNearMissCandidates } from './near-miss'
 
-const WASM_VERSION = '0.2.0'
+const WASM_VERSION = '0.3.0'
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@kotoshu/wasm@${WASM_VERSION}`
 const GLUE_URL = `${WASM_BASE}/kotoshu_wasm_bg.js`
 
@@ -362,7 +357,6 @@ function check(text: string): { words: string[]; ms: number } {
 interface SuggestResult {
   suggestions: Suggestion[]
   sweepMs: number
-  edit1Ms: number
   semanticMs: number
   rerankMs: number
 }
@@ -378,28 +372,18 @@ function suggest(word: string, context: string): SuggestResult {
     suggestCache.set(key, suggestions)
   }
   const sweepMs = Math.round(performance.now() - t0)
-  // The stopgap near-miss pass (adjacent swaps + single substitutions
-  // vetted by correct()); a cache hit costs a handful of hash lookups.
-  const t1 = performance.now()
-  const withNearMiss = mergeNearMissCandidates(word, suggestions, (candidate) =>
-    engine.dictionary.correct(candidate),
-  )
-  const edit1Ms = Math.round(performance.now() - t1)
-  // The cache holds DICTIONARY rows only; the near-miss and semantic
-  // merges run after retrieval so they never poison the cache and
-  // switching the layer off returns to dictionary-only on the next request.
+  // The cache holds DICTIONARY rows only; the semantic merge runs after
+  // retrieval so it never poisons the cache and switching the layer off
+  // returns to dictionary-only on the next request. Since wasm 0.3.0 the
+  // engine sweep itself enumerates transpositions and substitutions with
+  // frequency-aware ranking, so no client-side candidate patching remains.
   const t2 = performance.now()
-  const withSemantic = generateSemantic(word, withNearMiss)
+  const withSemantic = generateSemantic(word, suggestions)
   const semanticMs = Math.round(performance.now() - t2)
-  // Confidence order, stable — near-miss and semantic rows carry engine-
-  // comparable confidence, so "The" and "definitely" surface ahead of the
-  // weaker dictionary rows instead of trailing the merge tail. Ties keep
-  // dictionary rows first; the rerank below re-sorts with context anyway.
-  const ordered = withSemantic.slice().sort((a, b) => b.confidence - a.confidence)
   const t3 = performance.now()
-  const suggestions2 = rerankSuggestions(ordered, context)
+  const suggestions2 = rerankSuggestions(withSemantic, context)
   const rerankMs = Math.round(performance.now() - t3)
-  return { suggestions: suggestions2, sweepMs, edit1Ms, semanticMs, rerankMs }
+  return { suggestions: suggestions2, sweepMs, semanticMs, rerankMs }
 }
 
 // Candidate generation: when the semantic layer is resident and the
@@ -486,6 +470,7 @@ self.onmessage = async (event: MessageEvent) => {
         engineBytes,
         dictionaryBytes: loaded.sizeBytes,
         engineVersion: (glue!.KotoshuWasm as unknown as { VERSION?: string }).VERSION ?? WASM_VERSION,
+        wasmVersion: WASM_VERSION,
         loadMs: Math.round(loaded.loadMs),
       })
     } catch (error) {
@@ -501,7 +486,6 @@ self.onmessage = async (event: MessageEvent) => {
       word: data.word,
       suggestions: result.suggestions,
       sweepMs: result.sweepMs,
-      edit1Ms: result.edit1Ms,
       semanticMs: result.semanticMs,
       rerankMs: result.rerankMs,
       semantic: semanticState === 'ready',
