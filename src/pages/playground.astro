@@ -45,12 +45,21 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
             </select>
           </label>
           <span
-            class="rounded-full bg-[var(--color-gold-soft)] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-[var(--color-gold)]"
-            title="This demo runs the dictionary engine. Semantic reranking needs the embedding models, which run in the gem and the server, not in wasm."
+            id="lab-tier"
+              class="rounded-full bg-[var(--color-gold-soft)] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-[var(--color-gold)]"
+            title="Dictionary engine by default. The semantic switch opts this language into the mini embedding tier - about 3 MB, fetched once from the models registry mirror - to reorder suggestions by context fit."
           >
             <span lang="ja">辞書</span> tier: dictionary
           </span>
-          <span id="lab-readout" class="ml-auto min-h-4 font-mono text-[10.5px] leading-4 tracking-wide text-[var(--color-text-3)]" aria-live="polite"></span>
+          <label
+              class="flex items-center gap-1.5 text-xs text-[var(--color-text-2)]"
+              title="Opt in per language: loads the mini embedding tier - about 3 MB from the models registry mirror - and reranks suggestion candidates by their fit to the surrounding text. Off by default; the dictionary tier is untouched, and a failed load degrades to dictionary-only."
+            >
+              <input id="lab-semantic" type="checkbox" class="size-3 accent-[var(--color-accent)]" />
+              <span class="font-mono uppercase tracking-[0.14em] text-[var(--color-text-3)]">semantic</span>
+              <span class="font-mono text-[10px] text-[var(--color-text-3)]">~3 MB</span>
+            </label>
+            <span id="lab-readout" class="ml-auto min-h-4 font-mono text-[10.5px] leading-4 tracking-wide text-[var(--color-text-3)]" aria-live="polite"></span>
         </div>
 
         <!-- Editor: the backdrop renders decorated text, the textarea sits on top -->
@@ -90,9 +99,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         </div>
       </div>
       <p class="mt-4 text-center text-xs leading-6 text-[var(--color-text-3)]">
-        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.1.0" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.1.0</a>
+        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.2.0" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.2.0</a>
         · dictionaries from the <a href="https://github.com/kotoshu/dictionaries" class="text-[var(--color-accent)] hover:underline">dictionaries repo</a>,
-        commit-pinned · both via jsDelivr, cached by your browser.
+        commit-pinned · both via jsDelivr, cached by your browser. The semantic tier, when you opt in, loads from the <a href="https://github.com/kotoshu/models-fasttext-onnx" class="text-[var(--color-accent)] hover:underline">models registry</a> mirror.
       </p>
     </div>
   </section>
@@ -105,8 +114,8 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         <div class="dict-entry">
           <span class="dict-headword">tier</span>
           <div>
-            <p class="dict-sense">Dictionary engine only <span class="pos">n.</span> — suggestions from edit distance, phonetics, keyboard proximity, and n-grams.</p>
-            <p class="dict-anno">Semantic reranking needs the FastText-ONNX models, and today those run in the gem and the HTTP server — the wasm surface has no model API, and the models registry serves from GitHub release assets, which do not send CORS headers to browsers. The full pipeline is on the <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a>.</p>
+            <p class="dict-sense">Dictionary engine, semantic opt-in <span class="pos">n.</span> — suggestions from edit distance, phonetics, keyboard proximity, and n-grams; the semantic switch reranks them by context fit.</p>
+            <p class="dict-anno">@kotoshu/wasm 0.2.0 added the model pair - loadModel plus rerank - and registry v1.2.1 mirrors every mini tier to a host browsers may fetch, so the switch above loads this language tier, about 3 MB, and reranks inside the worker. The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a> still runs the heavier fluency tier and the full pipeline.</p>
           </div>
         </div>
         <div class="dict-entry">
@@ -166,6 +175,8 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     status: document.getElementById('lab-status')!,
     dot: document.getElementById('lab-dot')!,
     readout: document.getElementById('lab-readout')!,
+    tier: document.getElementById('lab-tier')!,
+    semantic: document.getElementById('lab-semantic') as HTMLInputElement,
   }
 
   const worker = new Worker(
@@ -176,8 +187,20 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   let misspelled = new Set<string>()
   let debounce: ReturnType<typeof setTimeout> | undefined
   let popRange: { start: number; end: number } | null = null
+  // Semantic layer state, mirrored from the worker semantic-status posts.
+  let semanticWanted = false
+  let semanticReady = false
+  let langLoaded: string | null = null
+  let engineBytes = 0
+  let dictBytes = 0
+  let modelBytes = 0
 
   const kib = (n: number) => `${Math.max(1, Math.round(n / 1024))} KiB`
+  const updateReadout = () => {
+    el.readout.textContent =
+      `engine ${kib(engineBytes)} · dict ${kib(dictBytes)}` +
+      (semanticReady && modelBytes ? ` · model ${kib(modelBytes)}` : '')
+  }
 
   // — engine wiring ——————————————————————————————
 
@@ -199,14 +222,48 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       engineVersion?: string
       loadMs?: number
       message?: string
+      state?: 'off' | 'loading' | 'ready' | 'unavailable'
+      modelBytes?: number
+      detail?: string
     }
 
     if (m.type === 'loaded') {
       misspelled = new Set()
+      langLoaded = m.lang ?? null
+      engineBytes = m.engineBytes ?? 0
+      dictBytes = m.dictionaryBytes ?? 0
       el.status.textContent = `engine ${m.engineVersion} ready — ${m.lang} loaded in ${m.loadMs} ms`
       el.dot.style.background = 'var(--color-accent)'
-      el.readout.textContent = `engine ${kib(m.engineBytes!)} · dict ${kib(m.dictionaryBytes!)}`
+      updateReadout()
       scheduleCheck(0)
+      // The checkbox survives language switches - re-request the new
+      // language tier right after its dictionary lands.
+      if (semanticWanted) worker.postMessage({ type: 'semantic', lang: el.lang.value, enable: true })
+    } else if (m.type === 'semantic-status') {
+      if (m.state === 'ready') {
+        semanticReady = true
+        modelBytes = m.modelBytes ?? 0
+        el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary + semantic'
+        el.tier.title = 'Semantic reranking on - candidates are reordered by the mini embedding tier running in the worker.'
+        el.status.textContent = `semantic reranking on — ${m.lang} mini tier resident, ${kib(modelBytes)}`
+        updateReadout()
+      } else if (m.state === 'loading') {
+        el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary + semantic…'
+        el.status.textContent = `loading ${m.lang} semantic model — mini tier, about 3 MB…`
+      } else if (m.state === 'unavailable') {
+        semanticReady = false
+        modelBytes = 0
+        el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary'
+        el.tier.title = 'Semantic model unavailable - mirror unreachable or no mini tier for this language. Dictionary-only.'
+        el.status.textContent = `semantic model unavailable — ${m.detail ?? 'mirror unreachable'} · dictionary-only`
+        updateReadout()
+      } else if (semanticReady || modelBytes > 0) {
+        semanticReady = false
+        modelBytes = 0
+        el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary'
+        el.status.textContent = 'semantic reranking off — model memory freed'
+        updateReadout()
+      }
     } else if (m.type === 'load-error') {
       el.status.textContent = `offline or blocked — ${m.message}`
       el.status.appendChild(retryButton())
@@ -276,7 +333,16 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     el.popWord.textContent = word
     el.popList.replaceChildren(thinkingRow())
     positionPopover(span)
-    worker.postMessage({ type: 'suggest', word })
+    worker.postMessage({ type: 'suggest', word, context: contextWindow(popRange.start) })
+  }
+
+  // The +/-3-token window around the misspelling - the gem's
+  // surrounding_words(3), the only context the boost ever sees.
+  function contextWindow(start: number): string {
+    const tokens = [...el.text.value.matchAll(WORD_RE)]
+    const i = tokens.findIndex((match) => (match.index ?? 0) === start)
+    if (i < 0) return ''
+    return tokens.slice(Math.max(0, i - 3), i + 4).map((match) => match[0]).join(' ')
   }
 
   function thinkingRow() {
@@ -382,6 +448,14 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     misspelled = new Set()
     render()
     load(el.lang.value)
+  })
+  el.semantic.addEventListener('change', () => {
+    semanticWanted = el.semantic.checked
+    if (semanticWanted) {
+      if (langLoaded) worker.postMessage({ type: 'semantic', lang: el.lang.value, enable: true })
+    } else {
+      worker.postMessage({ type: 'semantic', enable: false })
+    }
   })
 
   document.addEventListener('click', (event) => {
