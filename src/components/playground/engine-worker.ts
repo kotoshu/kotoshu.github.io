@@ -20,6 +20,7 @@
 // dictionary-only; it activates when the pin moves to a release that
 // carries it (0.3.0, the owner's version call).
 import { SEMANTIC_SUGGEST_K, mergeSemanticCandidates } from './semantic-merge'
+import { mergeNearMissCandidates } from './near-miss'
 
 const WASM_VERSION = '0.2.0'
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@kotoshu/wasm@${WASM_VERSION}`
@@ -123,7 +124,7 @@ function dropModel() {
 }
 
 async function ensureRegistry(): Promise<Registry> {
-  registryPromise ??= cachedFetch(REGISTRY_URL).then(({ res }) => {
+  registryPromise ??= cachedFetchProgress(REGISTRY_URL, 'semantic', 'registry').then(({ res }) => {
     if (!res.ok) throw new Error(`registry download failed: HTTP ${res.status}`)
     return res.json() as Promise<Registry>
   })
@@ -154,8 +155,8 @@ async function enableSemantic(lang: string) {
     // The registry's vocab_url points at a release asset, which sends no
     // CORS headers - the mirror sibling is the browser-usable vocab.
     const [modelPair, vocabPair] = await Promise.all([
-      cachedFetch(mirror),
-      cachedFetch(mirror.replace(/\.onnx$/, '.vocab.json')),
+      cachedFetchProgress(mirror, 'semantic', `${lang} model`),
+      cachedFetchProgress(mirror.replace(/\.onnx$/, '.vocab.json'), 'semantic', `${lang} vocab`),
     ])
     modelCached = modelPair.cached && vocabPair.cached
     const modelRes = modelPair.res
@@ -201,8 +202,11 @@ function importObject(mod: unknown): WebAssembly.Imports {
 // stale; old-pin entries are evicted opportunistically on open).
 const CACHE_NAME = 'kotoshu-playground-v1'
 
-function postProgress(kind: string, loaded: number, total: number) {
-  post('load-progress', { kind, loaded, total })
+// The phase tells the UI WHERE the load is (engine, dictionary, semantic);
+// the kind names the artifact within it. total 0 means indeterminate —
+// the transfer carries no Content-Length.
+function postProgress(phase: string, kind: string, loaded: number, total: number) {
+  post('load-progress', { phase, kind, loaded, total })
 }
 
 /** cachedFetch with byte-level progress on the network path: the body
@@ -210,13 +214,14 @@ function postProgress(kind: string, loaded: number, total: number) {
     cache hits report complete instantly. */
 async function cachedFetchProgress(
   url: string,
+  phase: string,
   kind: string,
 ): Promise<{ res: Response; cached: boolean }> {
   const cache = await caches.open(CACHE_NAME)
   const hit = await cache.match(url)
   if (hit) {
     const size = Number(hit.headers.get('content-length') ?? 0)
-    postProgress(kind, size, size)
+    postProgress(phase, kind, size, size)
     return { res: hit, cached: true }
   }
   const res = await fetch(url)
@@ -224,7 +229,7 @@ async function cachedFetchProgress(
   const total = Number(res.headers.get('content-length') ?? 0)
   const reader = res.body?.getReader()
   if (!reader) {
-    postProgress(kind, total, total)
+    postProgress(phase, kind, total, total)
     return { res, cached: false }
   }
   const chunks: Uint8Array[] = []
@@ -234,7 +239,7 @@ async function cachedFetchProgress(
     if (done) break
     chunks.push(value)
     loaded += value.byteLength
-    postProgress(kind, loaded, total)
+    postProgress(phase, kind, loaded, total)
   }
   const rebuilt = new Response(new Blob(chunks as BlobPart[]), { status: 200, headers: res.headers })
   try {
@@ -250,7 +255,7 @@ async function cachedFetchProgress(
 }
 
 async function cachedFetch(url: string): Promise<{ res: Response; cached: boolean }> {
-  return cachedFetchProgress(url, lastPathSegment(url))
+  return cachedFetchProgress(url, 'engine', lastPathSegment(url))
 }
 
 function lastPathSegment(url: string): string {
@@ -269,10 +274,18 @@ let modelCached = false
 async function ensureEngine(): Promise<void> {
   if (glue) return
 
+  // The glue module import streams through the browser's module loader —
+  // no byte count is observable there, so report the phase as live but
+  // indeterminate while it loads.
+  postProgress('engine', 'glue', 0, 0)
   // The glue is a plain ES module on the CDN — import it at runtime.
   glue = (await import(/* @vite-ignore */ GLUE_URL)) as unknown as GlueModule
 
-  const { res, cached } = await cachedFetch(`${WASM_BASE}/kotoshu_wasm_bg.wasm`)
+  const { res, cached } = await cachedFetchProgress(
+    `${WASM_BASE}/kotoshu_wasm_bg.wasm`,
+    'engine',
+    'wasm',
+  )
   if (!res.ok) throw new Error(`engine download failed: HTTP ${res.status}`)
   engineCached = cached
   const bytes = new Uint8Array(await res.arrayBuffer())
@@ -291,7 +304,11 @@ async function fetchDictFile(lang: string, ext: 'aff' | 'dic'): Promise<string> 
   const paths = [`${lang}/spelling/index.${ext}`, `${lang}/index.${ext}`]
   let lastStatus = 0
   for (const path of paths) {
-    const { res, cached } = await cachedFetch(`${DICT_BASE}/${path}`)
+    const { res, cached } = await cachedFetchProgress(
+      `${DICT_BASE}/${path}`,
+      'dictionary',
+      `${lang} ${ext}`,
+    )
     if (res.ok) {
       dictCached = cached
       return res.text()
@@ -323,8 +340,9 @@ async function loadLanguage(lang: string): Promise<LoadedLang> {
 /** Letter runs with optional internal apostrophes — matches the spans the UI underlines. */
 const WORD_RE = /[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu
 
-function check(text: string): string[] {
-  if (!active) return []
+function check(text: string): { words: string[]; ms: number } {
+  if (!active) return { words: [], ms: 0 }
+  const t0 = performance.now()
   const misspelled = new Set<string>()
   const seen = new Set<string>()
   for (const match of text.matchAll(WORD_RE)) {
@@ -338,22 +356,50 @@ function check(text: string): string[] {
       misspelled.add(word)
     }
   }
-  return [...misspelled]
+  return { words: [...misspelled], ms: Math.round(performance.now() - t0) }
 }
 
-function suggest(word: string, context: string): Suggestion[] {
-  if (!active) return []
+interface SuggestResult {
+  suggestions: Suggestion[]
+  sweepMs: number
+  edit1Ms: number
+  semanticMs: number
+  rerankMs: number
+}
+
+function suggest(word: string, context: string): SuggestResult {
+  const engine = active!
+  const t0 = performance.now()
   const key = `${activeLang}:${word.toLowerCase()}`
   let suggestions = suggestCache.get(key)
   if (!suggestions) {
-    suggestions = active.dictionary.suggest(word, 5)
+    suggestions = engine.dictionary.suggest(word, 5)
     if (suggestCache.size > 300) suggestCache.clear()
     suggestCache.set(key, suggestions)
   }
-  // The cache holds DICTIONARY rows only; the semantic merge runs after
-  // retrieval so it never poisons the cache and switching the layer off
-  // returns to dictionary-only on the next request.
-  return rerankSuggestions(generateSemantic(word, suggestions), context)
+  const sweepMs = Math.round(performance.now() - t0)
+  // The stopgap near-miss pass (adjacent swaps + single substitutions
+  // vetted by correct()); a cache hit costs a handful of hash lookups.
+  const t1 = performance.now()
+  const withNearMiss = mergeNearMissCandidates(word, suggestions, (candidate) =>
+    engine.dictionary.correct(candidate),
+  )
+  const edit1Ms = Math.round(performance.now() - t1)
+  // The cache holds DICTIONARY rows only; the near-miss and semantic
+  // merges run after retrieval so they never poison the cache and
+  // switching the layer off returns to dictionary-only on the next request.
+  const t2 = performance.now()
+  const withSemantic = generateSemantic(word, withNearMiss)
+  const semanticMs = Math.round(performance.now() - t2)
+  // Confidence order, stable — near-miss and semantic rows carry engine-
+  // comparable confidence, so "The" and "definitely" surface ahead of the
+  // weaker dictionary rows instead of trailing the merge tail. Ties keep
+  // dictionary rows first; the rerank below re-sorts with context anyway.
+  const ordered = withSemantic.slice().sort((a, b) => b.confidence - a.confidence)
+  const t3 = performance.now()
+  const suggestions2 = rerankSuggestions(ordered, context)
+  const rerankMs = Math.round(performance.now() - t3)
+  return { suggestions: suggestions2, sweepMs, edit1Ms, semanticMs, rerankMs }
 }
 
 // Candidate generation: when the semantic layer is resident and the
@@ -446,10 +492,20 @@ self.onmessage = async (event: MessageEvent) => {
       post('load-error', { lang: data.lang, message: (error as Error).message })
     }
   } else if (data.type === 'check') {
-    post('checked', { words: check(data.text ?? '') })
+    const { words, ms } = check(data.text ?? '')
+    post('checked', { words, ms })
   } else if (data.type === 'suggest') {
     if (!active) return
-    post('suggested', { word: data.word, suggestions: suggest(data.word!, data.context ?? '') })
+    const result = suggest(data.word!, data.context ?? '')
+    post('suggested', {
+      word: data.word,
+      suggestions: result.suggestions,
+      sweepMs: result.sweepMs,
+      edit1Ms: result.edit1Ms,
+      semanticMs: result.semanticMs,
+      rerankMs: result.rerankMs,
+      semantic: semanticState === 'ready',
+    })
   } else if (data.type === 'semantic') {
     if (data.enable) await enableSemantic(data.lang ?? activeLang ?? '')
     else disableSemantic()

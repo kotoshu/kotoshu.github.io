@@ -559,3 +559,25 @@ html:has([data-theme="dark"]) body::after {
 @keyframes lab-spin {
   to { transform: rotate(360deg); }
 }
+
+/* Busy status dot and indeterminate progress bar — engine work in flight. */
+.lab-dot-busy {
+  animation: lab-dot-pulse 1s ease-in-out infinite;
+}
+@keyframes lab-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+.lab-progress-indet {
+  animation: lab-progress-indet 1.2s ease-in-out infinite;
+}
+@keyframes lab-progress-indet {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-spinner, .lab-dot-busy, .lab-progress-indet, .lab-pane-flash {
+    animation: none;
+  }
+}
