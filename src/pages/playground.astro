@@ -123,7 +123,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         </div>
       </div>
       <p class="mt-4 text-center text-xs leading-6 text-[var(--color-text-3)]">
-        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.3.0" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.3.0</a>
+        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.3.1" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.3.1</a>
         · dictionaries from the <a href="https://github.com/kotoshu/dictionaries" class="text-[var(--color-accent)] hover:underline">dictionaries repo</a>,
         commit-pinned · both via jsDelivr, cached by your browser. The semantic tier, when you opt in, loads from the <a href="https://github.com/kotoshu/models-fasttext-onnx" class="text-[var(--color-accent)] hover:underline">models registry</a> mirror.
       </p>
@@ -447,6 +447,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     }
     const text = el.text.value
     paneRequests.clear()
+    const batch: { word: string; context: string }[] = []
     for (const span of spans) {
       const word = span.textContent ?? ''
       const start = Number(span.dataset.start)
@@ -475,15 +476,15 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       el.paneList.append(li)
       if (paneRequests.size < 12 && !paneRequests.has(word)) {
         paneRequests.add(word)
-        // A live sweep indicator per item — the worker answers one word
-        // at a time, so this is where the wait is visible.
+        // A live sweep indicator per item — the worker sweeps the batch
+        // one word at a time, so this is where the wait is visible.
         const spin = document.createElement('span')
         spin.className = 'lab-spinner size-2.5 shrink-0'
         const lbl = document.createElement('span')
         lbl.className = 'font-mono text-[10.5px] text-[var(--color-text-3)]'
         lbl.textContent = 'sweeping…'
         senses.append(spin, lbl)
-        worker.postMessage({ type: 'suggest', word, context: contextWindow(start) })
+        batch.push({ word, context: contextWindow(start) })
       } else if (paneRequests.size >= 12 && !paneRequests.has(word)) {
         // Beyond the request cap: the word is still flagged and clickable
         // — the popover sweeps it on click — but no spinner, because no
@@ -497,6 +498,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     }
     paneTotal = paneRequests.size
     paneDone = 0
+    // One message for the whole pane - a single pass through the queue,
+    // not one round-trip per word. A popover click still jumps ahead.
+    if (batch.length > 0) worker.postMessage({ type: 'suggest-batch', items: batch })
     updateSuggestStatus()
   }
 

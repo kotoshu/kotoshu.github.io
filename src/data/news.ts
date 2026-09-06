@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'wasm-0-3-1',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'Sweeps under a second — @kotoshu/wasm 0.3.1',
+    summary:
+      'The suggestion sweep is 10-200x faster on full dictionaries: the same suggestions, byte for byte, in milliseconds instead of seconds.',
+    senses: [
+      'A full-en_US sweep was taking seconds — Teh 3.6 s, recieve 17.3 s, mispellings 38.4 s measured over the published 0.3.0 module — because four allocation and scan patterns compounded per dictionary word: find_word scanned the whole word list per keyboard variant (with a lowercase allocation per word), the n-gram strategy built a map of String trigrams per dictionary word, Soundex allocated a String per word, and the edit loops allocated a fresh char vector per word.',
+      'The sweep now builds one word index per call (exact set plus lowercase-form map, borrowed for words already lowercase), packs trigrams into fixed-width integer keys in a reused scratch map with a length pre-gate, compares fixed Soundex keys, and reuses char buffers. Outputs are byte-identical: the 2630 conformance vectors all pass, and the benchmark set returns the same lists — Teh 320 ms, mispellings 189 ms, definately 145 ms, recieve 93 ms.',
+      'The playground also sweeps as one batch now: the misspellings pane sends a single message for all its words, the worker walks the queue with a yield between words so a popover click jumps ahead, and a fresh check replaces the pending batch instead of stacking behind it.',
+    ],
+    links: [
+      { label: '@kotoshu/wasm on npm', href: 'https://www.npmjs.com/package/@kotoshu/wasm' },
+      { label: 'kotoshu-rs PR #21 — the indexed sweep', href: 'https://github.com/kotoshu/kotoshu-rs/pull/21' },
+      { label: 'Playground', href: 'https://www.kotoshu.org/playground/' },
+    ],
+  },
+  {
     slug: 'wasm-0-3-0',
     date: '2026-09-07',
     kind: 'release',
