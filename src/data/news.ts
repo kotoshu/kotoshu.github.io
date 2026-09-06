@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'server-lsp-0-1-1',
+    date: '2026-09-06',
+    kind: 'release',
+    title: 'kotoshu-server and kotoshu-lsp 0.1.1 — the gems are real',
+    summary:
+      'The two ecosystem gems republish with actual contents after their empty 0.1.0 cuts — semantic models over HTTP and a personal dictionary that un-flags words.',
+    senses: [
+      'kotoshu-server 0.1.1: `gem install kotoshu-server` now works. The 0.1.0 cut was published with an empty file list — a gemspec that collected files through `git ls-files` in a build environment without git. 0.1.1 ships the real server: `/v1/check` with the optional `model` flag (cascade-guarded ONNX reranking, memoized per language), `/v1/languages` reporting model availability, and boot-time opt-in through `KOTOSHU_SERVER_MODEL_LANGS` and `KOTOSHU_SERVER_MODEL_TIER` — semantic quality for every SDK user, no implicit downloads ever.',
+      'kotoshu-lsp 0.1.1: the LSP server reads the personal dictionary (`~/.config/kotoshu/personal.dic`), reloads it when the file changes, and answers `kotoshu.addToPersonalDictionary` server-side — adding a word republishes diagnostics in any LSP editor, so the flag clears immediately. The first-diagnostic column bug (−11 on didOpen) is fixed too.',
+      'Both published through RubyGems trusted publishing — the OIDC exchange, the version bump, and the push all ran in CI with no stored credentials. The empty 0.1.0s stay listed: rubygems does not allow self-yanking versions older than 30 days; install unpinned and you get 0.1.1.',
+    ],
+    links: [
+      { label: 'kotoshu-server 0.1.1 on RubyGems', href: 'https://rubygems.org/gems/kotoshu-server/versions/0.1.1' },
+      { label: 'kotoshu-lsp 0.1.1 on RubyGems', href: 'https://rubygems.org/gems/kotoshu-lsp/versions/0.1.1' },
+      { label: 'HTTP API — docs', href: '/docs/clients/http' },
+    ],
+  },
+  {
     slug: 'gem-0-9-0',
     date: '2026-09-06',
     kind: 'release',

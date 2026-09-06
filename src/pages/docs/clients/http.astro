@@ -11,10 +11,11 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
 
   <h2 class="display text-2xl mt-12">Run it</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Today the server runs from source — the 0.1.0 gem on RubyGems was published with an empty file
-    list (a packaging bug: the gemspec collects files with <code class="font-mono text-[13px] text-[var(--color-accent)]">git ls-files</code>,
-    which came up empty in the build environment), so <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu-server</code>
-    installs nothing runnable. Until the fixed gem lands:
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu-server</code>
+    ships the fixed 0.1.1 gem — published through trusted publishing after the 0.1.0 packaging bug
+    (an empty file list from a <code class="font-mono text-[13px] text-[var(--color-accent)]">git ls-files</code>
+    gemspec built outside git). Installing pinned to <code class="font-mono text-[13px] text-[var(--color-accent)]">-v 0.1.0</code>
+    still gets the empty gem — that version predates the 30-day window rubygems allows for yanking, so it stays listed; use 0.1.1 or later. From source works too:
   </p>
   <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>git clone https://github.com/kotoshu/kotoshu-server && cd kotoshu-server
 bundle install
