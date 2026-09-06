@@ -12,6 +12,11 @@ interface Entry {
 }
 
 const open = ref(false)
+// SSR renders nothing: a Teleport-to-body island hydrates with a DOM
+// mismatch that makes Vue clobber adjacent nodes (the header nav
+// disappeared on load). Mounting the teleport only after hydration
+// guarantees the server and client agree - empty until mounted.
+const mounted = ref(false)
 const query = ref('')
 const results = ref<Entry[]>([])
 const loading = ref(false)
@@ -120,6 +125,7 @@ function onDocOpen() {
 }
 
 onMounted(() => {
+  mounted.value = true
   document.addEventListener('keydown', onKeydown)
   document.addEventListener('kotoshu:search-open', onDocOpen)
 })
@@ -131,7 +137,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport v-if="mounted" to="body">
     <div
       v-if="open"
       class="fixed inset-0 z-[90]"
