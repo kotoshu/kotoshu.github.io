@@ -64,14 +64,13 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
     <code class="font-mono text-[13px] text-[var(--color-accent)]">language</code> takes any
     language the installed gem has set up — check and pre-warm share one cache. The
-    language matrix has nineteen full-feature languages (ca cs da de el en es fr hu
-    it nl pl pt ro ru sv tr uk vi) and semantic models for 54 — see
+    language matrix has twenty full-feature languages (ca cs da de el en es fr hu
+    it nb nl pl pt ro ru sv tr uk vi) and semantic models for 55 — see
     <a href="/languages" class="text-[var(--color-accent)] hover:underline">the matrix</a>.
-    An honest pin: the gem currently published on RubyGems (0.7.0) is the earlier
-    six-language cut — <code class="font-mono text-[13px] text-[var(--color-accent)]">en de es fr pt ru</code> —
-    so pre-warming anything beyond those six warns and skips until the next gem
-    release lands on RubyGems; <code class="font-mono text-[13px] text-[var(--color-accent)]">version:</code>
-    can pin a newer cut once it exists.
+    An honest pin: the gem published on RubyGems (0.9.0) carries the full matrix —
+    pre-warm any full-feature language — but <code class="font-mono text-[13px] text-[var(--color-accent)]">version:</code>
+    can still pin an older cut, and 0.7.0 was the six-language one
+    (<code class="font-mono text-[13px] text-[var(--color-accent)]">en de es fr pt ru</code>).
   </p>
 
   <h2 class="display text-2xl mt-12">Directory mode &amp; baselines</h2>

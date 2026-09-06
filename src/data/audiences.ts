@@ -105,7 +105,7 @@ export const AUDIENCES: Audience[] = [
     headline: 'Every language you write, resolved on demand',
     who: 'Translators, technical writers, and teams producing documentation across several languages, who need the right dictionary, frequency list, and embedding model to just appear.',
     needs: [
-      'Full-feature support in nineteen languages — Greek, Italian, Polish, Turkish, and Ukrainian among them',
+      'Full-feature support in twenty languages — Greek, Italian, Norwegian Bokmål, Polish, Turkish, and Ukrainian among them',
       'Automatic language detection from document content',
       'Frequency-ranked suggestions (Kelly tiers) in Arabic, Chinese, and Norwegian',
       'Interactive CLI review: navigate, accept, skip',

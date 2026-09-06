@@ -67,21 +67,33 @@ install-command.
 
 ## Status
 
-**Implemented (2026-09-02)**, with two conscious deferrals:
+**Implemented (2026-09-02; deferral verdicts re-recorded 2026-09-06):**
 
 - Interactive demo: `DemoPanel` island on the home page (paste a
   sentence, see corrections) — no install needed.
 - "60 seconds" panel: `InstallTabs` on home and `/install` (gem, LSP,
   Action, server, Go).
-- Live playground: `/playground` against any running `kotoshu-server`
-  (plan 08) — better than a recording because it is the real engine.
+- Live playground: `/playground` — RESOLVED beyond the WASM deferral's
+  intent: it runs the real Rust engine compiled to WebAssembly
+  (`@kotoshu/wasm` 0.2.0 from the CDN, dictionary from the pinned
+  dictionaries commit) entirely client-side, with opt-in in-browser
+  semantic reranking (mini ONNX tier loaded and reranked inside the
+  worker). The old deferral assumed a mock UI waiting for v1.1; the
+  shipped thing is the actual engine, no backend, no install.
+  `/playground/server` (plan 08) still covers the fluency tier and the
+  full gem pipeline.
 - Comparison table: `/docs/comparison` — honest, dimension-by-dimension.
 - Per-language specimens: `/languages/{code}` pages carry a native
   sample sentence with underlined misspellings and ranked corrections.
 
-Deferred: the **asciinema cast** (needs a recorded terminal session of
-`kotoshu check --interactive`; the slot is the playground's job until
-one is recorded) and the **WASM try-it** (client-side engine — tracked
-in the gem repo as plans 63/66 via kotoshu-rs; the server-backed
-playground covers the need meanwhile). Performance chart deferred until
-plan 05 publishes benchmark numbers worth charting.
+Still consciously deferred:
+
+- The **asciinema cast** — embedding one requires a recorded pty
+  session of `kotoshu check --interactive`; that recording has to be
+  made deliberately (terminal capture of the interactive TUI), and the
+  live playground holds the demo slot meanwhile. Not attempted by an
+  agent; the cast would go stale the moment the TUI changes.
+- The **performance chart** — charts need benchmark numbers, and the
+  project has not standardized a benchmark methodology (plan 05 has
+  not published numbers worth charting); an unsourced chart would
+  undercut the honest comparison table.
