@@ -179,7 +179,8 @@ const featured = PROJECTS.filter((p) => p.featured)
         </div>
         <p class="dict-also">
           <span class="pos">see also</span>
-          {FREQUENCY_LANGUAGES.filter((l) => !FULL_LANGUAGES.some((f) => f.code === l.code)).map((l) => l.code).join(', ')} — frequency tiers only
+          {/* no is nb's registry alias — nb is full feature above, so only ar and zh remain frequency-only */}
+          {FREQUENCY_LANGUAGES.filter((l) => !FULL_LANGUAGES.some((f) => f.code === l.code) && l.code !== 'no').map((l) => l.code).join(', ')} — frequency tiers only
         </p>
       </div>
 

@@ -74,8 +74,11 @@ const wiredModelCount = MODEL_LANGUAGES.filter((code) =>
       <p class="max-w-2xl text-sm leading-7 text-[var(--color-text-2)] animate-in">
         These languages have Kelly Project frequency tiers feeding the ranking
         engine today. Greek, Italian, and Swedish pair them with a full
-        dictionary as full-feature languages; Arabic, Chinese, and Norwegian
-        rank on frequency until their language module is wired.
+        dictionary as full-feature languages; Arabic and Chinese rank on
+        frequency until their language module is wired. Norwegian's list is
+        published under the legacy no key — the registry alias of the nb
+        module — so setting up nb skips frequency and ranks on dictionary
+        and model.
       </p>
       <div class="mt-8 flex flex-wrap gap-3 animate-in">
         {[...FREQUENCY_LANGUAGES, { code: 'ru', name: 'Russian' }].map((l) => (

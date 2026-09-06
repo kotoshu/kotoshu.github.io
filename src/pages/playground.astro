@@ -115,14 +115,14 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
           <span class="dict-headword">tier</span>
           <div>
             <p class="dict-sense">Dictionary engine, semantic opt-in <span class="pos">n.</span> — suggestions from edit distance, phonetics, keyboard proximity, and n-grams; the semantic switch reranks them by context fit.</p>
-            <p class="dict-anno">@kotoshu/wasm 0.2.0 added the model pair - loadModel plus rerank - and registry v1.2.1 mirrors every mini tier to a host browsers may fetch, so the switch above loads this language tier, about 3 MB, and reranks inside the worker. The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a> still runs the heavier fluency tier and the full pipeline.</p>
+            <p class="dict-anno">@kotoshu/wasm 0.2.0 added the model pair - loadModel plus rerank - and registry v1.3.0 mirrors every mini tier to a host browsers may fetch, so the switch above loads this language tier, about 3 MB, and reranks inside the worker. The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a> still runs the heavier fluency tier and the full pipeline.</p>
           </div>
         </div>
         <div class="dict-entry">
           <span class="dict-headword">langs</span>
           <div>
-            <p class="dict-sense">Thirty-two languages <span class="pos">n.</span> — every Hunspell dictionary the pinned CDN commit carries under ~5 MB, from Български to Tiếng Việt.</p>
-            <p class="dict-anno">Over the budget and staying gem-only for now: el, ko, tr, uk, he, nb (5–19 MB each). Japanese and Chinese are absent at any size — CJK checking rides on the gem's tokenizer, not on Hunspell files. The biggest entries carry their size in the list. See the <a href="/languages" class="text-[var(--color-accent)] hover:underline">language matrix</a>.</p>
+            <p class="dict-sense">Thirty-three languages <span class="pos">n.</span> — every Hunspell dictionary the pinned CDN commit carries under ~5 MB, from Български to Tiếng Việt, Norsk bokmål included via the flat layout.</p>
+            <p class="dict-anno">Over the budget and staying gem-only for now: el, ko, tr, uk, he (5.8–19 MB each). Japanese and Chinese are absent at any size — CJK checking rides on the gem's tokenizer, not on Hunspell files. The biggest entries carry their size in the list. See the <a href="/languages" class="text-[var(--color-accent)] hover:underline">language matrix</a>.</p>
           </div>
         </div>
         <div class="dict-entry">

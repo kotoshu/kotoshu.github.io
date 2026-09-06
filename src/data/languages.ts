@@ -16,6 +16,7 @@ export const FULL_LANGUAGES: FullLanguage[] = [
   { code: 'fr', name: 'French', native: 'Français', keyboards: 'AZERTY' },
   { code: 'hu', name: 'Hungarian', native: 'Magyar', keyboards: 'Hungarian-QWERTZ' },
   { code: 'it', name: 'Italian', native: 'Italiano', keyboards: 'Italian-QWERTY' },
+  { code: 'nb', name: 'Norwegian Bokmål', native: 'Norsk bokmål', keyboards: 'Norwegian-QWERTY' },
   { code: 'nl', name: 'Dutch', native: 'Nederlands', keyboards: 'Dutch-QWERTY' },
   { code: 'pl', name: 'Polish', native: 'Polski', keyboards: 'Polish-QWERTY' },
   { code: 'pt', name: 'Portuguese', native: 'Português', keyboards: 'QWERTY' },
@@ -54,10 +55,10 @@ export interface PlaygroundLanguage {
  *  under ~5 MB (aff + dic, measured against the CDN pin in
  *  engine-worker.ts) minus CJK — ja and zh have no Hunspell files; their
  *  checking rides the gem tokenizer — and minus the over-budget giants
- *  (he 5.8, nb 5.4, tr 9.4, uk 8.7, ko 14, el 19 MB), which stay
+ *  (he 5.8, tr 9.4, uk 8.7, ko 14, el 19 MB), which stay
  *  gem-only until the CDN story changes. Everything loads the same
- *  staged files the gem downloads at setup. Dictionary-only behavior —
- *  no model in wasm yet. */
+ *  staged files the gem downloads at setup — nb rides the flat
+ *  {lang}/index.aff layout the fallback exists for. */
 export const PLAYGROUND_LANGUAGES: PlaygroundLanguage[] = [
   { code: 'bg', native: 'Български' },
   { code: 'ca', native: 'Català' },
@@ -79,6 +80,7 @@ export const PLAYGROUND_LANGUAGES: PlaygroundLanguage[] = [
   { code: 'lt', native: 'Lietuvių' },
   { code: 'lv', native: 'Latviešu' },
   { code: 'mk', native: 'Македонски' },
+  { code: 'nb', native: 'Norsk bokmål', mb: '5.4 MB' },
   { code: 'nl', native: 'Nederlands' },
   { code: 'nn', native: 'Nynorsk', mb: '3.4 MB' },
   { code: 'pl', native: 'Polski', mb: '5.0 MB' },
@@ -94,8 +96,8 @@ export const PLAYGROUND_LANGUAGES: PlaygroundLanguage[] = [
 ]
 
 /** Languages with a semantic model in the models registry — the exact
- *  roster of models-fasttext-onnx registry v1.2.0 (54 languages x 3
- *  tiers, 162 registry resources; unique language codes extracted from
+ *  roster of models-fasttext-onnx registry v1.3.0 (55 languages x 3
+ *  tiers, 165 registry resources; unique language codes extracted from
  *  its kotoshu://models/<lang>/<tier> resource keys). The gem resolves
  *  models registry-driven at setup time, so this list is presentation
  *  truth, not engine truth. */
@@ -103,8 +105,8 @@ export const MODEL_LANGUAGES: string[] = [
   'ar', 'bg', 'br', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es',
   'et', 'eu', 'fa', 'fr', 'fy', 'ga', 'gd', 'gl', 'he', 'hr', 'hu', 'hy',
   'ia', 'id', 'is', 'it', 'ja', 'ka', 'ko', 'la', 'lb', 'lt', 'lv', 'mk',
-  'mn', 'ne', 'nl', 'nn', 'oc', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sr',
-  'sv', 'tk', 'tr', 'uk', 'vi', 'zh',
+  'mn', 'nb', 'ne', 'nl', 'nn', 'oc', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl',
+  'sr', 'sv', 'tk', 'tr', 'uk', 'vi', 'zh',
 ]
 
 export const LANGUAGE_ROADMAP: { title: string; detail: string }[] = [

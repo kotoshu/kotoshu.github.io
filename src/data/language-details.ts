@@ -267,6 +267,27 @@ export const LANGUAGE_DETAILS: Record<string, LanguageDetail> = {
       'Kelly frequency tiers rank suggestions by usage, from the Kelly Project CEFR vocabulary lists.',
     ],
   },
+  nb: {
+    code: 'nb',
+    tagline: 'One Bokmål dictionary, two codes',
+    sample: {
+      text: 'Takk for meldingen, det var en hygglig overaskelse — jeg har mottat den.',
+      corrections: [
+        { from: 'hygglig', to: 'hyggelig' },
+        { from: 'overaskelse', to: 'overraskelse' },
+        { from: 'mottat', to: 'mottatt' },
+      ],
+    },
+    variants: ['no'],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Norwegian-QWERTY grid — the same Nordic physical layout as Danish, where real å æ ø keys replace the US bracket and semicolon keys.',
+      'The fastText ONNX model fasttext.nb.onnx is available for semantic reranking of suggestions, converted from fastText cc.no vectors, which are Bokmål-dominated.',
+      'The ISO macro-language code no resolves to this same Bokmål module in the language registry; resources cache under nb, so setup and checking use the nb key.',
+      'Nynorsk — nn — is a separate dictionary and a separate model in the registry; the two written standards of Norwegian never share a cache.',
+      'The Kelly frequency list is published under the no key rather than nb, so kotoshu setup nb skips frequency; ranking leans on the dictionary and the model.',
+    ],
+  },
   nl: {
     code: 'nl',
     tagline: 'Old spellings caught, new ones kept',
