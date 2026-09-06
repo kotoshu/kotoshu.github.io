@@ -123,7 +123,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         </div>
       </div>
       <p class="mt-4 text-center text-xs leading-6 text-[var(--color-text-3)]">
-        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.2.0" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.2.0</a>
+        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.3.0" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.3.0</a>
         · dictionaries from the <a href="https://github.com/kotoshu/dictionaries" class="text-[var(--color-accent)] hover:underline">dictionaries repo</a>,
         commit-pinned · both via jsDelivr, cached by your browser. The semantic tier, when you opt in, loads from the <a href="https://github.com/kotoshu/models-fasttext-onnx" class="text-[var(--color-accent)] hover:underline">models registry</a> mirror.
       </p>
@@ -139,7 +139,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
           <span class="dict-headword">tier</span>
           <div>
             <p class="dict-sense">Dictionary engine, semantic opt-in <span class="pos">n.</span> — suggestions from edit distance, phonetics, keyboard proximity, and n-grams; the semantic switch reranks them by context fit.</p>
-            <p class="dict-anno">@kotoshu/wasm 0.2.0 added the model pair - loadModel plus rerank - and registry v1.3.0 mirrors every mini tier to a host browsers may fetch, so the switch above loads this language tier, about 3 MB, and reranks inside the worker. The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a> still runs the heavier fluency tier and the full pipeline.</p>
+            <p class="dict-anno">Since @kotoshu/wasm 0.3.0 the engine itself sweeps with the Damerau operations — an adjacent swap costs one step, so Teh suggests The at rank one — and generates candidates from the model: loadModel plus rerank plus semanticSuggest, with registry v1.3.0 mirroring every mini tier to a host browsers may fetch. The switch above loads this language tier, about 3 MB, and reranks inside the worker. The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a> still runs the heavier fluency tier and the full pipeline.</p>
           </div>
         </div>
         <div class="dict-entry">
@@ -153,7 +153,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
           <span class="dict-headword">speed</span>
           <div>
             <p class="dict-sense">Underlines as you type <span class="pos">n.</span> — word lookups are instant; the engine runs in a Web Worker so typing never blocks.</p>
-            <p class="dict-anno">Ranked suggestions sweep the dictionary, so they appear on click — usually under a second for English, slower for very long or garbled words.</p>
+            <p class="dict-anno">Ranked suggestions sweep the dictionary, so they appear on click — the status line counts the pane sweeps done-of-total and the popover counts elapsed time, so the wait is never a blank. Usually under a second for English, slower for very long or garbled words.</p>
           </div>
         </div>
       </div>
@@ -265,10 +265,10 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       total?: number
       ms?: number
       sweepMs?: number
-      edit1Ms?: number
       semanticMs?: number
       rerankMs?: number
       semantic?: boolean
+      wasmVersion?: string
     }
 
     if (m.type === 'load-progress') {
@@ -297,6 +297,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       engineVersion = `engine ${m.engineVersion ?? ''}`.trim()
       engineFromCache = m.engineCached ?? false
       dictFromCache = m.dictCached ?? false
+      // The package pin is what the CDN serves; the engine constant is the
+      // kotoshu crate version inside it — both shown so neither misleads.
+      if (m.wasmVersion) engineVersion = `wasm ${m.wasmVersion} · ${engineVersion}`
       el.status.textContent =
         `engine ${m.engineVersion} ready — ${m.lang} loaded in ${m.loadMs} ms` +
         (m.dictCached ? ' (dictionary from cache)' : '')
@@ -354,7 +357,6 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     } else if (m.type === 'suggested') {
       const timing = {
         sweepMs: m.sweepMs ?? 0,
-        edit1Ms: m.edit1Ms ?? 0,
         semanticMs: m.semanticMs ?? 0,
         rerankMs: m.rerankMs ?? 0,
         semantic: m.semantic ?? false,
@@ -598,7 +600,6 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
 
   interface SuggestTiming {
     sweepMs: number
-    edit1Ms: number
     semanticMs: number
     rerankMs: number
     semantic: boolean
@@ -607,7 +608,6 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   function timingFooter(t: SuggestTiming) {
     const parts: string[] = []
     if (t.sweepMs) parts.push(`sweep ${t.sweepMs} ms`)
-    if (t.edit1Ms) parts.push(`near-miss ${t.edit1Ms} ms`)
     if (t.semantic) parts.push(`semantic ${t.semanticMs} ms · rerank ${t.rerankMs} ms`)
     if (parts.length === 0) return null
     const p = document.createElement('p')
