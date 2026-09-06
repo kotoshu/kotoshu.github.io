@@ -62,6 +62,10 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
             <span id="lab-readout" class="ml-auto min-h-4 font-mono text-[10.5px] leading-4 tracking-wide text-[var(--color-text-3)]" aria-live="polite"></span>
         </div>
 
+        <!-- Editor + misspellings pane: the pane lists every flagged word
+             with suggestions, so nothing hides behind a click -->
+        <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">
+        <div class="min-w-0">
         <!-- Editor: the backdrop renders decorated text, the textarea sits on top -->
         <div id="lab-wrap" class="relative">
           <div
@@ -96,6 +100,16 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         <div class="flex items-center gap-2 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-inset)] px-4 py-2">
           <span id="lab-dot" class="size-1.5 shrink-0 rounded-full bg-[var(--color-text-3)]" aria-hidden="true"></span>
           <p id="lab-status" class="font-mono text-[11px] leading-5 text-[var(--color-text-3)]" aria-live="polite">loading engine…</p>
+        </div>
+        </div>
+
+        <aside id="lab-pane" class="flex max-h-[21.5rem] flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] md:max-h-none" aria-label="Misspellings">
+          <p class="flex items-baseline justify-between border-b border-[var(--color-border-subtle)] px-3.5 py-2">
+            <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-text-3)]"><span class="jp" lang="ja">誤記</span> misspellings</span>
+            <span id="lab-pane-count" class="font-mono text-[10px] text-[var(--color-text-3)]"></span>
+          </p>
+          <ol id="lab-pane-list" class="flex-1 divide-y divide-[var(--color-border-subtle)] overflow-y-auto"></ol>
+        </aside>
         </div>
       </div>
       <p class="mt-4 text-center text-xs leading-6 text-[var(--color-text-3)]">
@@ -137,27 +151,6 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   </section>
 </BaseLayout>
 
-<style>
-  /* The backdrop and the textarea must set type identically or the
-     underlines drift. Both carry .lab-editor; this is the shared spec. */
-  :global(.lab-editor) {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-    line-height: 1.75;
-    letter-spacing: 0;
-    padding: 1.25rem;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    tab-size: 4;
-  }
-  #lab-backdrop :global(.misspelled) {
-    text-decoration: underline wavy var(--color-gold);
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 0.25em;
-  }
-</style>
-
 <script>
   type Suggestion = { word: string; distance: number; confidence: number; source: string }
 
@@ -167,6 +160,8 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   const el = {
     lang: document.getElementById('lab-lang') as HTMLSelectElement,
     backdrop: document.getElementById('lab-backdrop')!,
+    paneCount: document.getElementById('lab-pane-count')!,
+    paneList: document.getElementById('lab-pane-list')!,
     text: document.getElementById('lab-text') as HTMLTextAreaElement,
     wrap: document.getElementById('lab-wrap')!,
     pop: document.getElementById('lab-pop')!,
@@ -194,12 +189,21 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   let engineBytes = 0
   let dictBytes = 0
   let modelBytes = 0
+  let engineVersion = '…'
+  let engineFromCache = false
+  let dictFromCache = false
+  let modelFromCache = false
 
   const kib = (n: number) => `${Math.max(1, Math.round(n / 1024))} KiB`
+  // The readout is the inventory: exactly what is resident in this
+  // tab, where each artifact came from, and how big it is.
   const updateReadout = () => {
+    const src = (cached: boolean) => (cached ? 'cache' : 'net')
+    el.readout.title = el.readout.textContent
     el.readout.textContent =
-      `engine ${kib(engineBytes)} · dict ${kib(dictBytes)}` +
-      (semanticReady && modelBytes ? ` · model ${kib(modelBytes)}` : '')
+      `${engineVersion} [${src(engineFromCache)}]` +
+      (langLoaded ? ` · ${langLoaded} dict ${kib(dictBytes)} [${src(dictFromCache)}]` : '') +
+      (semanticReady && modelBytes ? ` · mini ${kib(modelBytes)} [${src(modelFromCache)}]` : '')
   }
 
   // — engine wiring ——————————————————————————————
@@ -225,6 +229,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       state?: 'off' | 'loading' | 'ready' | 'unavailable'
       modelBytes?: number
       detail?: string
+      engineCached?: boolean
+      dictCached?: boolean
+      modelCached?: boolean
     }
 
     if (m.type === 'loaded') {
@@ -232,7 +239,12 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       langLoaded = m.lang ?? null
       engineBytes = m.engineBytes ?? 0
       dictBytes = m.dictionaryBytes ?? 0
-      el.status.textContent = `engine ${m.engineVersion} ready — ${m.lang} loaded in ${m.loadMs} ms`
+      engineVersion = `engine ${m.engineVersion ?? ''}`.trim()
+      engineFromCache = m.engineCached ?? false
+      dictFromCache = m.dictCached ?? false
+      el.status.textContent =
+        `engine ${m.engineVersion} ready — ${m.lang} loaded in ${m.loadMs} ms` +
+        (m.dictCached ? ' (dictionary from cache)' : '')
       el.dot.style.background = 'var(--color-accent)'
       updateReadout()
       scheduleCheck(0)
@@ -243,6 +255,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       if (m.state === 'ready') {
         semanticReady = true
         modelBytes = m.modelBytes ?? 0
+        modelFromCache = m.modelCached ?? false
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary + semantic'
         el.tier.title = 'Semantic reranking on - candidates are reordered by the mini embedding tier running in the worker.'
         el.status.textContent = `semantic reranking on — ${m.lang} mini tier resident, ${kib(modelBytes)}`
@@ -271,8 +284,13 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     } else if (m.type === 'checked') {
       misspelled = new Set(m.words ?? [])
       render()
+      renderPane()
     } else if (m.type === 'suggested') {
       if (popRange && el.popWord.textContent === m.word) renderSuggestions(m.suggestions ?? [])
+      if (paneRequests.has(m.word ?? '')) {
+        paneRequests.delete(m.word ?? '')
+        fillPaneItem(m.word ?? '', m.suggestions ?? [])
+      }
     }
   })
 
@@ -316,6 +334,101 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     el.backdrop.replaceChildren(frag)
     // Underlines may push nothing (decoration only) — sync scroll anyway.
     el.backdrop.scrollTop = el.text.scrollTop
+  }
+
+  // — misspellings pane ————————————————————————
+
+  let paneRequests = new Set<string>()
+
+  function renderPane() {
+    el.paneList.replaceChildren()
+    const spans = [...el.backdrop.querySelectorAll<HTMLElement>('.misspelled')]
+    el.paneCount.textContent = spans.length === 0 ? '' : String(spans.length)
+    if (spans.length === 0) {
+      const p = document.createElement('p')
+      p.className = 'px-3.5 py-3 font-mono text-[11px] text-[var(--color-text-3)]'
+      p.textContent = 'nothing misspelled'
+      el.paneList.append(p)
+      return
+    }
+    const text = el.text.value
+    paneRequests.clear()
+    for (const span of spans) {
+      const word = span.textContent ?? ''
+      const start = Number(span.dataset.start)
+      const line = text.slice(0, start).split('\n').length
+      const li = document.createElement('li')
+      li.className = 'lab-pane-item px-3.5 py-2.5'
+      li.dataset.word = word
+      li.dataset.start = String(start)
+      const head = document.createElement('p')
+      head.className = 'flex items-baseline gap-2'
+      const w = document.createElement('span')
+      w.className = 'lab-pane-word font-mono text-[12.5px] text-[var(--color-text)]'
+      w.textContent = word
+      const ln = document.createElement('span')
+      ln.className = 'ml-auto font-mono text-[10px] text-[var(--color-text-3)]'
+      ln.textContent = `line ${line}`
+      head.append(w, ln)
+      const senses = document.createElement('div')
+      senses.className = 'mt-1 flex flex-wrap gap-1.5'
+      senses.textContent = '…'
+      senses.dataset.role = 'senses'
+      li.append(head, senses)
+      li.addEventListener('click', (event) => {
+        if ((event.target as HTMLElement).dataset.role === 'mend') return
+        jumpToWord(start)
+      })
+      el.paneList.append(li)
+      if (paneRequests.size < 12) {
+        paneRequests.add(word)
+        worker.postMessage({ type: 'suggest', word, context: contextWindow(start) })
+      }
+    }
+  }
+
+  function fillPaneItem(word: string, suggestions: Suggestion[]) {
+    const li = el.paneList.querySelector<HTMLElement>(`li[data-word="${CSS.escape(word)}"]`)
+    if (!li) return
+    const senses = li.querySelector<HTMLElement>('[data-role="senses"]')!
+    senses.replaceChildren()
+    if (suggestions.length === 0) {
+      senses.className = 'mt-1 font-mono text-[10.5px] text-[var(--color-text-3)]'
+      senses.textContent = 'no suggestions'
+      return
+    }
+    senses.className = 'mt-1 flex flex-wrap gap-1.5'
+    for (const s of suggestions.slice(0, 3)) {
+      const btn = document.createElement('button')
+      btn.className =
+        'rounded-md border border-[var(--color-border)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--color-accent)] hover:border-[var(--color-accent)]'
+      btn.dataset.role = 'mend'
+      btn.textContent = s.word
+      btn.addEventListener('click', () => {
+        const start = Number(li.dataset.start ?? 0)
+        const span = spanAt(start)
+        if (!span) return
+        popRange = { start, end: start + word.length }
+        apply(s.word)
+      })
+      senses.append(btn)
+    }
+  }
+
+  function jumpToWord(start: number) {
+    const span = spanAt(start)
+    if (!span) return
+    const text = el.text.value
+    const line = text.slice(0, start).split('\n').length
+    const lineHeight = 0.875 * 16 * 1.75
+    el.text.scrollTop = Math.max(0, (line - 3) * lineHeight)
+    el.backdrop.scrollTop = el.text.scrollTop
+    el.text.focus()
+    el.text.setSelectionRange(start, start)
+    span.classList.remove('lab-pane-flash')
+    void span.offsetWidth // restart the animation
+    span.classList.add('lab-pane-flash')
+    setTimeout(() => span.classList.remove('lab-pane-flash'), 950)
   }
 
   // — popover ——————————————————————————————————

@@ -95,7 +95,7 @@ let model: { handle: KotoshuModelHandle; lang: string; sizeBytes: number } | nul
 let registryPromise: Promise<Registry> | null = null
 
 function postSemantic(lang: string | null, detail?: string) {
-  post('semantic-status', { lang, state: semanticState, detail, modelBytes: model?.sizeBytes ?? 0 })
+  post('semantic-status', { lang, state: semanticState, detail, modelBytes: model?.sizeBytes ?? 0, modelCached })
 }
 
 function dropModel() {
@@ -107,7 +107,7 @@ function dropModel() {
 }
 
 async function ensureRegistry(): Promise<Registry> {
-  registryPromise ??= fetch(REGISTRY_URL).then((res) => {
+  registryPromise ??= cachedFetch(REGISTRY_URL).then(({ res }) => {
     if (!res.ok) throw new Error(`registry download failed: HTTP ${res.status}`)
     return res.json() as Promise<Registry>
   })
@@ -137,10 +137,13 @@ async function enableSemantic(lang: string) {
     if (!mirror) throw new Error(`no mini tier for ${lang} in registry ${MODELS_TAG}`)
     // The registry's vocab_url points at a release asset, which sends no
     // CORS headers - the mirror sibling is the browser-usable vocab.
-    const [modelRes, vocabRes] = await Promise.all([
-      fetch(mirror),
-      fetch(mirror.replace(/\.onnx$/, '.vocab.json')),
+    const [modelPair, vocabPair] = await Promise.all([
+      cachedFetch(mirror),
+      cachedFetch(mirror.replace(/\.onnx$/, '.vocab.json')),
     ])
+    modelCached = modelPair.cached && vocabPair.cached
+    const modelRes = modelPair.res
+    const vocabRes = vocabPair.res
     if (!modelRes.ok) throw new Error(`model download failed: HTTP ${modelRes.status}`)
     if (!vocabRes.ok) throw new Error(`vocab download failed: HTTP ${vocabRes.status}`)
     const [modelBytes, vocabBytes] = await Promise.all([
@@ -176,14 +179,50 @@ function importObject(mod: unknown): WebAssembly.Imports {
   } as unknown as WebAssembly.Imports
 }
 
+// Repeat visits load from Cache Storage, not the network: engine
+// binary, dictionaries, registry, and model tiers persist under
+// version-pinned URLs (a new pin is a new URL, so entries never go
+// stale; old-pin entries are evicted opportunistically on open).
+const CACHE_NAME = 'kotoshu-playground-v1'
+
+async function cachedFetch(url: string): Promise<{ res: Response; cached: boolean }> {
+  const cache = await caches.open(CACHE_NAME)
+  const hit = await cache.match(url)
+  if (hit) return { res: hit, cached: true }
+  const res = await fetch(url)
+  if (!res.ok) return { res, cached: false }
+  try {
+    await cache.put(url, res.clone())
+    // Same-origin policy does not apply to reading keys; evict stale
+    // pins of the same artifact family opportunistically.
+    const keys = await cache.keys()
+    for (const key of keys) {
+      if (key.url !== url && sameArtifact(key.url, url)) await cache.delete(key)
+    }
+  } catch {
+    /* cache quota or CORS hiccup - network result still returned */
+  }
+  return { res, cached: false }
+}
+
+function sameArtifact(a: string, b: string): boolean {
+  const tail = (u: string) => u.split('/').slice(2).join('/').replace(/@[^/]+/, '')
+  return tail(a) === tail(b) && a !== b
+}
+
+let engineCached = false
+let dictCached = false
+let modelCached = false
+
 async function ensureEngine(): Promise<void> {
   if (glue) return
 
   // The glue is a plain ES module on the CDN — import it at runtime.
   glue = (await import(/* @vite-ignore */ GLUE_URL)) as unknown as GlueModule
 
-  const res = await fetch(`${WASM_BASE}/kotoshu_wasm_bg.wasm`)
+  const { res, cached } = await cachedFetch(`${WASM_BASE}/kotoshu_wasm_bg.wasm`)
   if (!res.ok) throw new Error(`engine download failed: HTTP ${res.status}`)
+  engineCached = cached
   const bytes = new Uint8Array(await res.arrayBuffer())
   const { instance } = await WebAssembly.instantiate(bytes, importObject(glue))
   glue.__wbg_set_wasm(instance.exports)
@@ -200,8 +239,11 @@ async function fetchDictFile(lang: string, ext: 'aff' | 'dic'): Promise<string> 
   const paths = [`${lang}/spelling/index.${ext}`, `${lang}/index.${ext}`]
   let lastStatus = 0
   for (const path of paths) {
-    const res = await fetch(`${DICT_BASE}/${path}`)
-    if (res.ok) return res.text()
+    const { res, cached } = await cachedFetch(`${DICT_BASE}/${path}`)
+    if (res.ok) {
+      dictCached = cached
+      return res.text()
+    }
     lastStatus = res.status
   }
   throw new Error(`dictionary download failed: no index.${ext} for ${lang} at the pin (HTTP ${lastStatus})`)
@@ -314,6 +356,8 @@ self.onmessage = async (event: MessageEvent) => {
       await ensureEngine()
       const loaded = await loadLanguage(data.lang!)
       post('loaded', {
+        engineCached,
+        dictCached,
         lang: data.lang,
         engineBytes,
         dictionaryBytes: loaded.sizeBytes,
