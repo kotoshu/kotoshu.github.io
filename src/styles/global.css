@@ -508,3 +508,43 @@ html:has([data-theme="dark"]) body::after {
   margin-top: 2.5rem;
   border-top: 1px solid var(--color-border-subtle);
 }
+
+/* Playground editor layers — the backdrop mirror and the textarea
+   must set type identically or the underlines drift. Both carry
+   .lab-editor; lives here because page-trailing <style> blocks do
+   not reliably bundle (proven: the deployed CSS shipped without
+   them and the wavy underlines never rendered). */
+.lab-editor {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  letter-spacing: 0;
+  padding: 1.25rem;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  tab-size: 4;
+}
+
+#lab-backdrop .misspelled {
+  text-decoration: underline wavy var(--color-gold);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.25em;
+}
+
+/* Misspellings pane entry — click-to-jump list rows. */
+.lab-pane-item {
+  cursor: pointer;
+}
+.lab-pane-item .lab-pane-word {
+  text-decoration: underline wavy var(--color-gold);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.25em;
+}
+.lab-pane-flash {
+  animation: lab-flash 0.9s ease-out;
+}
+@keyframes lab-flash {
+  0% { background: color-mix(in oklab, var(--color-gold) 28%, transparent); }
+  100% { background: transparent; }
+}
