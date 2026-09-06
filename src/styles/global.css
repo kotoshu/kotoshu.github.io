@@ -548,3 +548,14 @@ html:has([data-theme="dark"]) body::after {
   0% { background: color-mix(in oklab, var(--color-gold) 28%, transparent); }
   100% { background: transparent; }
 }
+
+/* Load spinner — the playground progress row. */
+.lab-spinner {
+  border: 2px solid color-mix(in oklab, var(--color-gold) 30%, transparent);
+  border-top-color: var(--color-gold);
+  border-radius: 9999px;
+  animation: lab-spin 0.7s linear infinite;
+}
+@keyframes lab-spin {
+  to { transform: rotate(360deg); }
+}

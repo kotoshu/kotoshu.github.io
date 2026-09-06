@@ -185,24 +185,60 @@ function importObject(mod: unknown): WebAssembly.Imports {
 // stale; old-pin entries are evicted opportunistically on open).
 const CACHE_NAME = 'kotoshu-playground-v1'
 
-async function cachedFetch(url: string): Promise<{ res: Response; cached: boolean }> {
+function postProgress(kind: string, loaded: number, total: number) {
+  post('load-progress', { kind, loaded, total })
+}
+
+/** cachedFetch with byte-level progress on the network path: the body
+    streams through a reader so the UI can show how much arrived;
+    cache hits report complete instantly. */
+async function cachedFetchProgress(
+  url: string,
+  kind: string,
+): Promise<{ res: Response; cached: boolean }> {
   const cache = await caches.open(CACHE_NAME)
   const hit = await cache.match(url)
-  if (hit) return { res: hit, cached: true }
+  if (hit) {
+    const size = Number(hit.headers.get('content-length') ?? 0)
+    postProgress(kind, size, size)
+    return { res: hit, cached: true }
+  }
   const res = await fetch(url)
   if (!res.ok) return { res, cached: false }
+  const total = Number(res.headers.get('content-length') ?? 0)
+  const reader = res.body?.getReader()
+  if (!reader) {
+    postProgress(kind, total, total)
+    return { res, cached: false }
+  }
+  const chunks: Uint8Array[] = []
+  let loaded = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    chunks.push(value)
+    loaded += value.byteLength
+    postProgress(kind, loaded, total)
+  }
+  const rebuilt = new Response(new Blob(chunks as BlobPart[]), { status: 200, headers: res.headers })
   try {
-    await cache.put(url, res.clone())
-    // Same-origin policy does not apply to reading keys; evict stale
-    // pins of the same artifact family opportunistically.
+    await cache.put(url, rebuilt.clone())
     const keys = await cache.keys()
     for (const key of keys) {
       if (key.url !== url && sameArtifact(key.url, url)) await cache.delete(key)
     }
   } catch {
-    /* cache quota or CORS hiccup - network result still returned */
+    /* quota - the network result still returns */
   }
-  return { res, cached: false }
+  return { res: rebuilt, cached: false }
+}
+
+async function cachedFetch(url: string): Promise<{ res: Response; cached: boolean }> {
+  return cachedFetchProgress(url, lastPathSegment(url))
+}
+
+function lastPathSegment(url: string): string {
+  return url.split('/').pop() ?? 'artifact'
 }
 
 function sameArtifact(a: string, b: string): boolean {
