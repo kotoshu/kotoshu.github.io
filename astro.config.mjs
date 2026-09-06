@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  compressHTML: false,
   site: 'https://www.kotoshu.org',
   output: 'static',
   integrations: [
