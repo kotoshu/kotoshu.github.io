@@ -2,6 +2,10 @@
 // The playground engine worker — loads @kotoshu/wasm from a version-
 // pinned CDN and keeps every engine call off the main thread.
 //
+// Semantic candidate generation lives in ./semantic-merge (pure, unit-
+// checked); this file only fetches neighbors from the engine and hands
+// them to that merge ahead of the context rerank.
+//
 // Why raw jsDelivr npm files rather than esm.sh / esm.run: the package
 // is a wasm-bindgen *bundler-target* build whose entry imports the
 // .wasm binary directly. esm.run fails to bundle it outright, and
@@ -10,7 +14,13 @@
 // published files and instantiating them here is the delivery both
 // transforms were trying to produce. Pinned to the exact 0.2.0 -
 // 0.1.0 plus the loadModel/rerank pair the semantic layer below uses;
-// a strict superset, the dictionary surface is unchanged.
+// a strict superset, the dictionary surface is unchanged. The
+// semanticSuggest candidate-generation call is optional in the glue
+// surface: at the 0.2.0 pin it is absent and the layer runs
+// dictionary-only; it activates when the pin moves to a release that
+// carries it (0.3.0, the owner's version call).
+import { SEMANTIC_SUGGEST_K, mergeSemanticCandidates } from './semantic-merge'
+
 const WASM_VERSION = '0.2.0'
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@kotoshu/wasm@${WASM_VERSION}`
 const GLUE_URL = `${WASM_BASE}/kotoshu_wasm_bg.js`
@@ -40,11 +50,17 @@ interface GlueModule {
     correct(word: string): boolean
     suggest(word: string, limit?: number): Suggestion[]
   } & { VERSION?: string }
-  // The model pair added in @kotoshu/wasm 0.2.0. Optional members, so an
+  // The model surface: the loadModel/rerank pair added in @kotoshu/wasm
+  // 0.2.0, semanticSuggest added in 0.3.0. Optional members, so an
   // engine build without them degrades to dictionary-only instead of
   // throwing at the call site.
   loadModel?: (modelBytes: Uint8Array, vocabBytes: Uint8Array) => KotoshuModelHandle
   rerank?: (model: KotoshuModelHandle, word: string, context: string) => number
+  semanticSuggest?: (
+    model: KotoshuModelHandle,
+    word: string,
+    k?: number,
+  ) => { word: string; score: number }[]
   __wbg_set_wasm(exports: unknown): void
 }
 
@@ -334,7 +350,33 @@ function suggest(word: string, context: string): Suggestion[] {
     if (suggestCache.size > 300) suggestCache.clear()
     suggestCache.set(key, suggestions)
   }
-  return rerankSuggestions(suggestions, context)
+  // The cache holds DICTIONARY rows only; the semantic merge runs after
+  // retrieval so it never poisons the cache and switching the layer off
+  // returns to dictionary-only on the next request.
+  return rerankSuggestions(generateSemantic(word, suggestions), context)
+}
+
+// Candidate generation: when the semantic layer is resident and the
+// engine exports semanticSuggest, the model's nearest vocabulary words
+// join the dictionary candidates — the intended word for an OOV typo
+// often is one of them, something no edit-distance sweep can produce.
+// mergeSemanticCandidates dedupes and labels; rerankSuggestions above
+// then orders the merged list by context fit as before.
+function generateSemantic(word: string, dictionary: Suggestion[]): Suggestion[] {
+  const semanticSuggest = glue?.semanticSuggest
+  if (!model || semanticState !== 'ready' || !semanticSuggest) {
+    return dictionary
+  }
+  try {
+    return mergeSemanticCandidates(
+      dictionary,
+      semanticSuggest(model.handle, word, SEMANTIC_SUGGEST_K),
+    )
+  } catch {
+    // A generation failure must never take the popover down with it -
+    // dictionary candidates are still complete and correct.
+    return dictionary
+  }
 }
 
 // The gem cascade default never skips (threshold 1.0 = always rerank),
