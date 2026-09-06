@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "check:semantic": "node scripts/semantic_merge_check.mjs",
     "sync": "node scripts/sync-static.mjs",
     "astro": "astro"
   },
