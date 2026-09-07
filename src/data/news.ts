@@ -32,6 +32,22 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-9-3',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'Twelve languages ship in the gem — kotoshu 0.9.3',
+    summary:
+      'Full-feature batch 3 reaches RubyGems: 32 languages with modules and keyboards, plus the RTL tokenizer fix, on the 0.9.2 indexed-sweep base.',
+    senses: [
+      'Cut from main after PR #151: ar, id, fa, he, bg, sr, hr, sk, sl, lt, lv, et as full-feature modules (national keyboard grids, AVAILABLE_LANGUAGES 20 to 32, 49 engine-verified specimens). The script-aware word regex fix means kotoshu check -l ar|fa|he extracts real words from RTL documents.',
+      'Sits on the 0.9.2 sweep index, so the new languages get the indexed sweep from the first install. gem install kotoshu now resolves 0.9.3 for lsp/server users too.',
+    ],
+    links: [
+      { label: 'kotoshu on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'Language matrix', href: '/languages' },
+    ],
+  },
+  {
     slug: 'wasm-0-4-0',
     date: '2026-09-07',
     kind: 'release',
