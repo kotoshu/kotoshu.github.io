@@ -617,6 +617,42 @@ export const LANGUAGE_DETAILS: Record<string, LanguageDetail> = {
       'The fastText ONNX model is available for semantic reranking.',
     ],
   },
+  ko: {
+    code: 'ko',
+    tagline: 'Hangul eojeol, jamo-aware',
+    sample: {
+      text: '선생님이 학생에게 사랑을 가르칩니다',
+      corrections: [
+        { from: '생선님', to: '선생님' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'The Hangul tokenizer extracts eojeol — syllable blocks with combining jamo attached — so Korean words check whole.',
+      'Keyboard-proximity suggestions use the Dubeolsik 2-set layout (KS X 5002).',
+      'The dictionary carries 101,598 entries; the aff alone is 10.6 MB of ICONV rules, so Korean stays gem-only in the browser playground.',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  ne: {
+    code: 'ne',
+    tagline: 'Devanagari conjuncts kept whole',
+    sample: {
+      text: 'म नमसते भन्छु',
+      corrections: [
+        { from: 'नमसते', to: 'नमस्ते' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'The Devanagari tokenizer keeps matras and virama conjuncts attached to their base consonant; danda and Devanagari digits separate sentences.',
+      'Keyboard-proximity suggestions use the Devanagari InScript grid.',
+      'The dictionary is compact (~924 KiB) — Nepali runs in the browser playground.',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
   et: {
     code: 'et',
     tagline: 'Estonian Latin',
