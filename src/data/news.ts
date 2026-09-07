@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-9-1',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'The sweep fix reaches Ruby — kotoshu 0.9.1',
+    summary:
+      'Pure-Ruby suggestions drop from tens of seconds to under a second on full dictionaries, and the Damerau sweep ships for gem users: Teh suggests The at rank one.',
+    senses: [
+      'The patch release carries both suggestion-quality changes for gem users: the Damerau edit sweep (transpositions cost one step, substitutions and insertions enumerate over the aff TRY string, forms validate through affix-aware lookup — Teh to The at rank one, definately to definitely at rank one) and the sweep-performance port: one word index per generate instead of a full dictionary scan per keyboard variant, a length pre-gate ahead of the n-gram scan, one-pass Jaccard without the intermediate key-union array, and buffer-built Soundex.',
+      'Benchmarked on full en_US (48,262 words, MRI 3.4.8, pure-Ruby backend): Teh 20.6 s to 0.59 s, mispellings 140.2 s to 0.75 s, recieve 36.2 s to 0.70 s, definately 55.7 s to 0.87 s, asdfghjkl 39.6 s to 0.86 s. Suggestion outputs are byte-identical — the 2,630 conformance vectors are untouched, and equivalence fuzz against the old algorithms (6,004 find-word inputs, 22,011 soundex inputs, 2,986 similarity pairs) found zero mismatches.',
+      'The dictionary data files that had ridden along under docs/verification-evidence are no longer packaged — the gem is 269 library files, no stray hunspell data. Suite 3,777 examples, 0 failures; rubocop clean.',
+    ],
+    links: [
+      { label: 'kotoshu on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'gem PR #146 — the Damerau sweep', href: 'https://github.com/kotoshu/kotoshu/pull/146' },
+      { label: 'gem PR #147 — the indexed sweep', href: 'https://github.com/kotoshu/kotoshu/pull/147' },
+    ],
+  },
+  {
     slug: 'wasm-0-3-1',
     date: '2026-09-07',
     kind: 'release',
