@@ -17,6 +17,7 @@ const wiredModelCount = MODEL_LANGUAGES.filter((code) =>
 ---
 
 <BaseLayout title="Languages — what we support" description={`Kotoshu language support: ${LANGUAGE_STATS.fullFeature} full-feature languages, semantic models for ${MODEL_LANGUAGES.length}, frequency data for ${LANGUAGE_STATS.frequencyOnly} more, 98 staged Hunspell dictionaries, and automatic detection across 176 languages.`}>
+      <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-3">Since gem 0.11.0 every staged language installs and checks — <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu setup &lt;code&gt;</code> works for all 95 with script-aware fallbacks; the full-feature languages below add national keyboards and engine-verified specimens on top.</p>
   <section class="relative overflow-hidden">
     <div class="zen-glow" aria-hidden="true"></div>
     <VerticalAccent text="言葉の世界" />
