@@ -32,6 +32,22 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'server-0-1-2',
+    date: '2026-09-07',
+    kind: 'release',
+    title: '/v1/detect grows 169 languages — kotoshu-server 0.1.2',
+    summary:
+      'Detection prefers the lid-176 model through the gem 0.10.0 native path; the engine field says which one served the answer.',
+    senses: [
+      'POST /v1/detect returns { language, confidence, engine }: lid-176 (176 languages, lazy model setup on first request) when kotoshu >= 0.10.0 and the native extension can load the model; heuristic (the 7-language fallback) otherwise - old gems, KOTOSHU_BACKEND=ruby, offline setup failures, or KOTOSHU_DETECT=heuristic. Setup failures log once and degrade; never a 5xx.',
+      'Also fixes a pre-existing red on main - App::VERSION had drifted from the release workflow bumps - and documents the engine field in the README and OpenAPI schema.',
+    ],
+    links: [
+      { label: 'kotoshu-server on RubyGems', href: 'https://rubygems.org/gems/kotoshu-server' },
+      { label: 'server PR #6', href: 'https://github.com/kotoshu/kotoshu-server/pull/6' },
+    ],
+  },
+  {
     slug: 'gem-0-10-0',
     date: '2026-09-07',
     kind: 'release',
