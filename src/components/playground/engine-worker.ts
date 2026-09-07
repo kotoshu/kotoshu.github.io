@@ -193,7 +193,9 @@ async function ensureLid(): Promise<void> {
     | undefined
   const mirror = entry?.urls?.mirror
   if (!mirror) throw new Error(`no lid-176 in registry ${MODELS_TAG}`)
-  const vocabUrl = entry?.vocab_url ?? mirror.replace(/\.onnx$/, '.vocab.json')
+  // Prefer the media-host sibling of the model mirror. The registry
+  // vocab_url points at a release asset that may 404 or lack CORS.
+  const vocabUrl = mirror.replace(/\.onnx$/, '.vocab.json')
   const [modelPair, vocabPair] = await Promise.all([
     cachedFetchProgress(mirror, 'detect', 'lid model'),
     cachedFetchProgress(vocabUrl, 'detect', 'lid vocab'),
