@@ -2,7 +2,7 @@
 import DocsLayout from '~/layouts/DocsLayout.astro'
 ---
 
-<DocsLayout slug="clients/action" title="GitHub Action" description="kotoshu/action-kotoshu@v1 — spell-check files in CI, cache dictionaries between runs, and upload SARIF to the Security tab.">
+<DocsLayout slug="clients/action" title="GitHub Action" description="kotoshu/action-kotoshu@v2 — spell-check files or whole trees in CI via the gem directory mode, apply baselines, and upload SARIF to the Security tab.">
   <p class="docs-lead">
     One step, no credentials. The Action installs the gem, pre-warms the languages you name,
     checks the files you glob, and uploads SARIF to the Security tab.
@@ -16,7 +16,7 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
       security-events: write   # for the SARIF upload
     steps:
       - uses: actions/checkout@v4
-      - uses: kotoshu/action-kotoshu@v1
+      - uses: kotoshu/action-kotoshu@v2
         with:
           files: "*.md docs/**/*.adoc"
           language: en</code></pre>
@@ -77,24 +77,22 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
 
   <h2 class="display text-2xl mt-12">Directory mode &amp; baselines</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Today the Action still expands <code class="font-mono text-[13px] text-[var(--color-accent)]">files</code>
-    itself, with bash globstar, and checks the matched <em>files</em> one by one —
-    so name real globs like <code class="font-mono text-[13px] text-[var(--color-accent)]">"*.md docs/**/*.adoc"</code>;
-    a bare <code class="font-mono text-[13px] text-[var(--color-accent)]">.</code> matches no file and
-    the step exits 0 with a warning. The gem has carried directory mode and
-    baselines since 0.8.0 — <code class="font-mono text-[13px] text-[var(--color-accent)]">files: "."</code>
-    walking the whole tree through the gem's own directory mode (gitignore honored,
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">node_modules</code>/<code class="font-mono text-[13px] text-[var(--color-accent)]">vendor</code>
-    skipped), existing debt frozen so only new errors fail the build — but the
-    Action wrapper has not cut the hand-off yet: its action.yml at main
-    (2026-09-05) still has no baseline input and still glob-expands itself. The
-    planned shape, per the action-kotoshu README:
+    Shipped in v2: one <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check</code>
+    call walks the tree on the gem side (gitignore-aware, skips
+    <code class="font-mono text-[13px]">.git</code>/<code class="font-mono text-[13px]">node_modules</code>/<code class="font-mono text-[13px]">vendor</code>/<code class="font-mono text-[13px]">target</code>),
+    and a baseline path wires through
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--baseline</code>.
+    Errors the baseline covers pass as SARIF notes marked
+    <code class="font-mono text-[13px]">justification: baseline</code>; only new errors fail the step when
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">fail_on_error</code> is true. Requires gem
+    &gt;= 0.8.0 (the default install is latest).
   </p>
-  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code># pending the action-side update (gem-side directory mode shipped in 0.8.0)
-- uses: kotoshu/action-kotoshu@v1
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code>- uses: kotoshu/action-kotoshu@v2
   with:
     files: "."
-    baseline: .kotoshu-baseline.json</code></pre>
+    language: en
+    baseline: .kotoshu-baseline.json
+    format: sarif</code></pre>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
     Until that cut ships, the same flow works by running the CLI step yourself:
     <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init ./*.md docs/**/*.adoc</code>,
@@ -106,8 +104,7 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
 
   <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
     Validated 2026-09-05 — the workflow YAML above parses cleanly and its inputs match
-    action-kotoshu v1's action.yml field for field; the language input, the glob
-    expansion behavior, and the directory-mode/baseline plan were verified against
+    action-kotoshu v1's action.yml field for field; the language input, the gem-side directory walk, and the baseline input were verified against
     the action's action.yml and README at its current main. A full run against a test
     repository was judged overkill. Re-checked 2026-09-07 — action.yml at main is
     unchanged (no baseline input, globstar expansion still in the run step) and the

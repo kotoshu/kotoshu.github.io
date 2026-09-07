@@ -26,10 +26,21 @@ export const FULL_LANGUAGES: FullLanguage[] = [
   { code: 'tr', name: 'Turkish', native: 'Türkçe', keyboards: 'Turkish-Q' },
   { code: 'uk', name: 'Ukrainian', native: 'Українська', keyboards: 'Ukrainian-JCUKEN' },
   { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt', keyboards: 'Vietnamese-QWERTY' },
+  { code: 'ar', name: 'Arabic', native: 'العربية', keyboards: 'Arabic-101' },
+  { code: 'bg', name: 'Bulgarian', native: 'Български', keyboards: 'Bulgarian-BDS' },
+  { code: 'et', name: 'Estonian', native: 'Eesti', keyboards: 'Estonian-QWERTY' },
+  { code: 'fa', name: 'Persian', native: 'فارسی', keyboards: 'Persian-ISIRI-9147' },
+  { code: 'he', name: 'Hebrew', native: 'עברית', keyboards: 'Hebrew-SI-1452' },
+  { code: 'hr', name: 'Croatian', native: 'Hrvatski', keyboards: 'Croatian-QWERTZ' },
+  { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia', keyboards: 'Indonesian-QWERTY' },
+  { code: 'lt', name: 'Lithuanian', native: 'Lietuvių', keyboards: 'Lithuanian-QWERTY' },
+  { code: 'lv', name: 'Latvian', native: 'Latviešu', keyboards: 'Latvian-QWERTY' },
+  { code: 'sk', name: 'Slovak', native: 'Slovenčina', keyboards: 'Slovak-QWERTZ' },
+  { code: 'sl', name: 'Slovenian', native: 'Slovenščina', keyboards: 'Slovenian-QWERTZ' },
+  { code: 'sr', name: 'Serbian', native: 'Српски', keyboards: 'Serbian-Cyrillic' },
 ]
 
 export const FREQUENCY_LANGUAGES: { code: string; name: string }[] = [
-  { code: 'ar', name: 'Arabic' },
   { code: 'zh', name: 'Chinese' },
   { code: 'el', name: 'Greek' },
   { code: 'it', name: 'Italian' },
