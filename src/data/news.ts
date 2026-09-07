@@ -32,6 +32,22 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'wasm-0-4-0',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'Detect and OOV buckets — @kotoshu/wasm 0.4.0',
+    summary:
+      'loadLid/detectLanguage for 176-language identification, and bucket-backed OOV so Teh can reach the from the model path.',
+    senses: [
+      'The lid-176 model (~1 MB + vocab) ships through the registry v1.4.0 mirror. The playground detect control loads it once, scores the editor text, and proposes a language switch — never auto-switches an explicit choice.',
+      'Bucket-table siblings for en and de close the model-side Teh gap: n-grams absent from vocab fall back to hashed bucket rows. In-vocab behavior stays byte-identical.',
+    ],
+    links: [
+      { label: '@kotoshu/wasm on npm', href: 'https://www.npmjs.com/package/@kotoshu/wasm' },
+      { label: 'Playground', href: '/playground' },
+    ],
+  },
+  {
     slug: 'full-feature-32',
     date: '2026-09-07',
     kind: 'release',
