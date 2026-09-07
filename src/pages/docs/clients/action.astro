@@ -67,33 +67,36 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     language matrix has twenty full-feature languages (ca cs da de el en es fr hu
     it nb nl pl pt ro ru sv tr uk vi) and semantic models for 55 — see
     <a href="/languages" class="text-[var(--color-accent)] hover:underline">the matrix</a>.
-    An honest pin: the gem published on RubyGems (0.9.0) carries the full matrix —
-    pre-warm any full-feature language — but <code class="font-mono text-[13px] text-[var(--color-accent)]">version:</code>
-    can still pin an older cut, and 0.7.0 was the six-language one
-    (<code class="font-mono text-[13px] text-[var(--color-accent)]">en de es fr pt ru</code>).
+    An honest pin: <code class="font-mono text-[13px] text-[var(--color-accent)]">version:</code>
+    defaults to latest, so the step installs whatever RubyGems serves — 0.9.2 as of
+    September 2026, full matrix pre-warmable. Pin an older cut and you gate yourself:
+    0.7.0 (July 2026) is the six-language one
+    (<code class="font-mono text-[13px] text-[var(--color-accent)]">en de es fr pt ru</code>),
+    0.8.0 (August 2026) adds the wave-1 thirteen, 0.9.0 brings Norwegian and twenty.
   </p>
 
   <h2 class="display text-2xl mt-12">Directory mode &amp; baselines</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Today the Action expands <code class="font-mono text-[13px] text-[var(--color-accent)]">files</code>
+    Today the Action still expands <code class="font-mono text-[13px] text-[var(--color-accent)]">files</code>
     itself, with bash globstar, and checks the matched <em>files</em> one by one —
     so name real globs like <code class="font-mono text-[13px] text-[var(--color-accent)]">"*.md docs/**/*.adoc"</code>;
     a bare <code class="font-mono text-[13px] text-[var(--color-accent)]">.</code> matches no file and
-    the step exits 0 with a warning. With the next gem release the Action hands
-    directory targets straight to the engine —
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">files: "."</code> walking the whole
-    tree through the gem's own directory mode (gitignore honored,
+    the step exits 0 with a warning. The gem has carried directory mode and
+    baselines since 0.8.0 — <code class="font-mono text-[13px] text-[var(--color-accent)]">files: "."</code>
+    walking the whole tree through the gem's own directory mode (gitignore honored,
     <code class="font-mono text-[13px] text-[var(--color-accent)]">node_modules</code>/<code class="font-mono text-[13px] text-[var(--color-accent)]">vendor</code>
-    skipped) — and gains a baseline input so existing debt never fails the build
-    while new errors still do:
+    skipped), existing debt frozen so only new errors fail the build — but the
+    Action wrapper has not cut the hand-off yet: its action.yml at main
+    (2026-09-05) still has no baseline input and still glob-expands itself. The
+    planned shape, per the action-kotoshu README:
   </p>
-  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code># coming with the next gem release (per the action-kotoshu README)
+  <pre class="code-block overflow-x-auto p-4 text-[13px] leading-7 mt-4"><code># pending the action-side update (gem-side directory mode shipped in 0.8.0)
 - uses: kotoshu/action-kotoshu@v1
   with:
     files: "."
     baseline: .kotoshu-baseline.json</code></pre>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Until then the same flow works by running the CLI step yourself:
+    Until that cut ships, the same flow works by running the CLI step yourself:
     <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu baseline init ./*.md docs/**/*.adoc</code>,
     commit the baseline, then <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check . --baseline .kotoshu-baseline.json --format sarif</code>
     — the full story is on
@@ -106,7 +109,9 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     action-kotoshu v1's action.yml field for field; the language input, the glob
     expansion behavior, and the directory-mode/baseline plan were verified against
     the action's action.yml and README at its current main. A full run against a test
-    repository was judged overkill.
+    repository was judged overkill. Re-checked 2026-09-07 — action.yml at main is
+    unchanged (no baseline input, globstar expansion still in the run step) and the
+    unpinned install resolves to kotoshu 0.9.2 on RubyGems.
     <a href="https://github.com/kotoshu/action-kotoshu" class="text-[var(--color-accent)] hover:underline">action-kotoshu repo</a> ·
     <a href="https://github.com/kotoshu/action-kotoshu/blob/main/action.yml" class="text-[var(--color-accent)] hover:underline">action.yml</a>
   </p>

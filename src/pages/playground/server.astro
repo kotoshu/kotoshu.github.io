@@ -20,10 +20,16 @@ import SectionHeading from '~/components/SectionHeading.astro'
       />
       <p class="mx-auto mt-6 max-w-2xl text-center text-xs leading-6 text-[var(--color-text-3)]">
         The in-browser demo on the <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground page</a>
-        needs no server — dictionary engine only. This one needs a server running:
+        needs no server — dictionary engine only. There is no hosted instance to try here;
+        this one needs your own server running:
+        <code class="font-mono text-[var(--color-accent)]">gem install kotoshu-server</code>
+        (0.1.1 on RubyGems) then <code class="font-mono text-[var(--color-accent)]">kotoshu-server</code>,
+        or from source with
         <code class="font-mono text-[var(--color-accent)]">git clone https://github.com/kotoshu/kotoshu-server</code>
-        then <code class="font-mono text-[var(--color-accent)]">bundle exec exe/kotoshu-server</code> — see the
+        and <code class="font-mono text-[var(--color-accent)]">bundle exec exe/kotoshu-server</code> — see the
         <a href="/docs/clients/http" class="text-[var(--color-accent)] hover:underline">HTTP guide</a>.
+        What a full pipeline costs, measured, is on
+        <a href="/docs/performance" class="text-[var(--color-accent)] hover:underline">Performance</a>.
         <a href="/playground/app/" class="text-[var(--color-accent)] hover:underline">Open standalone ↗</a>
       </p>
     </div>

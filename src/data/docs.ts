@@ -31,7 +31,7 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     nav: 'Overview',
     section: 'start',
     description:
-      'Everything about using Kotoshu well: the two-stage resource model, the CLI, the Ruby API, configuration, caches, plugins, and how to move over from another checker.',
+      'Everything about using Kotoshu well: the two-stage resource model, the CLI, the Ruby API, configuration, caches, measured performance, plugins, and how to move over from another checker.',
     keywords: 'docs documentation manual guide overview contents index',
   },
   {
@@ -141,6 +141,15 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     description:
       'Where dictionaries, frequency lists, and models live (XDG paths), the two-stage setup/resolve lifecycle, TTLs, integrity checks, and cache commands.',
     keywords: 'cache caching resources dictionaries models download xdg ttl setup resolve manifest offline tier tiers fluency mini full model size',
+  },
+  {
+    slug: 'performance',
+    title: 'Performance',
+    nav: 'Performance',
+    section: 'reference',
+    description:
+      'Measured, not promised: whole-text check latency (1-33 ms per 100 words), per-language suggestion sweeps, model tier sizes from the registry, and the tuning knobs - personal dictionary, baselines, tier, backend.',
+    keywords: 'performance latency benchmark speed milliseconds sweep suggest check throughput tier size tuning personal dictionary baseline backend ruby native wasm',
   },
   {
     slug: 'plugins',
