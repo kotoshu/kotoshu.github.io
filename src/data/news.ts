@@ -32,6 +32,23 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-10-0',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'Personal dictionaries that check, detection that works — kotoshu 0.10.0',
+    summary:
+      'kotoshu check finally consults the personal dictionary, and Kotoshu.detect_language identifies 176 languages through the pure-Rust lid reader.',
+    senses: [
+      'The personal dictionary reaches the check path (plan 105): a word added with kotoshu personal add stops being an error on the next check - case-insensitive, no metadata, one load per process, mirroring the editor integration. Opt out with --no-personal or KOTOSHU_PERSONAL_DICTIONARY=false. Until now the README story was false on the CLI path.',
+      'Kotoshu.detect_language -> { code, score } (plan 106): the lid-176 model through the native extension, ~42 microseconds warm, 55/55 parity with the reference on the frozen corpus (en 0.87, de 0.99, ja 0.998, ar 0.97 live). Pure-Ruby installs keep the 7-language heuristic; kotoshu-server /v1/detect upgrades to the 176-language path in 0.1.2.',
+    ],
+    links: [
+      { label: 'kotoshu on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'gem PR #155', href: 'https://github.com/kotoshu/kotoshu/pull/155' },
+      { label: 'gem PR #156', href: 'https://github.com/kotoshu/kotoshu/pull/156' },
+    ],
+  },
+  {
     slug: 'gem-0-9-3',
     date: '2026-09-07',
     kind: 'release',
