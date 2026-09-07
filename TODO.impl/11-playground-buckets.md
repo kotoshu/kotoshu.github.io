@@ -21,4 +21,4 @@ model-generated candidate; de spot check; language without buckets (e.g.
 fr) still enables semantic cleanly.
 
 ## Status
-Pending
+Executed 2026-09-07 — site PR (playground buckets attach).
