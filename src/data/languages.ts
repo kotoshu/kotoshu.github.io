@@ -38,6 +38,9 @@ export const FULL_LANGUAGES: FullLanguage[] = [
   { code: 'sk', name: 'Slovak', native: 'Slovenčina', keyboards: 'Slovak-QWERTZ' },
   { code: 'sl', name: 'Slovenian', native: 'Slovenščina', keyboards: 'Slovenian-QWERTZ' },
   { code: 'sr', name: 'Serbian', native: 'Српски', keyboards: 'Serbian-Cyrillic' },
+  { code: 'ko', name: 'Korean', native: '한국어', keyboards: 'Dubeolsik-2Set' },
+  { code: 'ne', name: 'Nepali', native: 'नेपाली', keyboards: 'Devanagari-InScript' },
+  { code: 'nn', name: 'Norwegian Nynorsk', native: 'Norsk nynorsk', keyboards: 'Norwegian-QWERTY' },
 ]
 
 export const FREQUENCY_LANGUAGES: { code: string; name: string }[] = [
@@ -93,6 +96,7 @@ export const PLAYGROUND_LANGUAGES: PlaygroundLanguage[] = [
   { code: 'mk', native: 'Македонски' },
   { code: 'nb', native: 'Norsk bokmål', mb: '5.4 MB' },
   { code: 'nl', native: 'Nederlands' },
+  { code: 'ne', native: 'नेपाली' },
   { code: 'nn', native: 'Nynorsk', mb: '3.4 MB' },
   { code: 'pl', native: 'Polski', mb: '5.0 MB' },
   { code: 'pt', native: 'Português', mb: '5.5 MB' },

@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-11-0',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'Every staged language reachable, Korean and Nepali full-feature — kotoshu 0.11.0',
+    summary:
+      'setup no longer gates on a module: 95 staged languages work out of the box with script-aware fallbacks, and ko and ne join the full-feature 35.',
+    senses: [
+      'The basic tier (plan 107): AVAILABLE_LANGUAGES derives from the dictionaries manifest instead of a hardcoded module list, so every staged language installs and checks — script-aware tokenizers and per-script keyboard fallbacks apply automatically. Modules are now upgrades (national keyboards, verified specimens), not gates. nn wired as the 33rd full-feature language.',
+      'Korean and Nepali full-feature (plan 108): a Hangul eojeol tokenizer (Dubeolsik 2-set grid, KS X 5002) and a Devanagari tokenizer that keeps matras and conjuncts whole (InScript grid) — the last big-population languages without support. 35 full-feature languages total; live specimen round trips in both scripts.',
+      'Also in the cut: the 1.0 public-surface cleanup — the global DictCommand leak fixed, dead command classes and unused aliases removed (1,095 lines), experimental checkers documented. Suite 3,985 examples, conformance untouched.',
+    ],
+    links: [
+      { label: 'kotoshu on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'gem PR #160 — basic tier', href: 'https://github.com/kotoshu/kotoshu/pull/160' },
+      { label: 'gem PR #161 — ko and ne', href: 'https://github.com/kotoshu/kotoshu/pull/161' },
+    ],
+  },
+  {
     slug: 'server-0-1-2',
     date: '2026-09-07',
     kind: 'release',
