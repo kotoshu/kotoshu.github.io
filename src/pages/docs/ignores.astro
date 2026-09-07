@@ -153,6 +153,21 @@ kotoshu check README.md --baseline .kotoshu-baseline.json</code></pre>
     </p>
   </div>
 
+    <h2 class="display text-2xl mt-12">The personal dictionary reaches the check path</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Since <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu 0.10.0</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu check</code> consults
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">~/.config/kotoshu/personal.dic</code>
+    the same way the editor integration always has: a word you added with
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu personal add</code> stops being
+    an error on the next check, case-insensitively, with no metadata attached. One load per process;
+    the LSP keeps its mtime-based hot reload. Opt out with
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">--no-personal</code>,
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_PERSONAL_DICTIONARY=false</code>,
+    or <code class="font-mono text-[13px] text-[var(--color-accent)]">Kotoshu.configure { personal_dictionary false }</code>.
+    The inline directives below stay the per-file story - the personal dictionary is the cross-file one.
+  </p>
+
   <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
     Every directive, flag, and exit code on this page was read from the gem source
     (lib/kotoshu/documents/suppressions, lib/kotoshu/baseline, lib/kotoshu/cli) and the
