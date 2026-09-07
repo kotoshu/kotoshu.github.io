@@ -32,6 +32,39 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'full-feature-32',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'Twelve more full-feature languages — 32 total',
+    summary:
+      'Arabic, Indonesian, Persian, Hebrew, and eight European languages join the full-feature set: gem modules, national keyboards, and engine-verified specimens.',
+    senses: [
+      'Plan 100 batch 3 promotes ar, id, fa, he, bg, sr, hr, sk, sl, lt, lv, and et from the degraded path to full feature. Enumeration was data-driven: every language present in both the dictionaries manifest and the models registry that lacked a module, ranked by speakers. ko and ne rank higher by speakers but need Hangul jamo and Devanagari tokenizers outside this batch.',
+      'Six national keyboard grids (Arabic 101, Persian ISIRI 9147, Hebrew SI-1452, Bulgarian BDS, Serbian Cyrillic, Croatian/Slovenian QWERTZ) plus five parameterized Latin family members. AVAILABLE_LANGUAGES grows 20 to 32. A real bug fixed on the way: the script-aware word regex never reached the ar/fa/he tokenizers, so Kotoshu.check extracted zero words from RTL documents — those tokenizers now declare their script sets (fa includes ZWNJ).',
+      'Forty-nine specimen pairs engine-verified across the twelve languages, plus RTL sentence round trips. Suite 3,887 examples, 0 failures.',
+    ],
+    links: [
+      { label: 'Language matrix', href: '/languages' },
+      { label: 'gem PR #151', href: 'https://github.com/kotoshu/kotoshu/pull/151' },
+    ],
+  },
+  {
+    slug: 'action-v2',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'GitHub Action v2 — gem directory mode and baselines',
+    summary:
+      'files: "." finally walks the tree. Baselines, include/exclude, and SARIF suppression notes ship in the wrapper that CI actually runs.',
+    senses: [
+      'v1 expanded globs in bash and had no baseline input, even after the gem shipped directory mode and baselines in 0.8.0. v2 passes paths straight to kotoshu check, adds baseline/include/exclude/show_suppressed/category inputs, and merges per-file SARIF runs so upload-sarif accepts the report.',
+      'Self-test workflow runs the action against a fixture repo with two misspellings and a committed baseline: baselined entries pass as notes, new errors fail, gitignored files stay out. Requires gem >= 0.8.0. Tag v2 is the owner cut.',
+    ],
+    links: [
+      { label: 'Action docs', href: '/docs/clients/action' },
+      { label: 'action-kotoshu PR #2', href: 'https://github.com/kotoshu/action-kotoshu/pull/2' },
+    ],
+  },
+  {
     slug: 'gem-0-9-2',
     date: '2026-09-07',
     kind: 'release',

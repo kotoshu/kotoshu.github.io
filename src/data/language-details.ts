@@ -427,4 +427,213 @@ export const LANGUAGE_DETAILS: Record<string, LanguageDetail> = {
       'No Kelly frequency list is published for Vietnamese yet; frequency data is an optional resource, so checking works without it.',
     ],
   },
+
+  ar: {
+    code: 'ar',
+    tagline: 'RTL spell checking for the largest full-feature language',
+    sample: {
+      text: 'هذه مدسرة جميلة',
+      corrections: [
+        { from: 'مدسرة', to: 'مدرسة' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Arabic 101 layout.',
+      'The script-aware tokenizer extracts Arabic letter runs; Kotoshu.check flags misspellings inside real sentences.',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  id: {
+    code: 'id',
+    tagline: 'Bahasa Indonesia, full-feature',
+    sample: {
+      text: 'Saya membaca buuk di ruamh yang beasr.',
+      corrections: [
+        { from: 'buuk', to: 'buku' },
+        { from: 'ruamh', to: 'rumah' },
+        { from: 'beasr', to: 'besar' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Indonesian QWERTY layout (parameterized Latin family).',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  fa: {
+    code: 'fa',
+    tagline: 'Persian with ZWNJ-aware compounds',
+    sample: {
+      text: 'این یک مدسره زیاب است',
+      corrections: [
+        { from: 'مدسره', to: 'مدرسه' },
+        { from: 'زیاب', to: 'زیبا' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Persian ISIRI 9147 layout.',
+      'The tokenizer includes ZWNJ so compounds like می‌روم stay whole — the staged dictionary carries tens of thousands of ZWNJ forms.',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  he: {
+    code: 'he',
+    tagline: 'Hebrew RTL, geresh-aware',
+    sample: {
+      text: 'זה שלםו גדול בעולם',
+      corrections: [
+        { from: 'שלםו', to: 'שלום' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Hebrew SI-1452 layout.',
+      'The tokenizer includes geresh and gershayim so marked words extract correctly.',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  bg: {
+    code: 'bg',
+    tagline: 'Bulgarian Cyrillic, BDS layout',
+    sample: {
+      text: 'Чете кнгиа в учлище.',
+      corrections: [
+        { from: 'кнгиа', to: 'книга' },
+        { from: 'учлище', to: 'училище' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Bulgarian BDS layout (registered ahead of JCUKEN).',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  sr: {
+    code: 'sr',
+    tagline: 'Serbian Cyrillic full feature',
+    sample: {
+      text: 'Читам књгиа у шклоа.',
+      corrections: [
+        { from: 'књгиа', to: 'књига' },
+        { from: 'шклоа', to: 'школа' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Serbian Cyrillic layout.',
+      'sr-Latn stays unwired (like nn); this module is the Cyrillic path.',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  hr: {
+    code: 'hr',
+    tagline: 'Croatian QWERTZ',
+    sample: {
+      text: 'Čitam kniga u škloa.',
+      corrections: [
+        { from: 'kniga', to: 'knjiga' },
+        { from: 'škloa', to: 'škola' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Croatian QWERTZ layout (shared with Slovenian).',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  sk: {
+    code: 'sk',
+    tagline: 'Slovak with carons',
+    sample: {
+      text: 'Čítam knhia v škloa.',
+      corrections: [
+        { from: 'knhia', to: 'kniha' },
+        { from: 'škloa', to: 'škola' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Slovak QWERTZ layout (parameterized Latin family).',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  sl: {
+    code: 'sl',
+    tagline: 'Slovenian QWERTZ',
+    sample: {
+      text: 'Berem knjgia v šoal.',
+      corrections: [
+        { from: 'knjgia', to: 'knjiga' },
+        { from: 'šoal', to: 'šola' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Slovenian QWERTZ layout.',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  lt: {
+    code: 'lt',
+    tagline: 'Lithuanian Latin',
+    sample: {
+      text: 'Skaitau kngya mokykloje.',
+      corrections: [
+        { from: 'kngya', to: 'knyga' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Lithuanian QWERTY layout (parameterized Latin family).',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  lv: {
+    code: 'lv',
+    tagline: 'Latvian with macrons',
+    sample: {
+      text: 'Es lasu grāamta skloa.',
+      corrections: [
+        { from: 'grāamta', to: 'grāmata' },
+        { from: 'skloa', to: 'skola' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Latvian QWERTY layout (parameterized Latin family).',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+  et: {
+    code: 'et',
+    tagline: 'Estonian Latin',
+    sample: {
+      text: 'Ma loen ramat, mis on sur ja ilsu.',
+      corrections: [
+        { from: 'ramat', to: 'raamat' },
+        { from: 'sur', to: 'suur' },
+        { from: 'ilsu', to: 'ilus' },
+      ],
+    },
+    variants: [],
+    hasModel: true,
+    notes: [
+      'Keyboard-proximity suggestions use the Estonian QWERTY layout (parameterized Latin family).',
+      'The fastText ONNX model is available for semantic reranking.',
+    ],
+  },
+
 }
