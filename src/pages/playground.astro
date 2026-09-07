@@ -211,6 +211,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
   let engineBytes = 0
   let dictBytes = 0
   let modelBytes = 0
+  let bucketsBytes = 0
   let engineVersion = '…'
   let engineFromCache = false
   let dictFromCache = false
@@ -240,7 +241,9 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     el.readout.textContent =
       `${engineVersion} [${src(engineFromCache)}]` +
       (langLoaded ? ` · ${langLoaded} dict ${kib(dictBytes)} [${src(dictFromCache)}]` : '') +
-      (semanticReady && modelBytes ? ` · mini ${kib(modelBytes)} [${src(modelFromCache)}]` : '')
+      (semanticReady && modelBytes
+        ? ` · mini ${kib(modelBytes)}` + (bucketsBytes ? ` + buckets ${kib(bucketsBytes)}` : '') + ` [${src(modelFromCache)}]`
+        : '')
   }
 
   // — engine wiring ——————————————————————————————
@@ -265,6 +268,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       message?: string
       state?: 'off' | 'loading' | 'ready' | 'unavailable'
       modelBytes?: number
+      bucketsBytes?: number
       detail?: string
       engineCached?: boolean
       dictCached?: boolean
@@ -325,10 +329,13 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       if (m.state === 'ready') {
         semanticReady = true
         modelBytes = m.modelBytes ?? 0
+        bucketsBytes = m.bucketsBytes ?? 0
         modelFromCache = m.modelCached ?? false
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary + semantic'
         el.tier.title = 'Semantic reranking on - candidates are reordered by the mini embedding tier running in the worker.'
-        el.status.textContent = `semantic reranking on — ${m.lang} mini tier resident, ${kib(modelBytes)}`
+        el.status.textContent =
+          `semantic reranking on — ${m.lang} mini tier resident, ${kib(modelBytes)}` +
+          (bucketsBytes ? ` + buckets ${kib(bucketsBytes)}` : '')
         idleStatus = el.status.textContent
         updateReadout()
       } else if (m.state === 'loading') {
@@ -337,6 +344,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       } else if (m.state === 'unavailable') {
         semanticReady = false
         modelBytes = 0
+        bucketsBytes = 0
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary'
         el.tier.title = 'Semantic model unavailable - mirror unreachable or no mini tier for this language. Dictionary-only.'
         el.status.textContent = `semantic model unavailable — ${m.detail ?? 'mirror unreachable'} · dictionary-only`
@@ -345,6 +353,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
       } else if (semanticReady || modelBytes > 0) {
         semanticReady = false
         modelBytes = 0
+        bucketsBytes = 0
         el.tier.innerHTML = '<span lang="ja">辞書</span> tier: dictionary'
         el.status.textContent = 'semantic reranking off — model memory freed'
         idleStatus = el.status.textContent

@@ -50,7 +50,11 @@ interface GlueModule {
   // 0.2.0, semanticSuggest added in 0.3.0. Optional members, so an
   // engine build without them degrades to dictionary-only instead of
   // throwing at the call site.
-  loadModel?: (modelBytes: Uint8Array, vocabBytes: Uint8Array) => KotoshuModelHandle
+  loadModel?: (
+    modelBytes: Uint8Array,
+    vocabBytes: Uint8Array,
+    bucketsBytes?: Uint8Array,
+  ) => KotoshuModelHandle
   rerank?: (model: KotoshuModelHandle, word: string, context: string) => number
   semanticSuggest?: (
     model: KotoshuModelHandle,
@@ -105,13 +109,20 @@ let engineBytes = 0
 const CONTEXT_BOOST_WEIGHT = 0.02
 type SemanticState = 'off' | 'loading' | 'ready' | 'unavailable'
 let semanticState: SemanticState = 'off'
-let model: { handle: KotoshuModelHandle; lang: string; sizeBytes: number } | null = null
+let model: { handle: KotoshuModelHandle; lang: string; sizeBytes: number; bucketsBytes: number } | null = null
 let lid: { handle: KotoshuModelHandle; sizeBytes: number } | null = null
 let lidCached = false
 let registryPromise: Promise<Registry> | null = null
 
 function postSemantic(lang: string | null, detail?: string) {
-  post('semantic-status', { lang, state: semanticState, detail, modelBytes: model?.sizeBytes ?? 0, modelCached })
+  post('semantic-status', {
+    lang,
+    state: semanticState,
+    detail,
+    modelBytes: model?.sizeBytes ?? 0,
+    bucketsBytes: model?.bucketsBytes ?? 0,
+    modelCached,
+  })
 }
 
 function dropModel() {
@@ -166,10 +177,27 @@ async function enableSemantic(lang: string) {
       modelRes.arrayBuffer().then((buf) => new Uint8Array(buf)),
       vocabRes.arrayBuffer().then((buf) => new Uint8Array(buf)),
     ])
+    // Bucket sibling (plan 103): when the registry carries
+    // kotoshu://models/{lang}/buckets, its rows let semanticSuggest embed
+    // OOV n-grams the vocab lacks. Absent or failed fetch degrades to the
+    // two-arg call - the layer works exactly as before.
+    let bucketsBytes: Uint8Array | undefined
+    let bucketsBytesCount = 0
+    const bucketMirror = (await ensureRegistry()).resources?.[`kotoshu://models/${lang}/buckets`]
+      ?.urls?.mirror
+    if (bucketMirror) {
+      const bucketPair = await cachedFetchProgress(bucketMirror, 'semantic', `${lang} buckets`)
+      if (bucketPair.res.ok) {
+        bucketsBytes = new Uint8Array(await bucketPair.res.arrayBuffer())
+        bucketsBytesCount = bucketsBytes.byteLength
+        modelCached = modelCached && bucketPair.cached
+      }
+    }
     model = {
-      handle: loadModel(modelBytes, vocabBytes),
+      handle: loadModel(modelBytes, vocabBytes, bucketsBytes),
       lang,
       sizeBytes: modelBytes.byteLength + vocabBytes.byteLength,
+      bucketsBytes: bucketsBytesCount,
     }
     semanticState = 'ready'
     postSemantic(lang)
