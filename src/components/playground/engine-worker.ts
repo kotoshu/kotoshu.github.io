@@ -17,7 +17,7 @@
 // the indexed dictionary sweep (length buckets, packed soundex, indexed lengths) built once per dictionary.
 import { SEMANTIC_SUGGEST_K, mergeSemanticCandidates } from './semantic-merge'
 
-const WASM_VERSION = '0.3.2'
+const WASM_VERSION = '0.4.0'
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@kotoshu/wasm@${WASM_VERSION}`
 const GLUE_URL = `${WASM_BASE}/kotoshu_wasm_bg.js`
 
@@ -33,7 +33,7 @@ const DICT_BASE = `https://cdn.jsdelivr.net/gh/kotoshu/dictionaries@${DICT_PIN}`
 // browsers (release assets and jsDelivr /gh do not). v1.2.1 was the
 // first tag with every mini/fluency tier mirrored; v1.3.0 keeps that
 // and adds nb.
-const MODELS_TAG = 'v1.3.0'
+const MODELS_TAG = 'v1.4.0'
 const REGISTRY_URL = `https://raw.githubusercontent.com/kotoshu/models-fasttext-onnx/${MODELS_TAG}/registry.json`
 
 /** An opaque loaded embedding tier - freed by GC or an explicit free(). */
@@ -57,6 +57,8 @@ interface GlueModule {
     word: string,
     k?: number,
   ) => { word: string; score: number }[]
+  loadLid?: (modelBytes: Uint8Array, vocabBytes: Uint8Array) => KotoshuModelHandle
+  detectLanguage?: (lid: KotoshuModelHandle, text: string) => { code: string; score: number }
   __wbg_set_wasm(exports: unknown): void
 }
 
@@ -104,6 +106,8 @@ const CONTEXT_BOOST_WEIGHT = 0.02
 type SemanticState = 'off' | 'loading' | 'ready' | 'unavailable'
 let semanticState: SemanticState = 'off'
 let model: { handle: KotoshuModelHandle; lang: string; sizeBytes: number } | null = null
+let lid: { handle: KotoshuModelHandle; sizeBytes: number } | null = null
+let lidCached = false
 let registryPromise: Promise<Registry> | null = null
 
 function postSemantic(lang: string | null, detail?: string) {
@@ -173,6 +177,56 @@ async function enableSemantic(lang: string) {
     dropModel()
     semanticState = 'unavailable'
     postSemantic(lang, (error as Error).message)
+  }
+}
+
+
+async function ensureLid(): Promise<void> {
+  if (lid) return
+  await ensureEngine()
+  const { loadLid } = glue!
+  if (typeof loadLid !== 'function') {
+    throw new Error(`engine ${WASM_VERSION} exposes no LID API`)
+  }
+  const entry = (await ensureRegistry()).resources?.['kotoshu://models/lid/lid-176'] as
+    | (RegistryEntry & { vocab_url?: string })
+    | undefined
+  const mirror = entry?.urls?.mirror
+  if (!mirror) throw new Error(`no lid-176 in registry ${MODELS_TAG}`)
+  const vocabUrl = entry?.vocab_url ?? mirror.replace(/\.onnx$/, '.vocab.json')
+  const [modelPair, vocabPair] = await Promise.all([
+    cachedFetchProgress(mirror, 'detect', 'lid model'),
+    cachedFetchProgress(vocabUrl, 'detect', 'lid vocab'),
+  ])
+  lidCached = modelPair.cached && vocabPair.cached
+  if (!modelPair.res.ok) throw new Error(`lid model download failed: HTTP ${modelPair.res.status}`)
+  if (!vocabPair.res.ok) throw new Error(`lid vocab download failed: HTTP ${vocabPair.res.status}`)
+  const [modelBytes, vocabBytes] = await Promise.all([
+    modelPair.res.arrayBuffer().then((buf) => new Uint8Array(buf)),
+    vocabPair.res.arrayBuffer().then((buf) => new Uint8Array(buf)),
+  ])
+  lid = {
+    handle: loadLid(modelBytes, vocabBytes),
+    sizeBytes: modelBytes.byteLength + vocabBytes.byteLength,
+  }
+}
+
+async function detectLanguage(text: string) {
+  try {
+    await ensureLid()
+    const detect = glue?.detectLanguage
+    if (!detect || !lid) throw new Error('LID not ready')
+    const t0 = performance.now()
+    const result = detect(lid.handle, text)
+    post('detected', {
+      code: result.code,
+      score: result.score,
+      ms: Math.round(performance.now() - t0),
+      modelBytes: lid.sizeBytes,
+      modelCached: lidCached,
+    })
+  } catch (error) {
+    post('detect-error', { message: (error as Error).message })
   }
 }
 
@@ -491,7 +545,7 @@ async function drainSuggest() {
 
 self.onmessage = async (event: MessageEvent) => {
   const data = event.data as {
-    type: 'load' | 'check' | 'suggest' | 'suggest-batch' | 'semantic'
+    type: 'load' | 'check' | 'suggest' | 'suggest-batch' | 'semantic' | 'detect'
     lang?: string
     text?: string
     word?: string
@@ -541,6 +595,8 @@ self.onmessage = async (event: MessageEvent) => {
   } else if (data.type === 'semantic') {
     if (data.enable) await enableSemantic(data.lang ?? activeLang ?? '')
     else disableSemantic()
+  } else if (data.type === 'detect') {
+    await detectLanguage(data.text ?? '')
   }
 }
 

@@ -44,6 +44,13 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
               ))}
             </select>
           </label>
+          <button
+            id="lab-detect"
+            type="button"
+            class="rounded-md border border-[var(--color-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--color-text-2)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            title="Load the language-identification model (~1 MB) and propose a language for the editor text. Never switches your choice silently."
+          >detect</button>
+          <span id="lab-detect-hint" class="hidden font-mono text-[10px] text-[var(--color-text-3)]" aria-live="polite"></span>
           <span
             id="lab-tier"
               class="rounded-full bg-[var(--color-gold-soft)] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-[var(--color-gold)]"
@@ -123,7 +130,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         </div>
       </div>
       <p class="mt-4 text-center text-xs leading-6 text-[var(--color-text-3)]">
-        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.3.2" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.3.2</a>
+        Engine <a href="https://www.npmjs.com/package/@kotoshu/wasm/v/0.4.0" class="text-[var(--color-accent)] hover:underline">@kotoshu/wasm 0.4.0</a>
         · dictionaries from the <a href="https://github.com/kotoshu/dictionaries" class="text-[var(--color-accent)] hover:underline">dictionaries repo</a>,
         commit-pinned · both via jsDelivr, cached by your browser. The semantic tier, when you opt in, loads from the <a href="https://github.com/kotoshu/models-fasttext-onnx" class="text-[var(--color-accent)] hover:underline">models registry</a> mirror.
       </p>
@@ -138,8 +145,8 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         <div class="dict-entry">
           <span class="dict-headword">tier</span>
           <div>
-            <p class="dict-sense">Dictionary engine, semantic opt-in <span class="pos">n.</span> — suggestions from edit distance, phonetics, keyboard proximity, and n-grams; the semantic switch reranks them by context fit.</p>
-            <p class="dict-anno">Since @kotoshu/wasm 0.3.0 the engine itself sweeps with the Damerau operations — an adjacent swap costs one step, so Teh suggests The at rank one — and generates candidates from the model: loadModel plus rerank plus semanticSuggest, with registry v1.3.0 mirroring every mini tier to a host browsers may fetch. The switch above loads this language tier, about 3 MB, and reranks inside the worker. The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a> still runs the heavier fluency tier and the full pipeline.</p>
+            <p class="dict-sense">Dictionary engine, semantic opt-in <span class="pos">n.</span> — suggestions from edit distance, phonetics, keyboard proximity, and n-grams; the semantic switch reranks them by context fit; detect proposes a language for the text without switching silently.</p>
+            <p class="dict-anno">Since @kotoshu/wasm 0.4.0 the engine itself sweeps with the Damerau operations — an adjacent swap costs one step, so Teh suggests The at rank one — and generates candidates from the model: loadModel plus rerank plus semanticSuggest, with registry v1.3.0 mirroring every mini tier to a host browsers may fetch. The switch above loads this language tier, about 3 MB, and reranks inside the worker. The <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">server playground</a> still runs the heavier fluency tier and the full pipeline.</p>
           </div>
         </div>
         <div class="dict-entry">
@@ -185,6 +192,8 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     readout: document.getElementById('lab-readout')!,
     tier: document.getElementById('lab-tier')!,
     semantic: document.getElementById('lab-semantic') as HTMLInputElement,
+    detect: document.getElementById('lab-detect') as HTMLButtonElement,
+    detectHint: document.getElementById('lab-detect-hint')!,
   }
 
   const worker = new Worker(
@@ -217,6 +226,7 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     engine: 'engine',
     dictionary: 'dictionary',
     semantic: 'semantic',
+    detect: 'detect',
   }
   const setStatus = (text: string, busy = false) => {
     el.status.textContent = text
@@ -340,6 +350,38 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
         idleStatus = el.status.textContent
         updateReadout()
       }
+    } else if (m.type === 'detected') {
+      const code = (m as { code?: string }).code ?? ''
+      const score = (m as { score?: number }).score ?? 0
+      const ms = (m as { ms?: number }).ms ?? 0
+      const opt = [...el.lang.options].find((o) => o.value === code)
+      el.detectHint.classList.remove('hidden')
+      if (opt) {
+        el.detectHint.innerHTML = ''
+        const label = document.createTextNode(
+          `detected ${code} (${(score * 100).toFixed(0)}%, ${ms} ms) — `,
+        )
+        const btn = document.createElement('button')
+        btn.type = 'button'
+        btn.className = 'text-[var(--color-accent)] underline'
+        btn.textContent = `switch to ${opt.textContent}`
+        btn.addEventListener('click', () => {
+          el.lang.value = code
+          el.lang.dispatchEvent(new Event('change'))
+          el.detectHint.classList.add('hidden')
+        })
+        el.detectHint.append(label, btn)
+        setStatus(`detected ${code} — confirm to switch`, false)
+      } else {
+        el.detectHint.textContent = `detected ${code} (${(score * 100).toFixed(0)}%) — not in playground list`
+        setStatus(`detected ${code} (not served here)`, false)
+      }
+      el.detect.disabled = false
+    } else if (m.type === 'detect-error') {
+      el.detectHint.classList.remove('hidden')
+      el.detectHint.textContent = `detect failed — ${(m as { message?: string }).message ?? 'unknown'}`
+      setStatus('detect failed', false)
+      el.detect.disabled = false
     } else if (m.type === 'load-error') {
       el.status.textContent = `offline or blocked — ${m.message}`
       el.status.appendChild(retryButton())
@@ -721,6 +763,14 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     render()
     load(el.lang.value)
   })
+  el.detect.addEventListener('click', () => {
+    el.detect.disabled = true
+    el.detectHint.classList.remove('hidden')
+    el.detectHint.textContent = 'loading detector…'
+    setStatus('detecting language…', true)
+    worker.postMessage({ type: 'detect', text: el.text.value })
+  })
+
   el.semantic.addEventListener('change', () => {
     semanticWanted = el.semantic.checked
     if (semanticWanted) {
