@@ -20,7 +20,7 @@ const channels: Channel[] = [
     code: 'ruby',
     jp: '宝石',
     name: 'Ruby — library & CLI',
-    note: 'The core gem (0.9.0): two-stage resources, model tiers, twenty language modules, optional native extension.',
+    note: 'The core gem (0.9.2): two-stage resources, model tiers, twenty language modules, optional native extension.',
     command: 'gem install kotoshu',
     docs: { label: 'Ruby API', href: '/docs/api' },
   },
@@ -36,7 +36,7 @@ const channels: Channel[] = [
     code: 'js',
     jp: '波',
     name: 'JavaScript & TypeScript — client + wasm',
-    note: '@kotoshu/client 0.1.0 for Node, Deno, Bun, browsers; @kotoshu/wasm 0.2.0 runs the engine in-process, models included.',
+    note: '@kotoshu/client 0.1.0 for Node, Deno, Bun, browsers; @kotoshu/wasm 0.3.2 runs the engine in-process, models included.',
     command: 'npm install @kotoshu/client',
     docs: { label: 'JavaScript client', href: '/docs/clients/javascript' },
   },
@@ -60,15 +60,15 @@ const channels: Channel[] = [
     code: 'http',
     jp: '服務',
     name: 'HTTP — the server',
-    note: 'Seven JSON endpoints; the contract every SDK speaks. Runs from source today — the 0.1.0 gem shipped empty.',
-    command: 'git clone https://github.com/kotoshu/kotoshu-server',
+    note: 'Seven JSON endpoints; the contract every SDK speaks. The 0.1.1 gem installs cleanly — the 0.1.0 cut shipped empty, 0.1.1 republished through trusted publishing.',
+    command: 'gem install kotoshu-server',
     docs: { label: 'HTTP API', href: '/docs/clients/http' },
   },
   {
     code: 'lsp',
     jp: '編集',
     name: 'Editor — via LSP',
-    note: 'kotoshu-lsp 0.1.0: diagnostics, quick-fixes, hover suggestions in any LSP editor.',
+    note: 'kotoshu-lsp 0.1.1: diagnostics, quick-fixes, hover suggestions in any LSP editor, with the personal dictionary read live.',
     command: 'gem install kotoshu-lsp',
     docs: { label: 'Editor integration', href: '/docs/clients/lsp' },
   },
@@ -76,7 +76,7 @@ const channels: Channel[] = [
     code: 'ci',
     jp: '検証',
     name: 'CI — GitHub Action',
-    note: 'action-kotoshu v1: SARIF in the Security tab, dictionaries cached between runs.',
+    note: 'action-kotoshu v1: SARIF in the Security tab, dictionaries cached between runs; installs the gem unpinned, 0.9.2 today.',
     command: 'uses: kotoshu/action-kotoshu@v1',
     docs: { label: 'GitHub Action', href: '/docs/clients/action' },
   },
@@ -155,7 +155,9 @@ kotoshu check README.md --interactive</code></pre>
           then <code class="font-mono text-xs text-[var(--color-accent)]">Kotoshu.check("helo wrold")</code>.
           Optional semantics: <code class="font-mono text-xs">gem install onnxruntime</code>.
           The model ships in three tiers — fluency (~15 MB, the default), full (~120 MB), or mini (~3 MB) — covered in
-          <a href="/docs/caching" class="text-[var(--color-accent)] hover:underline">Caching &amp; resources</a>.
+          <a href="/docs/caching" class="text-[var(--color-accent)] hover:underline">Caching &amp; resources</a>;
+          measured check and sweep latencies are on
+          <a href="/docs/performance" class="text-[var(--color-accent)] hover:underline">Performance</a>.
           Twenty languages have the full feature set — dictionary, semantic model,
           keyboard layouts — and semantic models exist for 55: the counts live on
           <a href="/languages" class="text-[var(--color-accent)] hover:underline">the language matrix</a>.

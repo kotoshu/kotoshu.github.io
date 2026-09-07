@@ -99,7 +99,9 @@ const wiredModelCount = MODEL_LANGUAGES.filter((code) =>
         FastText ONNX reranking models, three tiers each, resolved from the
         models registry at setup time — any language in this list runs
         <code class="font-mono text-xs text-[var(--color-accent)]">kotoshu setup LANG --model</code>.
-        Every tier ships behind the same keyboard-aware eval gates.
+        Every tier ships behind the same keyboard-aware eval gates. Measured tier
+        sizes and per-language check and sweep latencies are on
+        <a href="/docs/performance" class="text-[var(--color-accent)] hover:underline">the performance page</a>.
       </p>
       <div class="mt-8 flex flex-wrap gap-3 animate-in">
         {MODEL_LANGUAGES.map((code) => (

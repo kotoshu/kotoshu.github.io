@@ -53,8 +53,8 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
 
   <h2 class="display text-2xl mt-12">Model tiers</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    The FastText ONNX model ships in three sizes per language, across the nine
-    languages with models (de en es fr ja ko pt ru zh).
+    The FastText ONNX model ships in three sizes per language, across the 55
+    languages with models in the registry (v1.3.0, September 2026).
     <code class="font-mono text-[13px] text-[var(--color-accent)]">fluency</code> is the
     default — near-lossless at ~15 MB; tiers are explicit — chosen at setup,
     never substituted underneath you.
@@ -95,6 +95,8 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     Per-tier evaluation reports for each language are public in the
     <a href="https://github.com/kotoshu/models-fasttext-onnx" class="text-[var(--color-accent)] hover:underline">models repo</a>
     under <code class="font-mono text-[13px] text-[var(--color-accent)]">eval/reports/</code>.
+    Measured tier sizes per language and the check/sweep latency tables are on
+    <a href="/docs/performance" class="text-[var(--color-accent)] hover:underline">Performance</a>.
   </p>
 
   <h2 class="display text-2xl mt-12">Integrity</h2>
