@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'wasm-0-3-2',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'Index once, sweep the slice — @kotoshu/wasm 0.3.2',
+    summary:
+      'Per-word sweep invariants move into a per-dictionary index built once at the first sweep: heavy dictionaries gain another 1.2-6x, Portuguese foremost.',
+    senses: [
+      'The 0.3.1 rewrite still walked the whole word list per sweep, decoding each word before its gate — the length window, the Soundex code, the n-gram length bound — all values that never change with the query. 0.3.2 builds them once per dictionary: char lengths, Soundex codes packed into four bytes, and length buckets that let the edit-distance sweep touch only its two-length window (word-list order restored before the ranking sort, so tie order and outputs are untouched).',
+      'Benchmark over the pinned dictionaries, average per sweep: pt 1,398 ms to 423 ms and worst 1,931 to 656; es 522 to 89; nb 346 to 277; de 184 to 148; ru 226 to 205; it 144 to 127; en 52 to 45. The one remaining heavy case is a short French word whose length window covers a dense slice of the French vocabulary — the floor for this algorithm as frozen by the conformance contract.',
+      'Conformance unchanged at 2,630 vectors, outputs byte-identical; every transposed-word typo in the benchmark still recovers its intended word in the top five.',
+    ],
+    links: [
+      { label: '@kotoshu/wasm on npm', href: 'https://www.npmjs.com/package/@kotoshu/wasm' },
+      { label: 'kotoshu-rs PR #23 — the sweep index', href: 'https://github.com/kotoshu/kotoshu-rs/pull/23' },
+      { label: 'Playground', href: 'https://www.kotoshu.org/playground/' },
+    ],
+  },
+  {
     slug: 'gem-0-9-1',
     date: '2026-09-07',
     kind: 'release',

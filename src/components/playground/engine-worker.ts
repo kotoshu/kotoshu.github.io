@@ -12,12 +12,12 @@
 // esm.sh's transform replaces the wasm import with uninstantiated
 // bytes — the class exists but every call throws. Loading the two
 // published files and instantiating them here is the delivery both
-// transforms were trying to produce. Pinned to the exact 0.3.1 - the
+// transforms were trying to produce. Pinned to the exact 0.3.2 - the
 // Damerau edit sweep (an adjacent swap is one step), semanticSuggest,
-// and the indexed sweep that cut full-dictionary sweeps 10-200x.
+// the indexed dictionary sweep (length buckets, packed soundex, indexed lengths) built once per dictionary.
 import { SEMANTIC_SUGGEST_K, mergeSemanticCandidates } from './semantic-merge'
 
-const WASM_VERSION = '0.3.1'
+const WASM_VERSION = '0.3.2'
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@kotoshu/wasm@${WASM_VERSION}`
 const GLUE_URL = `${WASM_BASE}/kotoshu_wasm_bg.js`
 
