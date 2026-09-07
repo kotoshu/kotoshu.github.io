@@ -32,6 +32,23 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-9-2',
+    date: '2026-09-07',
+    kind: 'release',
+    title: 'The sweep index reaches Ruby — kotoshu 0.9.2',
+    summary:
+      'Per-word sweep invariants move into a lazily memoized per-dictionary index: 2.2x on English average, up to 6x on short words, byte-identical outputs.',
+    senses: [
+      'The twin of the wasm 0.3.2 release: Kotoshu::Suggestions::SweepIndex memoizes char lengths, Soundex codes, and length buckets on the dictionary, built at the first sweep. The edit-distance strategy draws its length window from the buckets with word-list order restored (ranking tie order untouched), the phonetic strategy compares memoized codes, and the n-gram gate reads indexed lengths — the strategies also stop copying the whole word list per sweep.',
+      'Warm benchmarks on full cached dictionaries, MRI 3.4.8: en average 1,472 to 661 ms per suggest (2.2x), es average 2,591 to 1,396 (1.9x), short words up to 6.2x — Teh 185 ms, wrold 656 ms, gatoss 1,249 ms. Mutation safety is explicit: every add_word/remove_word/clear/merge path resets the memo, pinned by specs on real Hunspell and PlainText dictionaries.',
+      'Outputs byte-identical across 14 en+es combinations; the 2,630 conformance vectors untouched and replay green; suite 3,795 examples, 0 failures; rubocop clean over 447 files. Soundex now lives once in Algorithms::Soundex, shared by strategy and index.',
+    ],
+    links: [
+      { label: 'kotoshu on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'gem PR #148 — the sweep index', href: 'https://github.com/kotoshu/kotoshu/pull/148' },
+    ],
+  },
+  {
     slug: 'wasm-0-3-2',
     date: '2026-09-07',
     kind: 'release',
