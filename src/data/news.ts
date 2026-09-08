@@ -32,6 +32,15 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'registry-v1-5-0',
+    date: '2026-09-08',
+    kind: 'release',
+    title: 'Bucket tables for 47 languages — registry v1.5.0',
+    summary: 'Model-generated candidates reach out-of-vocabulary typos in 45 more languages; 8 rejected on measurement with full evidence ladders.',
+    senses: ['45 new bucket-table siblings (10-12 MB each) let semanticSuggest embed OOV n-grams the vocab lacks, in every language the fidelity gates passed. fr 0.696 to 1.000, es 0.667 to 1.000, ru 0.623 to 1.000 OOV-resolved on real-corpus probes.','ar cs fa he ja pl vi zh rejected honestly - gates never weakened; full K-ladders committed for a future decision. sr/sv ship at K=65536 with a recorded size deviation.','213 resources, rev 7. The playground picks all of it up automatically.'],
+    links: [{ label: 'models-fasttext-onnx', href: 'https://github.com/kotoshu/models-fasttext-onnx' }],
+  },
+  {
     slug: 'gem-0-11-0',
     date: '2026-09-07',
     kind: 'release',
