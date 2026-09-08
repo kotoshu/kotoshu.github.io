@@ -38,6 +38,7 @@ export const FULL_LANGUAGES: FullLanguage[] = [
   { code: 'sk', name: 'Slovak', native: 'Slovenčina', keyboards: 'Slovak-QWERTZ' },
   { code: 'sl', name: 'Slovenian', native: 'Slovenščina', keyboards: 'Slovenian-QWERTZ' },
   { code: 'sr', name: 'Serbian', native: 'Српски', keyboards: 'Serbian-Cyrillic' },
+  { code: 'sr-Latn', name: 'Serbian (Latin)', native: 'Srpski', keyboards: 'Croatian-QWERTZ' },
   { code: 'ko', name: 'Korean', native: '한국어', keyboards: 'Dubeolsik-2Set' },
   { code: 'ne', name: 'Nepali', native: 'नेपाली', keyboards: 'Devanagari-InScript' },
   { code: 'nn', name: 'Norwegian Nynorsk', native: 'Norsk nynorsk', keyboards: 'Norwegian-QWERTY' },
