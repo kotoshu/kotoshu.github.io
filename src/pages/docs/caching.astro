@@ -150,4 +150,27 @@ kotoshu status                  # setup + cache + runtime, one report</code></pr
       on a miss. Downloads happen only where you asked for them — in setup.
     </p>
   </div>
-</DocsLayout>
+
+  <h2 class="display text-2xl mt-12">Bucket coverage — and the honest rejections</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Registry v1.5.0 ships bucket tables for 47 languages, letting the model embed out-of-vocabulary
+    n-grams the vocabulary lacks. Eight languages failed the fidelity gates at every tested size and
+    are <strong>deliberately not shipped</strong> — the gates are never weakened:
+  </p>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead><tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]"><th class="px-3 py-2.5 text-left">Language</th><th class="px-3 py-2.5 text-left">Verdict</th></tr></thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">ar cs fa he pl vi</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">agreement 0.55–0.77 at every K through 262,144 rows</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">ja</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">agreement 0.23 — the trimmed table misranks Japanese neighbors</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">zh</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">degenerate 3-probe corpus — not measurable honestly</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">sr sv</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">shipped at K=65,536 (21.9 MB, over the 15 MB target — deviation recorded in tiers.json)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    The full measurement ladders (agreement at every K) are committed in the models repository under
+    eval/reports — a future larger-K revision starts from evidence, not hope. These languages keep
+    every other tier (full/fluency/mini) and the Damerau dictionary sweep; only the model-side OOV
+    path is absent.
+  </p>
+
+  </DocsLayout>
