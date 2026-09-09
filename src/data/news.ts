@@ -32,6 +32,22 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'worker-0-1-0',
+    date: '2026-09-09',
+    kind: 'release',
+    title: 'The engine worker as a package — @kotoshu/worker 0.1.0',
+    summary:
+      'The playground worker protocol ships on npm: createEngine with load, check, suggest-batch, semantic, and detect - same pins, same cache, zero install.',
+    senses: [
+      '@kotoshu/worker exposes createEngine(onMessage) speaking the full protocol the playground runs - dictionary load with progress, batched priority suggestions, opt-in semantic tier with buckets, language detection - plus a ready new Worker() entry and the pure semantic-merge half. Browser and Node.',
+      'CI now enforces what docs used to claim: latency gates (en 56 ms average vs the 120 ms budget, pt 346 vs 700) and frozen wasm memory ceilings (en 46.9/64 MB resident with tier and buckets).',
+    ],
+    links: [
+      { label: '@kotoshu/worker on npm', href: 'https://www.npmjs.com/package/@kotoshu/worker' },
+      { label: 'kotoshu-rs PR #28', href: 'https://github.com/kotoshu/kotoshu-rs/pull/28' },
+    ],
+  },
+  {
     slug: 'registry-v1-5-0',
     date: '2026-09-08',
     kind: 'release',
