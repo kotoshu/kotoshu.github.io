@@ -32,6 +32,23 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'registry-v1-6-0',
+    date: '2026-09-10',
+    kind: 'release',
+    title: 'Language packs and the first winning model — registry v1.6.0',
+    summary:
+      'One fetch loads a whole language (KPK1 packs for en/de/pt), and the typo-biencoder hybrid becomes the first alternative model to beat the full tier on every gate.',
+    senses: [
+      'Language packs: dictionary aff+dic, mini tier, vocab, and buckets concatenated into one KPK1 artifact with per-section sha256 footers - three round trips become one. loadPack on the wasm surface and pack mode in @kotoshu/worker both fall back to per-artifact loading when no pack exists.',
+      'The bake-off arc closes with a winner: the 0.48 MB typo-biencoder hybrid (retrieve with the tiny bi-encoder, rescore with fastText) beats the full tier on every real-pair component - en +6.3 points top-5 (CI +4.9/+7.7, n=2509), de +28.6 (CI-clear), es +10 with no regression - at 3-4 ms per lookup. Registered opt-in as kotoshu://models/typo/typo-biencoder; measured rejects along the way: int4, the MiniLM rerank, ModernBERT, and the standalone bi-encoder.',
+      '383 release assets; the lid primary URLs work again (they pointed at unattached assets since v1.5.0).',
+    ],
+    links: [
+      { label: 'models-fasttext-onnx', href: 'https://github.com/kotoshu/models-fasttext-onnx' },
+      { label: 'Performance docs', href: '/docs/performance' },
+    ],
+  },
+  {
     slug: 'worker-0-1-0',
     date: '2026-09-09',
     kind: 'release',
