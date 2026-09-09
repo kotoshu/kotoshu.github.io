@@ -33,7 +33,7 @@ const DICT_BASE = `https://cdn.jsdelivr.net/gh/kotoshu/dictionaries@${DICT_PIN}`
 // browsers (release assets and jsDelivr /gh do not). v1.2.1 was the
 // first tag with every mini/fluency tier mirrored; v1.3.0 keeps that
 // and adds nb.
-const MODELS_TAG = 'v1.5.0'
+const MODELS_TAG = 'v1.6.0'
 const REGISTRY_URL = `https://raw.githubusercontent.com/kotoshu/models-fasttext-onnx/${MODELS_TAG}/registry.json`
 
 /** An opaque loaded embedding tier - freed by GC or an explicit free(). */
