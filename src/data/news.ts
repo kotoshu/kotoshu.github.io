@@ -32,6 +32,22 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'wasm-0-5-0',
+    date: '2026-09-10',
+    kind: 'release',
+    title: 'loadPack — @kotoshu/wasm 0.5.0',
+    summary:
+      'One KPK1 pack, one loadPack call: dictionary, tier, vocab, and buckets become a single handle pair behind one fetch.',
+    senses: [
+      'loadPack(packBytes) parses the KPK1 container (per-section sha256 verified before anything constructs) and returns { dictionary, model } handles — the model already bucket-attached when the pack carries a bucket table. Published keyless after an npm publishing-policy hiccup the owner cleared on the package settings side.',
+      'The playground flips to it for en, de, and pt: three-plus round trips collapse to one, with per-artifact loading kept as the fallback for pack-less languages.',
+    ],
+    links: [
+      { label: '@kotoshu/wasm on npm', href: 'https://www.npmjs.com/package/@kotoshu/wasm' },
+      { label: 'Playground', href: '/playground' },
+    ],
+  },
+  {
     slug: 'registry-v1-6-0',
     date: '2026-09-10',
     kind: 'release',
