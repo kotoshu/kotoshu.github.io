@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'kotoshu-1-0',
+    date: '2026-09-10',
+    kind: 'release',
+    title: 'kotoshu 1.0.0 — the stability freeze',
+    summary:
+      'The coordinated 1.0 cut: the Ruby gem, @kotoshu/wasm, and kotoshu-server all reach 1.0.0 with the public surface frozen and the 2,630-vector Ruby==Rust conformance contract gated in CI on both sides.',
+    senses: [
+      'What 1.0 freezes: the strict two-stage model — setup is never implicit, the hot path never downloads; the CLI exit codes 0/1/2/3 and the JSON/SARIF output shapes; the kotoshu.resources/v1 registry schema and the /v1 HTTP prefix; the extension points (custom dictionary types, suggestion algorithms); and the behavioral contract itself — 2,630 frozen conformance vectors that the Ruby and Rust engines must both match byte for byte, now enforced by CI jobs in both repositories.',
+      'The last blocker before the cut was found by running the audit checklist, not by a user: suggestion ranking silently changed when the frequency cache passed its 7-day TTL, because the reader fell back to a differently-curated local dataset. Fixed, tested with the cache deliberately expired, and the compare job added so the invariant can never drift silently again.',
+      'The channel picture at 1.0: the gem on RubyGems, @kotoshu/wasm on npm (loadPack language packs for en/de/pt), kotoshu-server with model-aware checking, the GitHub action (dogfooded in six repositories including this one), kotoshu-lsp, PyPI, crates.io, Go, and the zero-install playground at /playground.',
+    ],
+    links: [
+      { label: 'Docs home', href: '/docs' },
+      { label: 'gem on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'Performance and correctness', href: '/docs/performance' },
+    ],
+  },
+  {
     slug: 'gem-0-11-1',
     date: '2026-09-10',
     kind: 'release',
