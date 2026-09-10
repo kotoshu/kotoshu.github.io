@@ -32,6 +32,23 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-0-11-1',
+    date: '2026-09-10',
+    kind: 'release',
+    title: 'kotoshu 0.11.1 — baselines that work on real repositories',
+    summary:
+      'baseline init takes directories and globs, ignores the personal dictionary, and skips the suggestion sweep; check --baseline stops paying for suggestions it suppresses.',
+    senses: [
+      'Dogfooding action-kotoshu@v2 on the gem repository itself surfaced four defects in baseline init, all fixed: directories and globs expand exactly like check directory mode; a target matching no file is refused with the same File not found instead of silently vanishing; the personal dictionary is never consulted, so baselines freeze what every machine sees; and file reads scrub invalid bytes.',
+      'baseline init also skips the suggestion sweep it was discarding: 49 CPU-minutes over the gem repository became 84 seconds. The gate side got the same treatment — check --baseline only generates suggestions for occurrences that will surface. On this repo\'s own CI gate, 1,905 covered occurrences stopped paying: the check phase dropped from 13 minutes to 14 seconds with identical output.',
+      'The gem repository now runs its own spellcheck workflow — the sixth repo in the rollout and the first Ruby one, closing the loop that found these bugs.',
+    ],
+    links: [
+      { label: 'gem on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'CI baselines docs', href: '/docs/integrations' },
+    ],
+  },
+  {
     slug: 'wasm-0-5-0',
     date: '2026-09-10',
     kind: 'release',
