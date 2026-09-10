@@ -12,12 +12,13 @@
 // esm.sh's transform replaces the wasm import with uninstantiated
 // bytes — the class exists but every call throws. Loading the two
 // published files and instantiating them here is the delivery both
-// transforms were trying to produce. Pinned to the exact 0.3.2 - the
+// transforms were trying to produce. Pinned to the exact 0.5.0 - the
 // Damerau edit sweep (an adjacent swap is one step), semanticSuggest,
-// the indexed dictionary sweep (length buckets, packed soundex, indexed lengths) built once per dictionary.
+// the indexed dictionary sweep (length buckets, packed soundex, indexed
+// lengths), and loadPack (one KPK1 artifact → { dictionary, model }).
 import { SEMANTIC_SUGGEST_K, mergeSemanticCandidates } from './semantic-merge'
 
-const WASM_VERSION = '0.4.0'
+const WASM_VERSION = '0.5.0'
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@kotoshu/wasm@${WASM_VERSION}`
 const GLUE_URL = `${WASM_BASE}/kotoshu_wasm_bg.js`
 
@@ -63,6 +64,9 @@ interface GlueModule {
   ) => { word: string; score: number }[]
   loadLid?: (modelBytes: Uint8Array, vocabBytes: Uint8Array) => KotoshuModelHandle
   detectLanguage?: (lid: KotoshuModelHandle, text: string) => { code: string; score: number }
+  loadPack?: (
+    packBytes: Uint8Array,
+  ) => { dictionary: InstanceType<GlueModule['KotoshuWasm']>; model: KotoshuModelHandle }
   __wbg_set_wasm(exports: unknown): void
 }
 
@@ -76,6 +80,11 @@ interface Suggestion {
 interface RegistryEntry {
   urls?: { mirror?: string }
   size_bytes?: number
+  contents?: {
+    model?: { length: number }
+    vocab?: { length: number }
+    buckets?: { length: number }
+  }
 }
 interface Registry {
   resources?: Record<string, RegistryEntry>
@@ -147,6 +156,13 @@ async function ensureRegistry(): Promise<Registry> {
 
 async function enableSemantic(lang: string) {
   if (model && model.lang === lang && semanticState === 'ready') {
+    postSemantic(lang)
+    return
+  }
+  // A pack-loaded language carries its mini tier resident already —
+  // enabling is free: nothing to drop, nothing to refetch.
+  if (model && model.lang === lang) {
+    semanticState = 'ready'
     postSemantic(lang)
     return
   }
@@ -397,9 +413,52 @@ async function fetchDictFile(lang: string, ext: 'aff' | 'dic'): Promise<string> 
   throw new Error(`dictionary download failed: no index.${ext} for ${lang} at the pin (HTTP ${lastStatus})`)
 }
 
+// One artifact per language (plan 113): dict aff+dic + mini model +
+// vocab + buckets as a KPK1 section stream, sha256-verified per
+// section by the engine — a corrupt fetch rejects inside loadPack and
+// the catch in loadLanguage degrades to the per-resource path. Only
+// en/de/pt have packs in the registry so far; every other language,
+// and any pack miss, loads exactly as before. The pack model rides
+// along resident, so a later semantic-enable is free.
+async function loadLanguageFromPack(lang: string): Promise<LoadedLang | null> {
+  if (typeof glue?.loadPack !== 'function') return null
+  const entry = (await ensureRegistry()).resources?.[`kotoshu://packs/${lang}`]
+  const mirror = entry?.urls?.mirror
+  if (!mirror) return null
+  const { res, cached } = await cachedFetchProgress(mirror, 'pack', `${lang} pack`)
+  if (!res.ok) return null
+  const bytes = new Uint8Array(await res.arrayBuffer())
+  const t0 = performance.now()
+  const pack = glue.loadPack(bytes)
+  const contents = entry.contents ?? {}
+  dropModel()
+  model = {
+    handle: pack.model,
+    lang,
+    sizeBytes: (contents.model?.length ?? 0) + (contents.vocab?.length ?? 0),
+    bucketsBytes: contents.buckets?.length ?? 0,
+  }
+  modelCached = cached
+  dictCached = cached
+  return { dictionary: pack.dictionary, sizeBytes: bytes.byteLength, loadMs: performance.now() - t0 }
+}
+
 async function loadLanguage(lang: string): Promise<LoadedLang> {
   if (active && activeLang === lang) return active
   await ensureEngine()
+
+  try {
+    const packed = await loadLanguageFromPack(lang)
+    if (packed) {
+      active = packed
+      activeLang = lang
+      suggestCache.clear()
+      return active
+    }
+  } catch {
+    // A pack that rejects must never take the language down — the
+    // per-resource path below is complete on its own.
+  }
 
   let sources = sourceCache.get(lang)
   if (!sources) {
@@ -478,7 +537,7 @@ function suggest(word: string, context: string): SuggestResult {
 // then orders the merged list by context fit as before.
 function generateSemantic(word: string, dictionary: Suggestion[]): Suggestion[] {
   const semanticSuggest = glue?.semanticSuggest
-  if (!model || semanticState !== 'ready' || !semanticSuggest) {
+  if (!model || model.lang !== activeLang || semanticState !== 'ready' || !semanticSuggest) {
     return dictionary
   }
   try {
@@ -507,7 +566,7 @@ function generateSemantic(word: string, dictionary: Suggestion[]): Suggestion[] 
 // arithmetic with a single boundary crossing.
 function rerankSuggestions(suggestions: Suggestion[], context: string): Suggestion[] {
   const rerank = glue?.rerank
-  if (!model || semanticState !== 'ready' || !rerank || suggestions.length === 0) {
+  if (!model || model.lang !== activeLang || semanticState !== 'ready' || !rerank || suggestions.length === 0) {
     return suggestions
   }
   const handle = model.handle
