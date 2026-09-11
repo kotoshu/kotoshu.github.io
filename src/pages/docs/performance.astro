@@ -210,6 +210,28 @@ kotoshu check . --baseline .kotoshu-baseline.json</code></pre>
     assembles for you.
   </p>
 
+  <h2 class="display text-2xl mt-12">The tier error budget</h2>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    Every "cheaper" claim carries its number. Both shipped embedding tiers are gated at
+    release against the full tier on two axes, measured per language over the whole
+    55-language catalog (registry gates, <code class="font-mono text-[13px] text-[var(--color-accent)]">eval/gates.json</code>):
+  </p>
+  <ul class="mt-4 space-y-2 text-[15px] leading-7 text-[var(--color-text-2)] list-disc pl-6">
+    <li><strong>rank correlation</strong> — how faithfully the tier orders candidates the way the full tier would (Spearman over probe windows): fluency <strong>worst-case 0.9999</strong>, mini <strong>0.9998</strong> (gates: 0.97 / 0.90).</li>
+    <li><strong>top-1 agreement</strong> — how often the tier's first choice equals the full tier's (probe windows of 30 candidates): fluency <strong>worst-case 0.950</strong> / mean 0.994, mini <strong>0.952</strong> / mean 0.997 (gates: 0.95 / 0.85).</li>
+  </ul>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    What that budget buys: the full tier is ~120 MB per language; fluency is ~15 MB (50k vocabulary);
+    mini is ~3 MB (10k). The vocabulary cut is the dominant term in both axes — a word outside the
+    tier's vocabulary cannot be suggested by the tier, by construction.
+  </p>
+  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
+    A separate axis, measured on the dictionary-grounded synthetic typo corpora (5,000 keyboard-noise
+    pairs each for de and es, plan 123): <strong>the full tier itself can embed only ~1.5% of those
+    typos</strong> — misspellings are almost always outside even the 100k vocabulary. That gap is what
+    the dictionary sweep and the hybrid retrieval thread exist to close; no embedding tier changes it.
+  </p>
+
   <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
     Measured, not inferred — sweep tables from the kotoshu-rs benchmark harness
     (PR #23: wasm build, pinned dictionaries, average per sweep after warmup, before

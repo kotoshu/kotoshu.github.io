@@ -719,7 +719,42 @@ import { PLAYGROUND_LANGUAGES } from '~/data/languages'
     }
     const footer = timing ? timingFooter(timing) : null
     if (footer) el.popList.append(footer)
+    // Backendless feedback (plan 127): a wrong suggestion is the most
+    // valuable signal the playground produces — one click opens a
+    // pre-filled issue carrying only the word, the offered rows, the
+    // language, and the engine version. No page text, nothing else.
+    if (suggestions.length > 0) {
+      const report = document.createElement('a')
+      report.href = wrongSuggestionUrl(suggestions)
+      report.target = '_blank'
+      report.rel = 'noopener noreferrer'
+      report.className =
+        'mt-1 block border-t border-[var(--color-border-subtle)] px-2 pt-1.5 font-mono text-[10px] text-[var(--color-text-3)] hover:text-[var(--color-accent)]'
+      report.textContent = 'wrong suggestions? report'
+      el.popList.append(report)
+    }
     setStatus(idleStatus)
+  }
+
+  function wrongSuggestionUrl(suggestions: Suggestion[]): string {
+    const word = el.popWord.textContent ?? ''
+    const rows = suggestions
+      .slice(0, 5)
+      .map((s) => `${s.word} (${s.source} ${s.confidence.toFixed(2)})`)
+      .join('\n')
+    const body =
+      `**word**: ${word}\n` +
+      `**language**: ${el.lang.value}\n` +
+      `**engine**: @kotoshu/wasm ${engineVersion || ''}\n\n` +
+      `**suggestions offered**:\n${rows}\n\n` +
+      `**what is wrong**: <!-- right answer missing / wrong order / other -->\n\n` +
+      `Playground report — no page text is included, only the row above.`
+    const params = new URLSearchParams({
+      title: `Wrong suggestion: ${word || '(word)'} [${el.lang.value}]`,
+      body,
+      labels: 'playground-report',
+    })
+    return `https://github.com/kotoshu/kotoshu/issues/new?${params.toString()}`
   }
 
   function apply(replacement: string) {
