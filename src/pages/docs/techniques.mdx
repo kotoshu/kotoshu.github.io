@@ -1,0 +1,183 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout slug="techniques" title="The techniques behind Kotoshu" description="A complete catalog of the engineering techniques used across the Kotoshu engines, models, and delivery channels, with the measured effect of each one.">
+
+This page documents every technique the Kotoshu stack uses, together with the measured
+effect each one had where numbers exist. The measurements come from the benchmark
+harnesses and continuous-integration gates in the public repositories, and each one is
+reproducible from the code.
+
+## Suggestion quality and speed
+
+### The two-stage resource model
+
+The engine separates resource acquisition from spellchecking. The `setup` stage
+downloads dictionaries once into an XDG-compliant cache, and every checking operation
+after that reads only from the cache. A check therefore never touches the network, which
+makes runs fast, repeatable, and safe to use in continuous integration without
+credentials.
+
+### The indexed suggestion sweep
+
+When a misspelled word needs suggestions, the naive approach compares it against every
+word in the dictionary. Kotoshu instead builds an index at dictionary load time that
+records each word's character length, a packed Soundex code, and its length bucket, and
+each query then examines only the words whose indexed values can possibly match. This
+reduced the average suggestion time for a full English dictionary from 1,472 ms to
+661 ms in the Ruby engine, and brought per-word sweeps in the WebAssembly engine down
+from as much as 38 seconds to under 320 ms. The outputs are byte-identical to the
+unindexed sweep.
+
+### Keyboard-aware error scoring
+
+Substitution penalties in the ranking model know which keys sit next to each other on
+the typist's physical layout. The layout registry covers the Latin family
+parameterically plus national layouts such as QWERTZ, JCUKEN, Turkish-Q, and the Greek
+phonetic layout, so a German typo of *y* for *z* costs less than an unrelated
+substitution. The same layout grids drive the noise generator that produces evaluation
+data, which means the ranking model and its benchmarks share one explicit model of how
+typing errors happen.
+
+### Damerau edit distance in the sweep
+
+The candidate sweep treats an adjacent transposition as a single edit rather than two
+substitutions. This is why *Teh* returns *The* in first place and why affixed forms such
+as *definately* to *definitely* surface at all, since the stem list alone never contains
+them.
+
+### Hunspell semantic fidelity
+
+The dictionary engine reimplements the parts of the Hunspell specification that matter
+for correctness, including compound rules with wildcard patterns, replacement junctions,
+fogemorpheme endings, dot-separated capitalization handling, and the ordering rules for
+space suggestions. Each behavior is verified against the original hunspell fixtures, and
+the two engines (Ruby and Rust) must produce identical output on all of them.
+
+### The dual-engine conformance contract
+
+A set of 2,630 frozen test vectors defines the behavioral contract, and both engines
+must reproduce every vector exactly, byte for byte. Continuous-integration jobs in both
+the Ruby and the Rust repository run this comparison on every change, so the two
+implementations cannot drift apart silently. The same discipline extends to the pack
+format: both implementations build a pack from identical sections and must produce the
+same whole-file checksum.
+
+### Deterministic ranking data
+
+Suggestion ranking uses word-frequency tiers, and both engines embed the same frozen
+tables so that ranking does not depend on cache state. A machine with no downloaded
+data, a machine with fresh data, and the conformance vectors all produce identical
+ordering. This property was not assumed: an investigation found that a fallback to a
+differently curated dataset after cache expiry changed rankings, and the fix embedded
+the canonical tables in both engines.
+
+### Baseline-aware suggestion skipping
+
+When a repository checks itself against a frozen baseline, the engine knows in advance
+which misspellings the baseline will absorb, and it skips generating suggestions for
+those occurrences. Only errors that will actually surface pay for the suggestion sweep.
+On this repository's own continuous-integration gate, that rule reduced the check phase
+from over thirteen minutes to 13.7 seconds with identical output.
+
+## Embedding models and retrieval
+
+### Tiered vocabulary serving
+
+The fastText embedding models ship in three sizes per language: the full 100,000-word
+vocabulary, a 50,000-word fluency tier of about 15 MB, and a 10,000-word mini tier of
+about 3 MB, all quantized to int8 per row. Across all 55 supported languages the
+worst-case rank correlation against the full tier is 0.9998, and the worst-case top-1
+agreement is 0.950. A release gate blocks any tier that falls below these thresholds.
+
+### Pure-Rust ONNX inference
+
+The Rust engine reads and executes int8 ONNX models with its own reader instead of
+depending on a C runtime. This keeps the WebAssembly build free of native dependencies,
+lets the browser playground run the same models the server runs, and keeps memory use
+measured and bounded: the build verifies explicit memory ceilings per language in
+continuous integration.
+
+### Bucket tables for out-of-vocabulary n-grams
+
+Semantic suggestion sometimes needs embedding arithmetic over character n-grams that the
+vocabulary never contained. Bucket tables, shipped for 47 languages, provide those
+out-of-vocabulary vectors so the semantic layer degrades gracefully instead of returning
+nothing.
+
+### Native language identification
+
+A 176-language identification model runs inside the engine through the same pure-Rust
+ONNX reader. Language detection therefore needs no external service, and the server
+exposes it directly at `/v1/detect`.
+
+### Hybrid typo retrieval
+
+A 0.481 MB character-level bi-encoder retrieves the twenty nearest vocabulary entries
+for a misspelling, and the full fastText model then rescores those twenty candidates.
+The bi-encoder embeds any string, which removes the out-of-vocabulary barrier that keeps
+misspellings out of embedding lookup: on a 5,000-pair dictionary-grounded benchmark, the
+hybrid evaluates over 4,700 pairs per language where the full tier can embed fewer than
+90. On the frozen real-typo benchmark the hybrid beats the full tier on both top-1 and
+top-5 accuracy in all four languages, with the English gain statistically significant at
++6.3 percentage points on top-5.
+
+### Verifiable synthetic corpora
+
+Benchmark data is synthesized under an explicit admission rule: the corrected word must
+be a stem of the language's dictionary, the misspelling must not be a word of that
+dictionary, and the misspelling must be reachable from the correction by a declared
+keyboard-noise operation. Each corpus file records its generator seed, the dictionary
+checksum, and operation histograms, and the whole file is a deterministic function of
+those inputs. The corpora are labeled as synthetic everywhere they appear and never
+replace the frozen real-typo benchmarks.
+
+## Packaging and distribution
+
+### Language packs
+
+A language pack combines the dictionary, the embedding tier, the vocabulary, and the
+bucket table into one container with a checksum over every section. A client makes one
+fetch instead of several, verifies each section before constructing anything, and
+receives both engine handles at once. Loading the English pack takes 143 ms in the
+browser.
+
+### Keyless publishing with provenance
+
+Every release channel — RubyGems, npm, PyPI, and crates.io — publishes through keyless
+OpenID-Connect trusted publishing, and the npm packages carry build provenance
+attestations. No long-lived credential exists to leak, and every artifact is attributable
+to the workflow that built it.
+
+### Performance gates in continuous integration
+
+The WebAssembly release pipeline refuses to publish if suggestion latency exceeds a
+per-language budget or if memory use crosses the measured ceiling, and the model registry
+blocks tiers that miss their accuracy gates. Latency regressions and silent quality
+regressions therefore fail the build rather than reaching users.
+
+## Correctness discipline
+
+### Machine-independent baselines
+
+A repository baseline records each accepted misspelling with its occurrence count, and
+the generation command ignores personal dictionaries by design. The baseline file is
+therefore identical no matter which machine produces it, and continuous integration,
+which has no personal dictionary, sees exactly what the baseline recorded.
+
+### Version guards
+
+Consumer packages carry tests that read their own dependency constraints and fail the
+build if a constraint excludes the artifact version the package actually builds against.
+This guard class exists because a real defect of exactly this kind shipped: the server
+package declared a version floor that silently excluded the 1.0 release of the engine it
+was meant to carry, and the guard caught a second instance — a Docker image that could
+not install the current engine at all — on its first run.
+
+### The engine checks itself
+
+The GitHub action runs in the continuous integration of six repositories in this
+organization, including the repositories of the engine itself. Every technique described
+on this page that concerns suggestion quality, gate speed, or determinism was found,
+fixed, or verified by that self-checking.
+
+</DocsLayout>

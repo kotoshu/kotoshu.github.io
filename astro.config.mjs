@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config'
+import mdx from '@astrojs/mdx'
 import vue from '@astrojs/vue'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
@@ -7,7 +8,7 @@ export default defineConfig({
   compressHTML: false,
   site: 'https://www.kotoshu.org',
   output: 'static',
-  integrations: [
+  integrations: [mdx(),
     vue(),
     sitemap({
       // Pages only — the news feeds and the sitemap itself stay out of

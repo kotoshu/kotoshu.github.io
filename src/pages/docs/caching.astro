@@ -151,7 +151,7 @@ kotoshu status                  # setup + cache + runtime, one report</code></pr
     </p>
   </div>
 
-  <h2 class="display text-2xl mt-12">Bucket coverage — and the honest rejections</h2>
+  <h2 class="display text-2xl mt-12">Bucket coverage and the measured rejections</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
     Registry v1.5.0 ships bucket tables for 47 languages, letting the model embed out-of-vocabulary
     n-grams the vocabulary lacks. Eight languages failed the fidelity gates at every tested size and
@@ -175,12 +175,13 @@ kotoshu status                  # setup + cache + runtime, one report</code></pr
 
   </DocsLayout>  <h2 class="display text-2xl mt-12">Language packs and the typo bi-encoder</h2>
   <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Registry v1.6.0 adds <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu://packs/&#123;lang&#125;</code>
-    — the dictionary, mini tier, vocab, and bucket table in one checksummed artifact (en, de, pt so far), loaded by
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">loadPack</code> on the wasm surface and pack mode in
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/worker</code>. It also registers the opt-in
-    <code class="font-mono text-[13px] text-[var(--color-accent)]">typo-biencoder</code> (0.48 MB): the first model to beat
-    the full tier on every real-pair gate — see the bake-off and pricing reports in the models repository for the measured ladder.
+    Registry v1.6.0 adds the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu://packs/&#123;lang&#125;</code>
+    resource, which combines the dictionary, the mini tier, the vocabulary, and the bucket table into one checksummed artifact
+    for English, German, and Portuguese so far. The <code class="font-mono text-[13px] text-[var(--color-accent)]">loadPack</code>
+    call on the wasm surface and pack mode in <code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/worker</code>
+    load a pack with a single fetch. The same registry version registers the opt-in
+    <code class="font-mono text-[13px] text-[var(--color-accent)]">typo-biencoder</code> at 0.48 MB, the first model to beat
+    the full tier on every real-pair gate; the bake-off and pricing reports in the models repository carry the measured ladder.
   </p>
 
   

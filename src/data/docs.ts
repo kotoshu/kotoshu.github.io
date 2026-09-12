@@ -143,6 +143,15 @@ export const DOCS_PAGES: DocsPageMeta[] = [
     keywords: 'cache caching resources dictionaries models download xdg ttl setup resolve manifest offline tier tiers fluency mini full model size',
   },
   {
+    slug: 'techniques',
+    title: 'The techniques behind Kotoshu',
+    nav: 'Techniques',
+    section: 'reference',
+    description:
+      'A complete catalog of the engineering techniques used across the engines, models, and delivery channels, each with its measured effect.',
+    keywords: 'techniques sweep index soundex keyboard layouts damerau hunspell conformance tiers int8 quantization hybrid retrieval bi-encoder packs keyless provenance',
+  },
+  {
     slug: 'performance',
     title: 'Performance',
     nav: 'Performance',
