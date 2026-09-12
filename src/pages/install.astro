@@ -122,12 +122,19 @@ const channels: Channel[] = [
         are the same; the difference is speed.
       </p>
       <ul class="mt-6 space-y-3 text-[15px] leading-7 text-[var(--color-text-2)]">
-        <li><strong>Ruby</strong> runs pure Ruby by default, with zero dependencies beyond Ruby itself. The optional native extension compiles the Rust core in through FFI (<code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_BACKEND=native</code>) when you want the faster engine.</li>
+        <li><strong>Ruby</strong> installs the Rust engine as a precompiled native platform gem on Linux, macOS, and Windows — <code class="font-mono text-[13px] text-[var(--color-accent)]">gem install kotoshu</code> resolves it automatically on a matching machine, and the <code class="font-mono text-[13px] text-[var(--color-accent)]">auto</code> backend uses it whenever it loads. Every other platform gets the pure-Ruby gem, which is always published and needs nothing beyond Ruby itself; <code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_BACKEND=native</code> or <code class="font-mono text-[13px] text-[var(--color-accent)]">=ruby</code> still forces an engine explicitly.</li>
         <li><strong>Python</strong> embeds the Rust engine through the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu-native</code> wheel — a Rust FFI binding — for fully offline, in-process checking; the plain <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> package speaks HTTP instead.</li>
         <li><strong>JavaScript and the browser</strong> run the Rust engine compiled to WebAssembly (<code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/wasm</code>), with language packs that load a whole language in one fetch.</li>
         <li><strong>Rust</strong> uses the engine crate directly.</li>
       </ul>
       <p class="mt-6 text-[15px] leading-8 text-[var(--color-text-2)]">
+        Resolution is automatic and needs no compiler anywhere: a prebuilt native
+        artifact installs wherever one exists for your platform — x86_64 and
+        aarch64 Linux, both macOS families, and Windows — and the pure-Ruby
+        implementation is the fallback everywhere else, so no install path ever
+        builds anything. Python's kotoshu-native package follows the same rule
+        with one wheel per platform and Python 3.10–3.13.
+
         Where the Rust engine is in-process it is roughly 10–15× faster on the suggestion sweep than
         optimized pure Ruby (English full dictionary: about 45 ms versus 661 ms average per suggestion),
         and it is the only option in the browser. For batch CI checking the gap barely matters — both

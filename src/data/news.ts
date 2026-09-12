@@ -32,6 +32,22 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-1-0-2',
+    date: '2026-09-12',
+    kind: 'release',
+    title: 'kotoshu 1.0.2: the Rust engine installs precompiled',
+    summary:
+      'gem install kotoshu now resolves a precompiled native platform gem on Linux, macOS, and Windows, so the Rust engine runs with no compiler toolchain, and the backend default became auto: use the native engine when it loads, fall back to pure Ruby when it does not.',
+    senses: [
+      'Five platform gems ship alongside the pure-Ruby gem — x86_64-linux, aarch64-linux, arm64-darwin, x86_64-darwin, and x64-mingw-ucrt — each carrying the compiled extension inside the gem and built natively on its own runner. The CI matrix proves every one by installing the platform gem into a toolchain-free environment and asserting that the native engine engages. RubyGems picks the platform gem automatically on a matching machine, and every other platform, including musl Linux, resolves the pure-Ruby gem exactly as before.',
+      'The backend setting now defaults to auto, which selects the native engine when the extension loads and silently uses pure Ruby when it does not; KOTOSHU_BACKEND=native and KOTOSHU_BACKEND=ruby still force an engine explicitly. No output changes anywhere: both engines remain pinned to the frozen 2,630-vector conformance contract. The Docker CI image follows in the same arc by dropping its build-tool layer in favor of the platform gem.',
+    ],
+    links: [
+      { label: 'gem on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'Install paths', href: '/install' },
+    ],
+  },
+  {
     slug: 'gem-1-0-1',
     date: '2026-09-12',
     kind: 'release',
