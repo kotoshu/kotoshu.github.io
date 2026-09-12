@@ -1,4 +1,4 @@
-export type NewsKind = 'release' | 'event'
+export type NewsKind = 'release' | 'event' | 'docs'
 
 export interface NewsLink {
   label: string
@@ -31,6 +31,40 @@ export interface NewsEntry {
 
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
+  {
+    slug: 'gem-1-0-1',
+    date: '2026-09-12',
+    kind: 'release',
+    title: 'kotoshu 1.0.1 — determinism by construction',
+    summary:
+      'The gem now embeds the frozen Kelly frequency tiers, so a cache-cold machine ranks suggestions exactly like the frozen conformance vectors — no download, no CI seeding, no dataset switch at TTL expiry.',
+    senses: [
+      'The last dataset-divergence path is closed: FrequencyProvider falls back cache → frozen embedded tiers → local YAML, and the embedded table is generated from the very arrays the Rust engine compiles in (provenance and the upstream sha256 inside the file). The empty-cache conformance compare — 2,630 vectors — is byte-green with no cache at all.',
+      'Also in the patch: the Jekyll generator threads the baseline suggestion-skip (baselined builds stop paying the sweep for covered words, matching the CLI and rake paths), and kotoshu-server 1.0.1 fixes its runtime floor — the ~> 0.6 cap it shipped 1.0.0 with silently excluded the 1.x gem.',
+    ],
+    links: [
+      { label: 'gem on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'Determinism writeup', href: '/news/gem-0-11-1' },
+    ],
+  },
+  {
+    slug: 'evidence-2026-09',
+    date: '2026-09-12',
+    kind: 'docs',
+    title: 'Evidence week: synthetic corpora, error budgets, a feedback loop',
+    summary:
+      '5,000-pair dictionary-grounded typo corpora for de, es, pt, fr; a published per-tier error budget; one-click wrong-suggestion reports; and a rebuilt docker CI image.',
+    senses: [
+      'The synthetic corpora are verifiable by construction: every correction is a dictionary stem, every typo is reachable by a declared keyboard-noise operation, and the whole file is a seeded pure function of the dictionary pin. The headline measurement: even the full tier can embed only about 1.5% of these real-looking typos — the quantified gap between embedding tiers and actual misspellings, and the motivation for the dictionary sweep.',
+      'The performance docs now carry the tier error budget — worst-case rank correlation and top-1 agreement across all 55 languages, next to the gates that enforce them. Every cheaper claim carries its number.',
+      'The playground popover gained a report link: one click opens a pre-filled issue with the word, the offered suggestions, the language, and the engine version — nothing else. Verified reports feed the corpora.',
+      'And the docker CI image could not actually install kotoshu at all since the native extension shipped — a version guard caught it on its first run, and the image now builds the Rust accelerator properly.',
+    ],
+    links: [
+      { label: 'Error budgets', href: '/docs/performance' },
+      { label: 'Playground', href: '/playground' },
+    ],
+  },
   {
     slug: 'kotoshu-1-0',
     date: '2026-09-10',
