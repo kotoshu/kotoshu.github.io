@@ -102,11 +102,37 @@ const channels: Channel[] = [
             { id: 'npm', label: 'npm', hint: 'Client + wasm engine', command: 'npm install @kotoshu/client @kotoshu/wasm' },
             { id: 'gem', label: 'Ruby', hint: 'Reference library & CLI', command: 'gem install kotoshu' },
             { id: 'cargo', label: 'Rust', hint: 'The engine crate', command: 'cargo add kotoshu' },
+            { id: 'go', label: 'Go', hint: 'HTTP client', command: 'go get github.com/kotoshu/kotoshu-go@v0.1.0' },
             { id: 'lsp', label: 'Editor', hint: 'VS Code · Neovim · Emacs', command: 'gem install kotoshu-lsp' },
             { id: 'action', label: 'GitHub Action', hint: 'SARIF in the Security tab', command: 'uses: kotoshu/action-kotoshu@v2' },
           ]}
         />
       </div>
+    </div>
+  </section>
+
+  <!-- Engines and bindings — why every channel is first class -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
+      <p class="dict-banner animate-in"><span lang="ja">機関</span> engines and bindings</p>
+      <p class="mt-6 text-[15px] leading-8 text-[var(--color-text-2)]">
+        Every channel above is a first-class client, and four of them run the checking engine in-process.
+        The engine has exactly two implementations — pure Ruby and Rust — held byte-identical by a frozen
+        conformance contract that CI enforces on every change. Whichever runtime you choose, the outputs
+        are the same; the difference is speed.
+      </p>
+      <ul class="mt-6 space-y-3 text-[15px] leading-7 text-[var(--color-text-2)]">
+        <li><strong>Ruby</strong> runs pure Ruby by default, with zero dependencies beyond Ruby itself. The optional native extension compiles the Rust core in through FFI (<code class="font-mono text-[13px] text-[var(--color-accent)]">KOTOSHU_BACKEND=native</code>) when you want the faster engine.</li>
+        <li><strong>Python</strong> embeds the Rust engine through the <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu-native</code> wheel — a Rust FFI binding — for fully offline, in-process checking; the plain <code class="font-mono text-[13px] text-[var(--color-accent)]">kotoshu</code> package speaks HTTP instead.</li>
+        <li><strong>JavaScript and the browser</strong> run the Rust engine compiled to WebAssembly (<code class="font-mono text-[13px] text-[var(--color-accent)]">@kotoshu/wasm</code>), with language packs that load a whole language in one fetch.</li>
+        <li><strong>Rust</strong> uses the engine crate directly.</li>
+      </ul>
+      <p class="mt-6 text-[15px] leading-8 text-[var(--color-text-2)]">
+        Where the Rust engine is in-process it is roughly 10–15× faster on the suggestion sweep than
+        optimized pure Ruby (English full dictionary: about 45 ms versus 661 ms average per suggestion),
+        and it is the only option in the browser. For batch CI checking the gap barely matters — both
+        engines check in milliseconds, and the conformance contract guarantees identical results either way.
+      </p>
     </div>
   </section>
 
