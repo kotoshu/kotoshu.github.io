@@ -1,0 +1,121 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout slug="clients/python" title="Python client" description="pip install kotoshu — the Python client over the HTTP API, plus the kotoshu-native wheel for offline word-level checking with the Rust engine in-process.">
+<p class="docs-lead">
+    Two packages on PyPI: `kotoshu`, the
+    client, and `kotoshu-native`, the Rust
+    engine as a maturin wheel. Same result types either way.
+  </p>
+
+  
+## Install
+
+  
+```text
+pip install kotoshu              # the HTTP client (pure Python)
+pip install kotoshu-native       # optional: the Rust engine as a wheel (macOS arm64, more platforms coming)
+```
+
+  
+Python 3.10+. The client is a thin, dependency-light wrapper; the native wheel embeds
+[the Rust engine](/docs/clients/rust)
+for offline checking.
+
+  
+## Quick start — over HTTP
+
+  
+Point the client at a running [kotoshu-server](/docs/clients/http):
+
+  
+```text
+from kotoshu import Client
+
+client = Client("http://127.0.0.1:9292", language="en")
+
+result = client.check("helo wrold", language="en")
+for err in result.errors:
+print(err.word, "->", err.top_suggestions[:3])
+
+for sug in client.suggest("recieve", max_suggestions=3):
+print(sug.word, round(sug.confidence, 2))
+
+print(client.correct("hello", language="en"))
+```
+
+  
+```text
+helo -> ['hello', 'help', 'hell']
+wrold -> ['world', 'wold', 'weld']
+receive 1.0
+relieve 0.91
+recife 0.5
+True
+```
+
+  
+## Offline — the native engine
+
+  
+With `kotoshu-native` installed, checking
+runs in-process against local Hunspell files — no server, no network:
+
+  
+```text
+from kotoshu.native import dictionary
+
+d = dictionary("en_US.aff", "en_US.dic")   # paths to Hunspell sources
+
+d.correct("hello")                       # True
+d.correct("helo")                        # False
+d.suggest("hlelo", max_suggestions=3)
+# [Suggestion(word="hello", distance=1, confidence=1.0, source="edit_distance"),
+#  Suggestion(word="halo",  distance=1, confidence=0.5, source="phonetic"),
+#  Suggestion(word="heel",  distance=1, confidence=0.5, source="phonetic")]
+```
+
+  
+## Choosing a backend
+
+  
+`KOTOSHU_BACKEND` — or nothing at all:
+
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Value</th>
+        <th class="px-3 py-2.5 text-left">Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`auto` <span class="text-[var(--color-text-3)]">(the default)</span></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">native when `kotoshu_native` imports, else HTTP</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`native`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">require the engine — `NativeUnavailableError` when missing</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`http`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">always the HTTP API</td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+`kotoshu.backend()` reports the backend in
+effect. The offline engine is word-level — `correct`
+and `suggest` — while the HTTP client also
+checks whole documents and detects language. Errors are typed:
+`KotoshuError` as the base,
+`ResourceNotSetupError` for the 422 the server
+returns when a language has not been set up.
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — both quick starts executed against kotoshu 0.1.0 and kotoshu-native 0.1.0 on Python 3.10,
+    server from source. Registry:
+    [kotoshu on PyPI](https://pypi.org/project/kotoshu/) ·
+    [kotoshu-native on PyPI](https://pypi.org/project/kotoshu-native/) ·
+    [kotoshu-python repo](https://github.com/kotoshu/kotoshu-python)
+  </p>
+</DocsLayout>

@@ -1,0 +1,257 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout slug="performance" title="Performance" description="Measured check and sweep latency per language, model tier sizes from the registry, and the tuning knobs — personal dictionary, baselines, tier choice, backend choice.">
+<p class="docs-lead">Every number on this page was measured against published builds — the benchmark harness behind kotoshu-rs PR #23 and PR #21 for the wasm engine, the gem benchmarks behind 0.9.1/0.9.2 for Ruby, the models registry at v1.3.0 for tier sizes. No estimates, no vendor floors.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">計測</span>Measurement</p>
+  
+## Two very different latency problems
+
+  
+<strong class="text-[var(--color-text)]">Checking</strong> is the hot path: word lookups against an
+already-loaded dictionary. Whole-text checking measures
+<strong class="text-[var(--color-text)]">1–33 ms per 100 words</strong> across the supported
+languages — the range tracks dictionary size and script, and it is lookup work,
+not model inference. The semantic tier never touches the check pass; it reranks
+suggestions, opt-in, after a word is already flagged.
+<strong class="text-[var(--color-text)]">Suggesting</strong> is the expensive half: for every flagged
+word the engine sweeps the whole dictionary through four strategies — edit distance,
+phonetics, n-grams, keyboard proximity. That sweep is where milliseconds become
+seconds, and where the 2026-09 index work went: wasm 0.3.1/0.3.2 and gem
+0.9.1/0.9.2 index the dictionary once (char lengths, packed Soundex codes, length
+buckets) instead of re-reading every word per sweep.
+
+  
+## Suggestion sweeps, per language
+
+  
+Measured on the wasm 0.3.2 build over pinned dictionaries, one pass per word
+after warmup — the same table as kotoshu-rs PR #23, where 0.3.1 is the live
+published build before the index landed:
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Language</th>
+        <th class="px-3 py-2.5 text-left">Dictionary</th>
+        <th class="px-3 py-2.5 text-left">0.3.1 avg</th>
+        <th class="px-3 py-2.5 text-left">0.3.2 avg</th>
+        <th class="px-3 py-2.5 text-left">Worst</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">pt — Portuguese</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">5.2 MB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">1,398 ms</td><td class="px-3 py-2.5">423 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">656 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">fr — French</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">1.4 MB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">579 ms</td><td class="px-3 py-2.5">467 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">1,724 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">es — Spanish</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">824 KB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">522 ms</td><td class="px-3 py-2.5">89 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">147 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">nb — Norwegian Bokmål</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">5.2 MB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">346 ms</td><td class="px-3 py-2.5">277 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">353 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">de — German</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">1.1 MB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">184 ms</td><td class="px-3 py-2.5">148 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">230 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">ru — Russian</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">2.0 MB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">226 ms</td><td class="px-3 py-2.5">205 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">229 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">it — Italian</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">1.3 MB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">144 ms</td><td class="px-3 py-2.5">127 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">179 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">en — English</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">542 KB</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">52 ms</td><td class="px-3 py-2.5">45 ms</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">82 ms</td></tr>
+    </tbody>
+  </table></div>
+  
+The French worst case is honest math, not a bug: a short word whose length
+window covers a dense slice of the French vocabulary — the floor for this
+algorithm as frozen by the conformance contract. The 2,630 conformance vectors
+pin suggestion outputs byte for byte; the index changed the cost of the sweep,
+never its ranking.
+
+  
+## Before the index
+
+  
+What 0.3.1 fixed, measured in Node over the published wasm 0.3.0 module on the
+full en_US dictionary (kotoshu-rs PR #21) — the same suggestion lists, byte for
+byte, two orders of magnitude sooner:
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Input</th>
+        <th class="px-3 py-2.5 text-left">wasm 0.3.0</th>
+        <th class="px-3 py-2.5 text-left">wasm 0.3.1</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">Teh</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">3,587 ms</td><td class="px-3 py-2.5">320 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">mispellings</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">38,401 ms</td><td class="px-3 py-2.5">189 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">recieve</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">17,336 ms</td><td class="px-3 py-2.5">93 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">definately</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">32,126 ms</td><td class="px-3 py-2.5">145 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">wrold</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">2,601 ms</td><td class="px-3 py-2.5">76 ms</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">asdfghjkl</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">7,713 ms</td><td class="px-3 py-2.5">67 ms</td></tr>
+    </tbody>
+  </table></div>
+
+  
+## The Ruby side
+
+  
+The gem carried the same per-word scan patterns. Pure-Ruby backend, MRI 3.4.8,
+full cached en_US (48,262 words) — gem 0.9.1 (the numbers quoted in the
+[news entry](/news),
+measured in gem PR #147):
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Input</th>
+        <th class="px-3 py-2.5 text-left">before 0.9.1</th>
+        <th class="px-3 py-2.5 text-left">gem 0.9.1</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">Teh</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">20.6 s</td><td class="px-3 py-2.5">0.59 s</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">mispellings</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">140.2 s</td><td class="px-3 py-2.5">0.75 s</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">recieve</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">36.2 s</td><td class="px-3 py-2.5">0.70 s</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">definately</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">55.7 s</td><td class="px-3 py-2.5">0.87 s</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5 font-mono text-[13px]">asdfghjkl</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">39.6 s</td><td class="px-3 py-2.5">0.86 s</td></tr>
+    </tbody>
+  </table></div>
+  
+Gem 0.9.2 then ported the SweepIndex itself (gem PR #148): en average
+1,472 to 661 ms per suggest (2.2x), es 2,591 to 1,396 (1.9x), short words up to
+6.2x — Teh 185 ms, wrold 656 ms, gatoss 1,249 ms — with outputs byte-identical
+and every mutating dictionary path resetting the memo.
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">階層</span>Tiers</p>
+  
+## Model tier sizes, measured
+
+  
+The registry at v1.3.0 carries three tiers for each of the 55 model languages —
+165 resources, every size below summed from its manifests:
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Tier</th>
+        <th class="px-3 py-2.5 text-left">Measured size</th>
+        <th class="px-3 py-2.5 text-left">What it trades</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`fluency` <span class="text-[var(--color-text-3)]">(the default)</span></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">15.2–18.2 MB</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">int8, top-50k words, full 300 dims — eval-gated at rank correlation 0.9999 and top-1 agreement ≥ 0.95 against full</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`full`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">120.0 MB</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">fp32, 100k words × 300 dims — maximum accuracy, nothing quantized; the explicit choice when size is no object</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`mini`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">3.0 MB</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">int8, top-10k words — the wasm/edge tier; the size the playground's semantic switch loads</td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+`fluency` is the default
+everywhere tiers are chosen — never substituted underneath you. The full tier
+lifecycle, eval gates, and resolution order are on
+[Caching &amp; resources](/docs/caching).
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">調整</span>Tuning</p>
+  
+## Four tuning knobs, in order of leverage
+
+  <h3 class="mt-10 text-base font-semibold text-[var(--color-text)]">1. Shrink the sweep set — personal dictionary and baselines</h3>
+  
+The cheapest sweep is the one that never runs. Words in the personal dictionary
+(`~/.config/kotoshu/personal.dic`,
+one word per line) are un-flagged before any suggestion work — and since
+kotoshu-lsp 0.1.1 the LSP reads that file live and answers
+`kotoshu.addToPersonalDictionary`,
+so adding a word clears the flag everywhere. For repositories with years of
+findings, a baseline freezes the existing wall so CI only sweeps genuinely new
+misspellings:
+
+  
+```text
+kotoshu baseline init ./*.md docs/**/*.adoc   # snapshot current debt
+kotoshu check . --baseline .kotoshu-baseline.json
+```
+
+  
+The whole toolkit — directives, baselines, the pre-commit hook — is on
+[Ignores &amp; baselines](/docs/ignores).
+
+  <h3 class="mt-10 text-base font-semibold text-[var(--color-text)]">2. Pick the tier for the machine</h3>
+  
+Tiers affect rerank quality and load size, never the check pass. Choose at
+setup: `kotoshu setup en --model --tier mini`
+for edge and browser work (3 MB), `--tier full`
+when size is no object (120 MB); the default
+`fluency` is near-lossless at
+15–18 MB.
+
+  <h3 class="mt-10 text-base font-semibold text-[var(--color-text)]">3. Pick the backend for the workload</h3>
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Backend</th>
+        <th class="px-3 py-2.5 text-left">Where it runs</th>
+        <th class="px-3 py-2.5 text-left">Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`ruby`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">the gem, pure Ruby</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">the default; 0.9.2 sweeps indexed — no dependency beyond Ruby</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`native`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">Rust engine in-process</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">the gem's optional native extension, or the kotoshu-native wheel (KOTOSHU_BACKEND=native) — same engine the sweep tables measure</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`wasm`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">browser, Node, Deno, Bun</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">@kotoshu/wasm 0.3.2 — 162 KiB gzipped as the npm tarball, the engine binary alone 156 KiB</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`http`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">kotoshu-server, models server-side</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">one process serves every SDK; semantic reranking opt-in per language</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="mt-10 text-base font-semibold text-[var(--color-text)]">4. Warm before you measure</h3>
+  
+The two-stage model means the first check after setup also builds the sweep
+index — one-time, per dictionary, then memoized for its lifetime. The CI
+pattern is pre-warm while online, check offline:
+`kotoshu setup en` then
+`KOTOSHU_OFFLINE=1 kotoshu check .`
+— the same shape the
+[GitHub Action](/docs/clients/action)
+assembles for you.
+
+  
+## The tier error budget
+
+  
+Every claim about a cheaper tier carries its measured number. Both shipped embedding tiers are gated at
+release against the full tier on two axes, measured per language over the whole
+55-language catalog (registry gates, `eval/gates.json`):
+
+  
+- **rank correlation** — how faithfully the tier orders candidates the way the full tier would (Spearman over probe windows): fluency **worst-case 0.9999**, mini **0.9998** (gates: 0.97 / 0.90).
+- **top-1 agreement** — how often the tier's first choice equals the full tier's (probe windows of 30 candidates): fluency **worst-case 0.950** / mean 0.994, mini **0.952** / mean 0.997 (gates: 0.95 / 0.85).
+
+  
+That budget buys size: the full tier is about 120 MB per language, fluency is about 15 MB with
+a 50,000-word vocabulary, and mini is about 3 MB with 10,000 words. The vocabulary cut is the
+dominant term in both axes, because a word outside the tier's vocabulary cannot be suggested
+by the tier by construction.
+
+  
+A separate axis, measured on the dictionary-grounded synthetic typo corpora of 5,000 keyboard-noise
+pairs per language, shows that **the full tier itself can embed only about 1.5% of those
+misspellings**, because misspellings are almost always outside even the 100,000-word
+vocabulary. The dictionary sweep and the hybrid retrieval thread exist to close exactly that gap,
+which no embedding tier alone can change.
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Measured, not inferred — sweep tables from the kotoshu-rs benchmark harness
+    (PR #23: wasm build, pinned dictionaries, average per sweep after warmup, before
+    column = the live 0.3.1 module; PR #21: Node over the published 0.3.0 module,
+    full en_US), the Ruby table and 0.9.2 averages from gem PRs #147/#148 as quoted
+    in the news entries, tier sizes summed from the models registry at v1.3.0
+    (generated 2026-09-06), and the wasm tarball size from npm for 0.3.2. Check-pass
+    latency (1–33 ms per 100 words) is the whole-text measurement from the same
+    bench campaign.
+    [kotoshu-rs PR #23](https://github.com/kotoshu/kotoshu-rs/pull/23) ·
+    [PR #21](https://github.com/kotoshu/kotoshu-rs/pull/21) ·
+    [models registry](https://github.com/kotoshu/models-fasttext-onnx)
+  </p>
+</DocsLayout>

@@ -1,0 +1,425 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout title="CLI reference" description="kotoshu check, setup, cache, and completions — flags, defaults, stdin usage, interactive review, and exit codes.">
+<p class="docs-lead">The `kotoshu` command covers checking, setup, dictionaries, cache, your personal dictionary, and shell completions — plus a `status` overview. The four you will use most are below.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">参照</span>Reference</p>
+  
+## check
+
+  
+`kotoshu check [FILE] [DIR ...]` checks a
+file, a directory tree, or stdin when no target is given. It is cache-only — it never downloads.
+Run `kotoshu setup LANG` first;
+in a terminal, `check` offers to
+do that for you on a missing language.
+
+  
+```text
+echo "helo wrld" | kotoshu check
+kotoshu check README.md --language de
+kotoshu check README.md --format sarif
+kotoshu check README.md --interactive
+```
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Flag</th>
+        <th class="px-3 py-2.5 text-left">Values</th>
+        <th class="px-3 py-2.5 text-left">Default</th>
+        <th class="px-3 py-2.5 text-left">Effect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--language`, `-l`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">any set-up language code + auto</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">auto</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Language to check with; auto detects from content — the twenty full-feature codes are on [the matrix](/languages)</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--format`, `-f`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">text json sarif</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">text</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Output format; sarif emits SARIF 2.1.0 for CI upload</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--interactive`, `-i`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">flag</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Review each error after the check</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--verbose`, `-v`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">flag</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Verbose output</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--baseline`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">baseline JSON path</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Errors the baseline covers pass; only new errors fail — see [Ignores &amp; baselines](/docs/ignores)</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--show-suppressed`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">flag</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">List entries suppressed by inline directives or the baseline</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--include`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">globs, repeatable</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">known extensions</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Check only matching files — replaces the extension default (directory mode)</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`--exclude`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">globs, repeatable</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">off</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Skip matching files — always wins over --include and the extension default</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <p class="eyebrow mb-3 mt-16"><span class="jp" lang="ja">木歩</span>Directory mode</p>
+  
+## Check a whole tree
+
+  
+Pass a directory and `check`
+walks it: every file with a known text extension —
+`.md .markdown .asciidoc .adoc .txt .rst .mdx` —
+is checked, one section per file in the output and a summary at the end. Explicit
+files and directories can be mixed; explicit files are checked as given, in
+argument order. Language detection runs per file, so a multilingual tree is fine.
+
+  
+```text
+$ kotoshu check .
+# Detected: en.
+# Detected: en.
+FAIL ./README.md (2 errors)
+helo -> hello, help, hell
+readme -> ready, realm, redye
+
+FAIL ./docs/guide.md (1 errors)
+helo -> hello, help, hell
+
+2 files checked, 4 words, 3 errors
+```
+
+  
+JSON and SARIF formats emit one *combined* document over the whole walk —
+a `files` array in JSON,
+one SARIF run per file — so CI uploads a single report. Interactive mode stays
+file-only; on a directory target it prints an explicit notice instead.
+
+  
+The walker always skips hidden (dot-prefixed) files and directories, plus
+`.git`,
+`node_modules`,
+`vendor` and
+`target`, and honors
+`.gitignore` and
+`.ignore` files through a
+standard glob subset implemented in Ruby — no shelling out to git:
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Pattern form</th>
+        <th class="px-3 py-2.5 text-left">Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`foo.md`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">No slash — matches the basename at any depth</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`/foo.md`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Leading slash (or any interior slash) — anchored to the ignore file's directory</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`build/`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Trailing slash — directories only</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`* ?`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Never cross `/` — one segment only</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`**`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">As a whole segment — `**/x` any depth, `x/**` everything below x, `a/**/b` between</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`!pattern`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Negates — and like git, the last matching line wins</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">nested ignore files</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Each is scoped to its own subtree; a file inside an ignored directory cannot be re-included</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      All of it executed on a scratch tree: `*.gen.md`
+      ignored while `!kept.gen.md`
+      was re-checked; `/rootonly.md`
+      ignored at the root while `deep/rootonly.md`
+      was checked; `docs/**/skip.md`
+      gone at any depth; an `archive/`
+      pattern hiding the directory; a nested `sub/.gitignore`
+      scoping its own `nested.md`.
+      Five files checked, exactly the five the rules allow.
+    </p>
+  </div>
+  
+`--include` and
+`--exclude` select
+within the walk: include globs *replace* the extension default, exclude
+always wins, and both use the same glob conventions — no slash matches the
+basename, a slash matches the path from the checked root. Ignored files stay
+ignored: an include glob cannot resurrect a
+`.gitignore`d file.
+
+  
+```text
+kotoshu check .                          # every known text extension in the tree
+kotoshu check . --include "*.adoc"       # only .adoc files, anywhere in the tree
+kotoshu check . --exclude "vendor/**/*"  # drop a subtree (note /**/* for nested files)
+kotoshu check src README.md              # explicit files and directories, mixed
+```
+
+  
+Baselines apply per file across the walk. One truth to know: the baseline
+matches the file path *exactly as the check reports it* — walking
+`.` yields
+`./docs/guide.md`, so record the
+baseline with the same spelling of paths:
+
+  
+```text
+kotoshu baseline init ./*.md docs/**/*.adoc   # paths as the walk from . sees them
+kotoshu check . --baseline .kotoshu-baseline.json
+
+OK ./README.md (2 words, no errors)
+2 error(s) suppressed by baseline
+
+2 files checked, 4 words, 0 errors
+```
+
+  
+The same walker selection backs `rake kotoshu:check`
+and the Jekyll generator — the [integrations
+page](/docs/integrations) covers both. Inline directives and the personal dictionary work in
+directory mode exactly as they do per file; see
+[Ignores &amp; baselines](/docs/ignores).
+
+  
+`check` has no offline flag because
+it needs none: it is cache-only by design and never downloads. To hold the whole
+session — setup included — to that promise, export
+`KOTOSHU_OFFLINE=1`.
+The `--strict` flag belongs to
+`setup`, where it turns optional-resource
+failures into a failed run.
+
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      Interactive mode is navigation-only: it records which suggestions you accept
+      but does not rewrite the file yet. Keys — `n`/Enter next,
+      `p` previous,
+      `l` list,
+      `1–9` accept suggestion N,
+      `s` skip,
+      `q` quit.
+    </p>
+  </div>
+
+  
+## setup
+
+  
+Stage one, as a command. Downloads spelling, frequency, and model resources —
+or registers .aff/.dic files you already have on disk. Idempotent;
+`--force` re-fetches and
+`--strict` turns optional-resource
+failures into a failed run. When the model is requested with
+`--model`,
+`--tier` selects its size —
+`fluency` (the default),
+`full`, or
+`mini`; the tiers are detailed in
+[Caching &amp; resources](/docs/caching).
+With no arguments it lists what is set up.
+
+  
+```text
+kotoshu setup en                  # spelling only (~5 MB)
+kotoshu setup en de fr            # several languages
+kotoshu setup en --want spelling,frequency,model   # model defaults to fluency (~15 MB)
+kotoshu setup en --model --tier mini   # model at the mini tier (~3 MB)
+
+# Local files instead of downloads (--aff and --dic go together)
+kotoshu setup en --aff en_US.aff --dic en_US.dic
+kotoshu setup en --from /path/to/dict/dir/    # expects LANG.aff + LANG.dic
+kotoshu setup en --frequency my-frequency.json
+
+kotoshu setup --list              # what is already set up
+```
+
+  
+The old `kotoshu fetch` spelling
+still works as a hidden, deprecated alias of `setup`.
+
+  
+## cache
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Command</th>
+        <th class="px-3 py-2.5 text-left">What it does</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`kotoshu cache list`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">List cached resources and their status</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`kotoshu cache download LANG`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Download a resource into the cache</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`kotoshu cache info`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Cache statistics — hits, hit rate, disk usage</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`kotoshu cache purge`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Remove all cached data</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`kotoshu cache clean`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Remove only expired entries</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`kotoshu cache evict`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Enforce the configured size cap by evicting the oldest entries</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`kotoshu cache validate LANG`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Re-verify a language's cached resources against their SHA-256 manifests</td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+For a wider picture — setup, cache, and runtime state in one report — run
+`kotoshu status`.
+
+  
+## baseline
+
+  
+`kotoshu baseline init FILE [FILE ...]`
+records the spelling errors a file has *right now* — one entry per file and word
+with the occurrence count, stable across reformatting — into
+`.kotoshu-baseline.json`
+(`--output` names another file).
+It takes `-l/--language`
+like `check` does.
+
+  
+```text
+kotoshu baseline init README.md docs/*.adoc
+kotoshu baseline init src/*.txt --output .kotoshu-baseline.json
+
+# CI: covered errors pass, new errors fail the build
+kotoshu check README.md --baseline .kotoshu-baseline.json
+```
+
+  
+Stale entries — debt you have since fixed — are reported in the summary so the
+budget shrinks visibly. The whole story, including JSON and SARIF output and the
+inline ignore directives, is on
+[Ignores &amp; baselines](/docs/ignores).
+
+  
+## dict &amp; personal
+
+  
+Two smaller surfaces round out the command.
+`kotoshu dict list` shows the
+available dictionary types and
+`kotoshu dict info TYPE` describes one.
+`kotoshu personal` manages the words
+only you use — the file lives at
+`~/.config/kotoshu/personal.dic`
+(override with `KOTOSHU_PERSONAL_DIC`;
+`kotoshu personal path` prints wherever
+yours resolves).
+
+  
+```text
+kotoshu personal add Koordinatenverein strahlend     # two words, one command
+kotoshu personal list
+kotoshu personal import project-terms.txt     # one word per line
+kotoshu personal path                          # where the file lives
+```
+
+  
+## completions
+
+  
+```text
+# bash (single user)
+kotoshu completions bash > ~/.local/share/bash-completion/completions/kotoshu
+
+# zsh — drop into any directory on your $fpath
+kotoshu completions zsh > "${fpath[1]}/_kotoshu"
+
+# fish
+kotoshu completions fish > ~/.config/fish/completions/kotoshu.fish
+
+# Supported language codes, no install needed
+kotoshu completions languages
+```
+
+  
+The language list is read dynamically, so newly registered languages complete
+without reinstalling the script.
+
+  
+## Exit codes
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Code</th>
+        <th class="px-3 py-2.5 text-left">Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">0</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">No errors (or setup succeeded)</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">1</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Spelling errors found</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">2</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Usage error — bad flags, file not found</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 font-mono text-[var(--color-gold)]">3</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Language not set up — run kotoshu setup LANG (also setup failures: network, integrity)</td>
+      </tr>
+    </tbody>
+  </table></div>
+</DocsLayout>

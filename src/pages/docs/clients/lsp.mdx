@@ -1,0 +1,96 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout slug="clients/lsp" title="Editor integration via LSP" description="gem install kotoshu-lsp — diagnostics, quick-fixes, and hover suggestions in Neovim, VS Code, Emacs, and any editor that speaks the Language Server Protocol.">
+<p class="docs-lead">
+    One binary, every editor. `kotoshu-lsp`
+    wraps the gem's `Kotoshu.check` and speaks
+    the Language Server Protocol over stdio.
+  </p>
+
+  
+## Install
+
+  
+```text
+gem install kotoshu-lsp
+```
+
+  
+Requires the `kotoshu` gem, installed
+automatically as a dependency. Set up at least one language first —
+`kotoshu setup en` — the server never
+downloads on its own.
+
+  
+## Neovim
+
+  
+```text
+-- built-in LSP, lspconfig entry pending upstream
+vim.lsp.start({
+name = 'kotoshu',
+cmd = { 'kotoshu-lsp' },
+filetypes = { 'text', 'markdown', 'asciidoc' },
+})
+
+-- or, once lspconfig gains an entry:
+require('lspconfig').kotoshu.setup({
+cmd = { 'kotoshu-lsp' },
+filetypes = { 'text', 'markdown', 'asciidoc' },
+})
+```
+
+  
+## Emacs
+
+  
+```text
+;; eglot
+(add-to-list 'eglot-server-programs
+'((text-mode markdown-mode) . ("kotoshu-lsp")))
+
+;; lsp-mode
+(lsp-register-client
+(make-lsp-client :new-connection (lsp-stdio-connection '("kotoshu-lsp"))
+:activation-fn (lsp-activate-on "plaintext" "markdown")
+:server-id 'kotoshu))
+```
+
+  
+## VS Code
+
+  
+A packaged extension is on the roadmap; until then wire the binary manually through the
+languageServerExample boilerplate — `command: "kotoshu-lsp"`,
+languages plaintext and markdown.
+
+  
+## What you get
+
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Method</th>
+        <th class="px-3 py-2.5 text-left">Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`didOpen / didChange`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">publishes one diagnostic per misspelled word, top suggestions attached</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`codeAction`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">one quick-fix per suggestion — e.g. `Kotoshu: change to "hello"` — plus add-to-personal-dictionary</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`hover`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">top suggestions for the flagged word under the cursor</td></tr>
+      <tr class="border-t border-[var(--color-border)]"><td class="px-3 py-2.5">`completion`</td><td class="px-3 py-2.5 text-[var(--color-text-2)]">not implemented — returns `nil`</td></tr>
+    </tbody>
+  </table></div>
+  
+Configuration is environment-based:
+`KOTOSHU_LSP_LOG` (a log path),
+`KOTOSHU_LSP_LOG_LEVEL`
+(debug/info/warn/error), and `KOTOSHU_OFFLINE`
+to pin the server to cached dictionaries.
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — an LSP initialize/didOpen/codeAction handshake executed over stdio against
+    kotoshu-lsp 0.1.0: diagnostics published for both misspellings, quick-fixes returned ranked.
+    [kotoshu-lsp repo](https://github.com/kotoshu/kotoshu-lsp)
+  </p>
+</DocsLayout>

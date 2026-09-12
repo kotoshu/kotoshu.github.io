@@ -1,0 +1,99 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout title="Migrating" description="Moving to Kotoshu from hunspell, aspell, cspell, or LanguageTool — what transfers, what needs a step, and what is not there yet.">
+<p class="docs-lead">Bringing your words with you is a command or two; bringing your workflow depends on the tool you are leaving.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">移行</span>Migrate</p>
+  
+## From hunspell
+
+  
+Bring your own dictionaries. Register the .aff/.dic pair you already have and
+nothing is re-downloaded:
+
+  
+```text
+kotoshu setup en --aff en_US.aff --dic en_US.dic
+
+# or point at a directory — it expects LANG.aff and LANG.dic
+kotoshu setup en --from /usr/share/hunspell/
+```
+
+  
+Because the engine is a Ruby port of the Hunspell algorithm — with behavior
+tested against Hunspell's own reference fixtures — affix rules, flag
+conditions, and compound handling behave the way your dictionaries expect.
+The difference you will notice is operational, not linguistic: resources are
+explicit (setup once, cache-only after) and results come out as JSON or SARIF
+in addition to text.
+
+  
+## From aspell
+
+  
+Kotoshu does not read aspell's compiled .rws dictionaries; point it at
+Hunspell-format files or a plain word list instead
+(`dictionary_type :plain_text`
+or `:hunspell`). Aspell
+personal word lists (.pws) are not auto-imported yet — export yours as one
+word per line and import it once:
+
+  
+```text
+kotoshu personal import my-words.txt
+```
+
+  
+After that, `kotoshu personal add`
+and the CLI's interactive review keep the personal dictionary current by hand.
+
+  
+## From cspell
+
+  
+cspell's configuration maps cleanly onto Kotoshu's model, with one honest gap:
+cspell's committed-in-repo cspell.json ergonomics has no Kotoshu equivalent
+yet — configuration lives in XDG files and environment variables.
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">cspell</th>
+        <th class="px-3 py-2.5 text-left">Kotoshu</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">dictionaries / language settings in cspell.json</td>
+        <td class="px-3 py-2.5">`kotoshu setup LANG`, one per language</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">words lists, projectWords</td>
+        <td class="px-3 py-2.5">personal dictionary — `kotoshu personal import words.txt`</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">reporters (json, junit)</td>
+        <td class="px-3 py-2.5">`--format json` and `--format sarif`, plus stable exit codes</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  
+## From LanguageTool
+
+  
+Be clear-eyed here: Kotoshu does not compete on grammar. LanguageTool's rule
+library — thousands of grammar, punctuation, and style rules across dozens of
+languages — has no equivalent in Kotoshu today; grammar rule packs are a
+roadmap item, not a feature. What Kotoshu offers is spelling with optional
+semantic reranking of suggestions, resource downloads on demand, and a CI
+story built on exit codes and SARIF. If you need grammar now, run both side
+by side and let each do its half.
+
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      For the full picture next to all three tools, see
+      [Comparison](/docs/comparison).
+    </p>
+  </div>
+</DocsLayout>

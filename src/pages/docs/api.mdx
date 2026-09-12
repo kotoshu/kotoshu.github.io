@@ -1,0 +1,230 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout title="Ruby API reference" description="The Kotoshu facade: setup versus resolve, checking, suggestions, language detection, resources, and the optional semantic path.">
+<p class="docs-lead">The Ruby API is one module, `Kotoshu`, with a strict two-stage resource model underneath.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">参照</span>Reference</p>
+  
+## Two stages, on purpose
+
+  
+Stage one is `Kotoshu.setup` — slow, network-bound, explicit. It downloads (or registers local)
+dictionaries, frequency lists, and models into the cache. Stage two is everything
+else: `correct?`, `suggest`, `check` resolve resources from cache only.
+
+  
+If the language is not set up, the hot path raises
+`Kotoshu::ResourceNotSetupError`.
+That is intentional, not an accident to catch: no method in the library will
+ever download on your behalf, so a metered or air-gapped host cannot be
+surprised. The CLI intercepts the error and offers to run setup interactively.
+Use `Kotoshu.setup?(lang)` or
+`Kotoshu.setup?(lang, :model)` to ask first.
+
+  
+## Facade methods
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Method</th>
+        <th class="px-3 py-2.5 text-left">Returns</th>
+        <th class="px-3 py-2.5 text-left">Raises</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`setup(:en, want:, aff:, dic:, from:, force:, strict:)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">SetupResult (array for several languages)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ArgumentError if no language given</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`setup?(language, resource = nil)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Boolean</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`languages_setup`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Array&lt;String&gt;</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`correct?(word, language:)` · `misspelled?`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Boolean</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ResourceNotSetupError</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`suggest(word, language:, **options)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Suggestions::SuggestionSet</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ResourceNotSetupError</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`check(text, language:)` · `check_file(path, language:)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">DocumentResult</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ResourceNotSetupError</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`check_files(paths)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Array&lt;DocumentResult&gt;</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`detect_language(text)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">String or nil</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`detect_language_with_confidence(text)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">[code, Float]</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`spellchecker_for(language)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Spellchecker (cached)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ResourceNotSetupError</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`resolve(language:, want:)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ResourceBundle (dictionary, frequency, model, rules)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">ResourceNotSetupError</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`register_dictionary_type(type, klass)` · `register_suggestion_algorithm(name, klass)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`configure` with a block · `configuration`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Configuration</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`reset_spellchecker`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">nil — next call re-resolves; useful between tests</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">—</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  
+## Checking words
+
+  
+```text
+require "kotoshu"
+
+Kotoshu.setup(:en)   # Stage 1 — once per language
+
+# Stage 2 — cache-only, never touches the network
+Kotoshu.correct?("hello")  # => true
+Kotoshu.correct?("helo")   # => false
+
+# Another language: set it up first, then address it per call
+Kotoshu.setup(:de)
+Kotoshu.misspelled?("Hallo", language: "de")  # => false
+```
+
+  
+## Suggestions
+
+  
+Suggestions come back as a `SuggestionSet`
+carrying words, distances, and confidence. Call `to_words`
+when you only need the strings.
+
+  
+```text
+suggestions = Kotoshu.suggest("helo")
+suggestions.to_words  # => ["hello", "help", "held", ...]
+```
+
+  
+## Documents and files
+
+  
+```text
+result = Kotoshu.check("Hello wrold")
+result.errors.map(&:word)  # => ["wrold"]
+
+result = Kotoshu.check_file("README.md")
+result.errors.each do |error|
+puts "#{error.word} at offset #{error.position}: #{error.top_suggestions(3).join(', ')}"
+end
+
+results = Kotoshu.check_files(%w[README.md CHANGELOG.md])
+results.select(&:failed?)
+```
+
+  
+## Language detection
+
+  
+```text
+Kotoshu.detect_language("Bonjour le monde")  # => "fr"
+
+lang, confidence = Kotoshu.detect_language_with_confidence("Hello world")
+lang        # => "en"
+confidence  # => 0.85
+```
+
+  
+## Resources
+
+  
+```text
+Kotoshu.setup(:en, want: %i[spelling frequency model])
+Kotoshu.setup(:en, :de, :fr)   # several languages, one call
+
+# Local hunspell files instead of downloads (single language)
+Kotoshu.setup(:en, aff: "/usr/share/hunspell/en_US.aff",
+dic: "/usr/share/hunspell/en_US.dic")
+Kotoshu.setup(:en, from: "/usr/share/hunspell/")  # expects en.aff, en.dic
+
+Kotoshu.setup?(:en, :frequency)  # => false unless fetched
+Kotoshu.languages_setup         # => ["de", "en"]
+```
+
+  
+Setup is idempotent — re-running it with the same arguments is a no-op unless
+`force: true`. Each
+`SetupResult` reports per-resource
+status: `:downloaded`,
+`:local`,
+`:cached`, or
+`:unavailable`.
+
+  
+## Semantic analysis (optional)
+
+  
+The semantic layer reranks Hunspell candidates by context similarity. It
+requires the optional `onnxruntime`
+gem; without it, everything above still works. Guard on
+`ONNX_LOADED`.
+
+  
+```text
+if Kotoshu::Models::OnnxModel::ONNX_LOADED
+Kotoshu.setup(:en, want: %i[spelling model])
+model    = Kotoshu::Models::OnnxModel.from_github("en")
+analyzer = Kotoshu::Analyzers::SemanticAnalyzer.new(model)
+
+analyzer.analyze(Kotoshu.check("Hello wrold"))
+
+analyzer.suggest_corrections("helo", context: "I said helo to the world")
+.map(&amp;:word)  # => ["hello"]
+end
+```
+
+  <p class="eyebrow mt-12 mb-3"><span class="jp" lang="ja">全覧</span>Full reference</p>
+  <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      This page is the curated facade tour. The complete generated reference —
+      every class, module, method, and exception, generated by YARD from the gem
+      itself — is hosted at
+      [kotoshu.github.io/kotoshu](https://kotoshu.github.io/kotoshu/),
+      mirrored on
+      [rubydoc.info/gems/kotoshu](https://rubydoc.info/gems/kotoshu).
+    </p>
+  </div>
+</DocsLayout>

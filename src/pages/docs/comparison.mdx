@@ -1,12 +1,12 @@
----
 import DocsLayout from '~/layouts/DocsLayout.astro'
----
 
 <DocsLayout title="Comparison" description="Kotoshu next to hunspell, cspell, and LanguageTool — an honest feature table and guidance on choosing.">
-  <p class="docs-lead">Four tools with overlapping names for the job and different centers of gravity. This table is written to be fair.</p>
+<p class="docs-lead">Four tools with overlapping names for the job and different centers of gravity. This table is written to be fair.</p>
 
   <p class="eyebrow mb-3"><span class="jp" lang="ja">比較</span>Compare</p>
-  <h2 class="display text-2xl mt-12">Feature by feature</h2>
+  
+## Feature by feature
+
   <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
     <thead>
       <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
@@ -91,31 +91,32 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     </tbody>
   </table></div>
 
-  <h2 class="display text-2xl mt-12">Choosing</h2>
-  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Choose Kotoshu if Ruby is your stack and you want to spell-check from Ruby
-    code without shelling out; if fetching dictionaries, frequency lists, and
-    models on demand beats vendoring them; if you want suggestions reranked by
-    context; or if your CI relies on clean exit codes and SARIF.
-  </p>
-  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Choose the incumbents — hunspell for the smallest, fastest, most ubiquitous
-    binary; cspell if committed-in-repo configuration for a polyglot codebase is
-    the deciding factor, which is its strength today — when tooling maturity
-    matters more than semantic ranking or a Ruby-native API.
-  </p>
-  <p class="text-[15px] leading-7 text-[var(--color-text-2)] mt-4">
-    Choose LanguageTool if grammar breadth is the requirement. Nothing else in
-    this table approaches its rule library, and pretending otherwise would not
-    make it true.
-  </p>
+  
+## Choosing
+
+  
+Choose Kotoshu if Ruby is your stack and you want to spell-check from Ruby
+code without shelling out; if fetching dictionaries, frequency lists, and
+models on demand beats vendoring them; if you want suggestions reranked by
+context; or if your CI relies on clean exit codes and SARIF.
+
+  
+Choose the incumbents — hunspell for the smallest, fastest, most ubiquitous
+binary; cspell if committed-in-repo configuration for a polyglot codebase is
+the deciding factor, which is its strength today — when tooling maturity
+matters more than semantic ranking or a Ruby-native API.
+
+  
+Choose LanguageTool if grammar breadth is the requirement. Nothing else in
+this table approaches its rule library, and pretending otherwise would not
+make it true.
 
   <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
     <p>
       Migrating from any of these? The per-tool notes are in
-      <a href="/docs/migration" class="text-[var(--color-accent)] hover:underline">Migrating</a>,
+      [Migrating](/docs/migration),
       and the sixty-second install path is on
-      <a href="/install" class="text-[var(--color-accent)] hover:underline">the install page</a>.
+      [the install page](/install).
     </p>
   </div>
 </DocsLayout>

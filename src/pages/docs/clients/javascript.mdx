@@ -1,0 +1,120 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout slug="clients/javascript" title="JavaScript client" description="npm install @kotoshu/client — the typed HTTP client for Node, Deno, Bun, and browsers, plus the @kotoshu/wasm engine for offline checking in-process.">
+<p class="docs-lead">
+    Two packages on npm: `@kotoshu/client`,
+    the typed HTTP client, and `@kotoshu/wasm`,
+    the whole engine compiled to WebAssembly. Same `Suggestion`
+    shape either way.
+  </p>
+
+  
+## Install
+
+  
+```text
+npm install @kotoshu/client         # the HTTP client (ESM + TypeScript types)
+npm install @kotoshu/wasm           # optional: the engine, 162 KiB gzipped (0.3.2 tarball)
+```
+
+  
+Node 18+, Deno, Bun, and browsers. The wasm package is deliberately not a dependency of the
+client — opt in explicitly.
+
+  
+## Quick start — over HTTP
+
+  
+Point the client at a running [kotoshu-server](/docs/clients/http):
+
+  
+```text
+import { Client } from "@kotoshu/client";
+
+const client = new Client("http://127.0.0.1:9292");
+
+const result = await client.check("helo wrold", "en");
+for (const err of result.errors) {
+console.log(err.word, "->", err.suggestions.slice(0, 3).map((s) => s.word));
+}
+
+const suggestions = await client.suggest("recieve", { max: 3 });
+console.log(suggestions.map((s) => [s.word, s.confidence]));
+
+console.log(await client.correct("hello", "en"));
+```
+
+  
+```text
+helo -> [ 'hello', 'help', 'hell' ]
+wrold -> [ 'world', 'wold', 'weld' ]
+[ [ 'receive', 1 ], [ 'relieve', 0.91 ], [ 'recife', 0.5 ] ]
+true
+```
+
+  
+## Offline — the wasm engine
+
+  
+With `@kotoshu/wasm` installed,
+`createWasmDictionary` loads the engine
+in-process. Dictionaries are the string contents of the `.aff`
+and `.dic` files — WebAssembly has no filesystem:
+
+  
+```text
+import { createWasmDictionary } from "@kotoshu/client/dist/wasm.js";
+
+const aff = await (await fetch("/dictionaries/en.aff")).text();
+const dic = await (await fetch("/dictionaries/en.dic")).text();
+
+const dict = await createWasmDictionary(aff, dic);
+if (dict) {
+dict.correct("hello");      // true
+dict.correct("helo");       // false
+dict.suggest("hlelo", 3);   // ["hello", "halo", "heel"]
+} else {
+// backend resolved to "http" — use the Client instead
+}
+```
+
+  
+## Choosing a backend
+
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left"><code class="font-mono text-[13px]">KOTOSHU_BACKEND</code></th>
+        <th class="px-3 py-2.5 text-left">Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`auto` <span class="text-[var(--color-text-3)]">(the default)</span></td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">wasm when `import("@kotoshu/wasm")` resolves, else HTTP</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`native`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">force wasm — `NativeUnavailableError` when missing</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`http`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">never wasm; the factory resolves `null`</td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+The option `&#123; backend &#125;` wins over the
+environment variable. Like the Python package, the offline engine is word-level — no document
+checking, no language detection. Errors are typed, with
+`KotoshuError` as the base and
+`ResourceNotSetupError` for the 422 case.
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — both quick starts executed against @kotoshu/client 0.1.0 and @kotoshu/wasm 0.1.0 on Node 24.
+    Registry:
+    [@kotoshu/client on npm](https://www.npmjs.com/package/@kotoshu/client) ·
+    [@kotoshu/wasm on npm](https://www.npmjs.com/package/@kotoshu/wasm) ·
+    [kotoshu-js repo](https://github.com/kotoshu/kotoshu-js)
+  </p>
+</DocsLayout>

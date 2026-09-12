@@ -1,0 +1,89 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout slug="clients/go" title="Go client" description="go get github.com/kotoshu/kotoshu-go — the Go client over the HTTP API: check, suggest, detect, correct, all context-aware.">
+<p class="docs-lead">
+    A single dependency-free package over the HTTP API — every method takes a
+    `context.Context` first, the Go way.
+  </p>
+
+  
+## Install
+
+  
+```text
+go get github.com/kotoshu/kotoshu-go@v0.1.0
+```
+
+  
+## Quick start
+
+  
+Point the client at a running [kotoshu-server](/docs/clients/http):
+
+  
+```text
+package main
+
+import (
+"context"
+"fmt"
+
+kotoshu "github.com/kotoshu/kotoshu-go"
+)
+
+func main() {
+ctx := context.Background()
+client, _ := kotoshu.New("http://127.0.0.1:9292", kotoshu.WithLanguage("en"))
+
+result, _ := client.Check(ctx, "helo wrold", nil)
+for _, e := range result.Errors {
+fmt.Println(e.Word, "->", e.Suggestions[:3])
+}
+
+sugs, _ := client.Suggest(ctx, "recieve", &kotoshu.SuggestOptions{Max: 3})
+for _, s := range sugs {
+fmt.Println("suggest:", s.Word)
+}
+
+ok, _ := client.Correct(ctx, "hello", nil)
+fmt.Println("correct:", ok)
+}
+```
+
+  
+```text
+helo -> [hello help hell]
+wrold -> [world wold weld]
+suggest: receive
+suggest: relieve
+suggest: recife
+correct: true
+```
+
+  
+Options configure the client once:
+`WithLanguage("en")` sets the default
+language, `WithTimeout(30 * time.Second)`
+the HTTP timeout, `WithHTTPClient(...)`
+injects your own `*http.Client`.
+Per-call options (`*CheckOptions`,
+`*SuggestOptions`) override the defaults —
+pass `nil` to accept them.
+
+  
+## Errors
+
+  
+Server errors come back as `*kotoshu.APIError`
+with `.Code` and
+`.Message`;
+`kotoshu.IsResourceNotSetup(err)` tests the
+422 case — the language is not set up on the server.
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — the quick start executed against kotoshu-go v0.1.0 on Go 1.26.
+    Registry:
+    [kotoshu-go repo](https://github.com/kotoshu/kotoshu-go) ·
+    [pkg.go.dev reference](https://pkg.go.dev/github.com/kotoshu/kotoshu-go)
+  </p>
+</DocsLayout>

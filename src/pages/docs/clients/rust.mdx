@@ -1,0 +1,117 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout slug="clients/rust" title="Rust engine" description="cargo add kotoshu — the engine itself as a crate: Dictionary load, correct, ranked suggest, the C ABI batch format, and the models registry behind the resources feature.">
+<p class="docs-lead">
+    The `kotoshu` crate is the engine every
+    other surface wraps — pure Rust, no runtime dependencies by default.
+  </p>
+
+  
+## Install
+
+  
+```text
+cargo add kotoshu
+```
+
+  
+## Quick start
+
+  
+```text
+use std::path::Path;
+
+fn main() {
+let dict = kotoshu::dict::Dictionary::load(
+Path::new("en_US.aff"),
+Path::new("en_US.dic"),
+)
+.expect("load dictionary");
+
+println!("correct(\"hello\") = {}", dict.correct("hello"));
+println!("correct(\"helo\")  = {}", dict.correct("helo"));
+
+for s in dict.suggest("hlelo", 3) {
+println!(
+"suggest: {} dist={} conf={:.2} source={:?}",
+s.word, s.distance, s.confidence, s.source
+);
+}
+}
+```
+
+  
+```text
+correct("hello") = true
+correct("helo")  = false
+suggest: hello dist=1 conf=1.00 source=EditDistance
+suggest: halo dist=1 conf=0.50 source=Phonetic
+suggest: heel dist=1 conf=0.50 source=Phonetic
+```
+
+  
+`Dictionary::load` takes paths;
+`load_from_sources` takes the
+`.aff`/`.dic`
+text directly — byte-symmetric, and the form the wasm binding uses. A
+`Suggestion` carries
+`word`,
+`distance`,
+`confidence`, and a
+`SuggestionSource` enum
+(`EditDistance`,
+`Phonetic`, keyboard, n-gram) — the same row
+the conformance vectors freeze.
+
+  
+## Features
+
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Feature</th>
+        <th class="px-3 py-2.5 text-left">Adds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`(default)`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">dictionaries, affixes, ranked suggestions — zero dependencies</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`rerank`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">context-aware reranking math — cosine similarity over host-supplied vectors; always compiled, this is the module</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`onnx`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">the `OrtProvider` over ONNX Runtime — dynamic loading only, never bundled</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`resources`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">the models registry (`kotoshu.resources/v1`): tier resolution, SHA-256 verification, primary→mirror downloads, local cache</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`ruby` / `wasm` / `python`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">FFI shims — the gem native extension, `@kotoshu/wasm`, and the `kotoshu_native` wheel</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  
+## The batch format — KOSH
+
+  
+For hosts embedding the engine, the C ABI speaks a single batch wire format defined in
+`ffi::shared`: every buffer starts with the
+4-byte magic `KOSH`, a version, and a kind
+tag, followed by length-prefixed records. One serialization serves every binding — measured 3–5× faster than
+object-by-object FFI — and it is the format the 2630 conformance vectors speak, so all language surfaces agree
+by construction.
+
+  <p class="dict-anno mt-10 border-t border-[var(--color-border-subtle)] pt-5">
+    Verified 2026-09-05 — the quick start executed against kotoshu 0.1.0 on stable Rust.
+    Registry:
+    [kotoshu on crates.io](https://crates.io/crates/kotoshu) ·
+    [kotoshu-rs repo](https://github.com/kotoshu/kotoshu-rs)
+  </p>
+</DocsLayout>

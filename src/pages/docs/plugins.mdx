@@ -1,0 +1,133 @@
+import DocsLayout from '~/layouts/DocsLayout.astro'
+
+<DocsLayout title="Plugins" description="Extend Kotoshu with custom dictionary types, custom suggestion strategies, document-format plugin gems, and the personal dictionary.">
+<p class="docs-lead">Two registries and one plugin hook: Kotoshu is extended by registration, not by patching.</p>
+
+  <p class="eyebrow mb-3"><span class="jp" lang="ja">拡張</span>Extend</p>
+  
+## Custom suggestion strategies
+
+  
+A strategy is a class that subclasses
+`BaseStrategy` and implements
+one method, `generate(context)`,
+returning a SuggestionSet. The context carries the misspelled word, the
+dictionary, and limits. Register it with
+`Kotoshu.register_suggestion_algorithm`
+and it becomes available by name.
+
+  
+```text
+require "kotoshu"
+
+# Illustrative — a minimal strategy, not a useful one.
+# Real strategies score candidates against context.dictionary;
+# BaseStrategy supplies ranking helpers like create_suggestion_set.
+class SuffixStrategy &lt; Kotoshu::Suggestions::Strategies::BaseStrategy
+def generate(context)                 # the one required method
+word = context.word
+candidates = %w[hello help held hell].select { |c| c.end_with?(word[-2..]) }
+create_suggestion_set(candidates, original_word: word)
+end
+end
+
+Kotoshu.register_suggestion_algorithm(:suffix, SuffixStrategy)
+```
+
+  
+## Built-in strategies
+
+  <div class="overflow-x-auto mt-6"><table class="w-full text-sm">
+    <thead>
+      <tr class="text-xs uppercase tracking-wider text-[var(--color-text-3)]">
+        <th class="px-3 py-2.5 text-left">Strategy</th>
+        <th class="px-3 py-2.5 text-left">Role</th>
+        <th class="px-3 py-2.5 text-left">In default pipeline</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`edit_distance`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Levenshtein candidates, boosted by frequency tiers</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`phonetic`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Sounds-alike candidates</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`keyboard_proximity`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Adjacent-key typos, per keyboard layout (QWERTY, QWERTZ, AZERTY, JCUKEN)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`ngram`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Character n-gram similarity</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">yes</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`symspell`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">SymSpell-style high-speed candidate lookup</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">optional</td>
+      </tr>
+      <tr class="border-t border-[var(--color-border)]">
+        <td class="px-3 py-2.5">`semantic`</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Embedding-based reranking of candidates</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">optional — needs onnxruntime</td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+The default four run composed as a composite strategy; your registered
+strategies join the same vocabulary of names when you configure
+`suggestion_algorithms`.
+
+  
+## Custom dictionary types
+
+  
+Dictionary backends are pluggable the same way. A custom class subclasses
+`Dictionary::Base`, implements
+`lookup(word)` (and optionally
+`words` and
+`add_word`), and is registered
+for use as a `dictionary_type`:
+
+  
+```text
+Kotoshu.register_dictionary_type(:json, MyJsonDictionary)
+```
+
+  
+The built-in types and when to pick each are listed in
+[Configuration](/docs/configuration).
+
+  
+## Personal dictionary
+
+  
+For adding words rather than algorithms, the personal dictionary needs no
+code: `kotoshu personal add WORD`
+writes to `~/.config/kotoshu/personal.dic`
+and applies to every subsequent check.
+
+  
+## Document-format plugins
+
+  
+Format-specific parsers (Markdown, AsciiDoc, and beyond) are plugin gems, not
+core. A parser responds to `from_string(text, language_code:)`
+and registers itself from a file at `lib/kotoshu_plugin/document/format.rb`
+via `Kotoshu::Documents.register`.
+Kotoshu auto-discovers installed plugin gems, so callers get format support
+without configuration.
+
+  <div class="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-5 text-sm leading-7 text-[var(--color-text-2)]">
+    <p>
+      For worked examples — remote and database-backed dictionaries, composite
+      strategies, testing extensions — see the plugin development guide in the
+      [gem repository](https://github.com/kotoshu/kotoshu/blob/main/docs/plugins.md).
+    </p>
+  </div>
+</DocsLayout>
