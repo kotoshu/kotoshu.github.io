@@ -20,7 +20,7 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
     <tbody>
       <tr class="border-t border-[var(--color-border)]">
         <td class="px-3 py-2.5 text-[var(--color-text)]">Implementation</td>
-        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Pure Ruby (3.1+)</td>
+        <td class="px-3 py-2.5 text-[var(--color-text-2)]">Ruby and Rust twins (byte-identical), wasm, native ext</td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">C++</td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">TypeScript / Node</td>
         <td class="px-3 py-2.5 text-[var(--color-text-2)]">Java</td>
@@ -95,16 +95,19 @@ import DocsLayout from '~/layouts/DocsLayout.astro'
 ## Choosing
 
   
-Choose Kotoshu if Ruby is your stack and you want to spell-check from Ruby
-code without shelling out; if fetching dictionaries, frequency lists, and
-models on demand beats vendoring them; if you want suggestions reranked by
-context; or if your CI relies on clean exit codes and SARIF.
+Choose Kotoshu if you want provable engine correctness — two independent
+implementations held to a frozen, CI-enforced conformance contract — on
+whichever channel fits your stack: a library or CLI in Ruby, an embedded
+engine through wasm, Python, or Rust, a self-hosted HTTP service, or a
+GitHub Action with baselines and SARIF. Choose it too if fetching
+dictionaries, frequency lists, and models on demand beats vendoring them,
+and if you want suggestions reranked by context.
 
   
-Choose the incumbents — hunspell for the smallest, fastest, most ubiquitous
-binary; cspell if committed-in-repo configuration for a polyglot codebase is
-the deciding factor, which is its strength today — when tooling maturity
-matters more than semantic ranking or a Ruby-native API.
+Choose the incumbents when tooling maturity matters more than semantic
+ranking: hunspell for the smallest, fastest, most ubiquitous binary, and
+cspell if committed-in-repository configuration for a polyglot codebase is
+the deciding factor, which is its strength today.
 
   
 Choose LanguageTool if grammar breadth is the requirement. Nothing else in

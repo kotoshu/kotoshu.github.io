@@ -20,7 +20,8 @@ kotoshu setup en --from /usr/share/hunspell/
 ```
 
   
-Because the engine is a Ruby port of the Hunspell algorithm — with behavior
+Because the engine reimplements the Hunspell algorithms — in twin Ruby and
+Rust implementations held byte-identical by a frozen conformance contract, with behavior
 tested against Hunspell's own reference fixtures — affix rules, flag
 conditions, and compound handling behave the way your dictionaries expect.
 The difference you will notice is operational, not linguistic: resources are

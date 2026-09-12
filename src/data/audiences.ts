@@ -67,7 +67,7 @@ export const AUDIENCES: Audience[] = [
       'Offline-first Docker image with dictionaries pre-baked',
       'Works from markdown to AsciiDoc to plain text',
     ],
-    install: 'uses: kotoshu/action-kotoshu@v1',
+    install: 'uses: kotoshu/action-kotoshu@v2',
     guide: { label: 'Action guide', href: '/docs/clients/action' },
     projects: [
       { label: 'action-kotoshu', href: 'https://github.com/kotoshu/action-kotoshu' },
@@ -88,7 +88,7 @@ export const AUDIENCES: Audience[] = [
       'Docker image with healthcheck; Helm-friendly',
       'Languages pre-warmed on boot; add more without downtime',
     ],
-    install: 'git clone https://github.com/kotoshu/kotoshu-server   # runs from source today',
+    install: 'gem install kotoshu-server   # or docker run ghcr.io/kotoshu/ci',
     guide: { label: 'HTTP API guide', href: '/docs/clients/http' },
     projects: [
       { label: 'kotoshu-server', href: 'https://github.com/kotoshu/kotoshu-server' },

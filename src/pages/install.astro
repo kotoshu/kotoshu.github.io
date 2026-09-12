@@ -20,7 +20,7 @@ const channels: Channel[] = [
     code: 'ruby',
     jp: '宝石',
     name: 'Ruby — library & CLI',
-    note: 'The core gem (0.9.2): two-stage resources, model tiers, twenty language modules, optional native extension.',
+    note: 'The reference gem (1.0.1): two-stage resources, model tiers, 35 full-feature languages, optional native extension.',
     command: 'gem install kotoshu',
     docs: { label: 'Ruby API', href: '/docs/api' },
   },
@@ -36,7 +36,7 @@ const channels: Channel[] = [
     code: 'js',
     jp: '波',
     name: 'JavaScript & TypeScript — client + wasm',
-    note: '@kotoshu/client 0.1.0 for Node, Deno, Bun, browsers; @kotoshu/wasm 0.3.2 runs the engine in-process, models included.',
+    note: '@kotoshu/client 0.1.0 for Node, Deno, Bun, browsers; @kotoshu/wasm 1.0.0 runs the engine in-process with loadPack language packs.',
     command: 'npm install @kotoshu/client',
     docs: { label: 'JavaScript client', href: '/docs/clients/javascript' },
   },
@@ -60,7 +60,7 @@ const channels: Channel[] = [
     code: 'http',
     jp: '服務',
     name: 'HTTP — the server',
-    note: 'Seven JSON endpoints; the contract every SDK speaks. The 0.1.1 gem installs cleanly — the 0.1.0 cut shipped empty, 0.1.1 republished through trusted publishing.',
+    note: 'Seven JSON endpoints (1.0.1): checking with the optional model flag, suggestions, and 176-language detection — the contract every SDK speaks.',
     command: 'gem install kotoshu-server',
     docs: { label: 'HTTP API', href: '/docs/clients/http' },
   },
@@ -76,8 +76,8 @@ const channels: Channel[] = [
     code: 'ci',
     jp: '検証',
     name: 'CI — GitHub Action',
-    note: 'action-kotoshu v1: SARIF in the Security tab, dictionaries cached between runs; installs the gem unpinned, 0.9.2 today.',
-    command: 'uses: kotoshu/action-kotoshu@v1',
+    note: 'action-kotoshu v2: directory mode, CI baselines, include/exclude, and SARIF in the Security tab, with dictionaries cached between runs.',
+    command: 'uses: kotoshu/action-kotoshu@v2',
     docs: { label: 'GitHub Action', href: '/docs/clients/action' },
   },
 ]
@@ -92,18 +92,18 @@ const channels: Channel[] = [
         jp="導入"
         eyebrow="Install"
         title="Pick your channel"
-        lead="Eight channels, one engine. Whatever you install below talks to the same checking core — pick the surface that matches how you work."
+        lead="Eight channels, one engine. The checking core has two native implementations — the Ruby gem and the Rust crate — proven byte-identical on a frozen conformance contract, and every channel below builds on one of them."
       />
       <div class="mx-auto mt-12 max-w-2xl">
         <InstallTabs
           client:visible
           tabs={[
-            { id: 'gem', label: 'Ruby', hint: 'Core library & CLI', command: 'gem install kotoshu' },
             { id: 'python', label: 'Python', hint: 'Client + native engine', command: 'pip install kotoshu kotoshu-native' },
             { id: 'npm', label: 'npm', hint: 'Client + wasm engine', command: 'npm install @kotoshu/client @kotoshu/wasm' },
+            { id: 'gem', label: 'Ruby', hint: 'Reference library & CLI', command: 'gem install kotoshu' },
             { id: 'cargo', label: 'Rust', hint: 'The engine crate', command: 'cargo add kotoshu' },
             { id: 'lsp', label: 'Editor', hint: 'VS Code · Neovim · Emacs', command: 'gem install kotoshu-lsp' },
-            { id: 'action', label: 'GitHub Action', hint: 'SARIF in the Security tab', command: 'uses: kotoshu/action-kotoshu@v1' },
+            { id: 'action', label: 'GitHub Action', hint: 'SARIF in the Security tab', command: 'uses: kotoshu/action-kotoshu@v2' },
           ]}
         />
       </div>

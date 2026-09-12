@@ -69,12 +69,18 @@ import { SITE } from '~/data/site'
       <div class="animate-in">
         <h2 class="display text-2xl text-[var(--color-text)]">The architecture</h2>
         <p class="mt-4 text-[15px] leading-8 text-[var(--color-text-2)]">
-          Kotoshu is a small constellation of repositories. The
-          <a href="https://github.com/kotoshu/kotoshu" class="text-[var(--color-accent)] hover:underline">core gem</a>
-          holds the engine: a Ruby port of the Hunspell algorithms, pluggable
-          suggestion strategies, and an optional semantic layer. Around it sit
-          thin adapters — an LSP server, an HTTP API, three SDKs, a GitHub
-          Action, a Docker image — and three content repos (dictionaries,
+          Kotoshu is a small constellation of repositories. The checking
+          engine has two native implementations that must stay
+          byte-identical — a
+          <a href="https://github.com/kotoshu/kotoshu" class="text-[var(--color-accent)] hover:underline">Ruby gem</a>
+          and a
+          <a href="https://github.com/kotoshu/kotoshu-rs" class="text-[var(--color-accent)] hover:underline">Rust core</a>,
+          both reimplementing the Hunspell algorithms with pluggable
+          suggestion strategies and an optional semantic layer, pinned
+          together by a frozen conformance contract that CI enforces on
+          every change. Around the engines sit thin adapters — a wasm
+          build, an LSP server, an HTTP API, SDKs, a GitHub Action, a
+          Docker image — and three content repos (dictionaries,
           frequency lists, ONNX models) fetched on demand, never vendored.
         </p>
         <p class="mt-4 text-[15px] leading-8 text-[var(--color-text-2)]">

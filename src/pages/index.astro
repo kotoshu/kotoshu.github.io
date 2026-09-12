@@ -40,10 +40,11 @@ const featured = PROJECTS.filter((p) => p.featured)
         <InstallTabs
           client:visible
           tabs={[
-            { id: 'gem', label: 'Ruby gem', hint: 'Core library', command: 'gem install kotoshu' },
-            { id: 'lsp', label: 'Editor (LSP)', hint: 'VS Code · Neovim · Emacs · JetBrains', command: 'gem install kotoshu-lsp' },
-            { id: 'action', label: 'GitHub Action', hint: 'SARIF in the Security tab', command: 'uses: kotoshu/action-kotoshu@v1' },
-            { id: 'server', label: 'HTTP API', hint: 'Self-host — SDKs for Python, JS, Go', command: 'git clone https://github.com/kotoshu/kotoshu-server' },
+            { id: 'npm', label: 'npm', hint: 'Client + wasm engine', command: 'npm install @kotoshu/client @kotoshu/wasm' },
+            { id: 'python', label: 'Python', hint: 'Client + native engine', command: 'pip install kotoshu kotoshu-native' },
+            { id: 'gem', label: 'Ruby', hint: 'Reference library & CLI', command: 'gem install kotoshu' },
+            { id: 'action', label: 'GitHub Action', hint: 'SARIF in the Security tab', command: 'uses: kotoshu/action-kotoshu@v2' },
+            { id: 'server', label: 'HTTP API', hint: 'Self-host — SDKs for Python, JS, Go', command: 'gem install kotoshu-server' },
           ]}
         />
       </div>
