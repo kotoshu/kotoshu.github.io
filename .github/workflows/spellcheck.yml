@@ -3,6 +3,13 @@ on:
   push:
     branches: [main]
   pull_request:
+# The SARIF upload to code scanning needs the explicit write grant
+# (push-event tokens were refused without it - 'Resource not
+# accessible by integration' - while pull-request runs uploaded fine).
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   spellcheck:
     runs-on: ubuntu-latest
