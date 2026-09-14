@@ -32,6 +32,24 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-1-0-5-instant-arming',
+    date: '2026-09-14',
+    kind: 'release',
+    title: 'kotoshu 1.0.5: typo arming becomes a download',
+    summary:
+      'The typo-retrieval layer now ships prebuilt matrices for all six full-feature languages, setup backfills them on existing installs, and the engine records how it armed - plus a weekly guard against stale extension pins. The Rust crate follows at 0.2.1.',
+    senses: [
+      '`kotoshu setup LANG --typo` now ends with the language\'s 26 MB KTM1 matrix in the cache, and an install set up before the matrices existed picks one up on its next setup run instead of deriving the index at load time. Arming measures about half a second where deriving took 25 to 45 seconds, and German - the language where the hybrid\'s benchmark win is largest - arms in 511 ms against 44.9 s derived.',
+      'The engine records which path won: `Kotoshu::Typo::Engine#armed_via` answers `:matrix` or `:derived`, `Kotoshu::ResourceManager.setup?(lang, resource: :typo_matrix)` probes the artifact, and `kotoshu setup --list` prints per-resource detail such as `en: spelling, model, typo, typo-matrix`. A stale extension can no longer silently fall back to deriving - a weekly workflow compares the extension\'s kotoshu-rs pin against main and fails loudly with the fix recipe, and the release verify job installs the shipped gem and asserts the native surface before green-lighting a cut.',
+      'The Rust crate follows at 0.2.1 with the public matrix surface (`TypoEngine::from_matrix`, `TypoIndex::parse_ktm1`/`write_rows`), and the model registry grew a fetchability gate: every primary, mirror, and vocab URL is probed with ranged requests on each pull request and before every release, so a dead mirror can never reach a tag again.',
+    ],
+    links: [
+      { label: 'gem on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'crate on crates.io', href: 'https://crates.io/crates/kotoshu' },
+      { label: 'registry', href: 'https://github.com/kotoshu/models-fasttext-onnx' },
+    ],
+  },
+  {
     slug: 'typo-retrieval-live',
     date: '2026-09-14',
     kind: 'release',
