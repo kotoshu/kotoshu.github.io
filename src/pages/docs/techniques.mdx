@@ -121,6 +121,13 @@ hybrid evaluates over 4,700 pairs per language where the full tier can embed few
 top-5 accuracy in all four languages, with the English gain statistically significant at
 +6.3 percentage points on top-5.
 
+The layer ships as prebuilt retrieval matrices: for every full-feature language the model
+registry serves a 26 MB quantized index whose rows pair with that language's full-tier
+vocabulary, so arming the engine is a download measured in half a second rather than a
+25-to-45-second derivation. The Ruby extension records which path it took
+(`Typo::Engine#armed_via`), and a fetched matrix answers slates byte-identical to a
+derived one.
+
 ### Verifiable synthetic corpora
 
 Benchmark data is synthesized under an explicit admission rule: the corrected word must
