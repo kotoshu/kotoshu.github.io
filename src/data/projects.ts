@@ -71,8 +71,8 @@ export const PROJECTS: Project[] = [
     tagline: 'Python client',
     description:
       'Sync requests-based client with typed dataclasses — check, suggest, detect, correct. Installable from source now; PyPI release pending token refresh.',
-    repo: 'https://github.com/kotoshu/kotoshu-python',
-    install: 'pip install git+https://github.com/kotoshu/kotoshu-python',
+    repo: 'https://github.com/kotoshu/kotoshu-py',
+    install: 'pip install git+https://github.com/kotoshu/kotoshu-py',
     lang: 'Python · 3.10+',
     status: 'beta',
     audiences: ['polyglot'],

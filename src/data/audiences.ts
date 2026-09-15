@@ -92,7 +92,7 @@ export const AUDIENCES: Audience[] = [
     guide: { label: 'HTTP API guide', href: '/docs/clients/http' },
     projects: [
       { label: 'kotoshu-server', href: 'https://github.com/kotoshu/kotoshu-server' },
-      { label: 'kotoshu-python', href: 'https://github.com/kotoshu/kotoshu-python' },
+      { label: 'kotoshu-python', href: 'https://github.com/kotoshu/kotoshu-py' },
       { label: 'kotoshu-js', href: 'https://github.com/kotoshu/kotoshu-js' },
       { label: 'kotoshu-go', href: 'https://github.com/kotoshu/kotoshu-go' },
     ],
