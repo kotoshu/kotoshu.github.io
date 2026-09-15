@@ -32,6 +32,23 @@ export interface NewsEntry {
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
   {
+    slug: 'gem-1-0-6-fixes',
+    date: '2026-09-15',
+    kind: 'release',
+    title: 'kotoshu 1.0.6: four fixes and an honest library',
+    summary:
+      'Expired caches resolve instead of raising, the dictionary catalog reaches its repo again, a suggestion crash on tied scores is gone, and every URL the library builds now points somewhere live.',
+    senses: [
+      'An expired-but-present cache resolves: `Kotoshu.correct?` no longer raises `ResourceNotSetupError` for a language whose cached dictionary metadata predates bookkeeping, and `kotoshu setup --list` agrees with resolve. TTL now means refresh-at-setup, never absence-at-read.',
+      '`Dictionaries::Catalog` fetches from the `v1` branch - every catalog download had been a 404 against a branch the dictionary repository abandoned. `NgramSuggest` no longer crashes with `comparison of Array with Array` when tied root scores span mixed dictionary entry shapes; the sort compares scores only. The deprecated dictionaries URL default and a dead model-URL fallback joined the fix.',
+      'The typo layer hardened: a prebuilt matrix now carries the sha of the exact full-tier vocabulary it was derived over, and an arm that does not pair with the cached tier derives instead of answering wrong slates. The signature file parses for the first time, all 32 example walkthroughs run, and `kotoshu-lsp` 0.1.2 floors on the 1.0 engine line.',
+    ],
+    links: [
+      { label: 'gem on RubyGems', href: 'https://rubygems.org/gems/kotoshu' },
+      { label: 'CHANGELOG', href: 'https://github.com/kotoshu/kotoshu/blob/main/CHANGELOG.md' },
+    ],
+  },
+  {
     slug: 'gem-1-0-5-instant-arming',
     date: '2026-09-14',
     kind: 'release',
