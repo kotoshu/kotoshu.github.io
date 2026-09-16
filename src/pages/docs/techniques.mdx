@@ -138,6 +138,44 @@ checksum, and operation histograms, and the whole file is a deterministic functi
 those inputs. The corpora are labeled as synthetic everywhere they appear and never
 replace the frozen real-typo benchmarks.
 
+### Real-word (confusion-set) detection - in progress
+
+A spellchecker that flags only out-of-vocabulary words misses every real-word error:
+*I want to each rice*, *harder then before*, and Chinese homophone substitutions are
+all in-vocab, so the dictionary gate never questions them. The semantic machinery
+(context window, cosine reranking, KTM1 bi-encoder, fluency tier) ranks corrections
+beautifully but sits behind a dictionary check it never crosses. Addressing that is the
+real-word detection arc:
+
+- **Phase 0 evidence** (plan 15, merged): the confusion table for one language covers
+  only 15.6% of real-word instances with Damerau-Levenshtein distance at most one (the
+  dominant error classes are distance two: *you / your*, *occured / occurred*). The
+  cosine context scorer catches 8.1% of covered instances at the one-percent
+  false-positive operating point, worse than a raw word-frequency prior at 16.1%, so
+  static embeddings cannot *detect*. The fastText skipgram conditional scorer is dead
+  upstream: every *cc.\*.300* binary ships a zeroed output matrix.
+- **Phase 1 bigram rung** (plan 16, merged): the deletion-index identity-variant fix
+  plus bounded distance-at-most-two (one side in the top-thirty-thousand frequency
+  band) plus a lowercase-only gate raise coverage to 62.2% - the table ships
+  regardless. The bigram language model, trained on one Wikipedia shard
+  (CC-BY-SA-4.0, ninety-four million in-vocab tokens, ten-point-five million bigram
+  types), fails the gate decisively: the true correction wins argmax on 65.5% of
+  covered instances, above the bar, but clean and error margin distributions overlap
+  almost completely - at the one-percent false-positive operating point recall
+  collapses to 5.1%. Four margin variants (sum and conjunctive aggregation, each with
+  raw maximum-likelihood and absolute-discount smoothing) all show identical
+  distributions at zero threshold, so the failure is distributional and not a
+  calibration artifact.
+- **Phase 2 neural rung** (plan 17, proposed and owner-gated): the next viable rung
+  is a small context language model per language, or one multilingual model, scoring
+  the candidate and the observed word under the same context window with
+  probabilities that are calibrated for the decision. The 65.5% argmax ceiling
+  achieved with miscalibrated probabilities is the evidence that a calibrated model
+  can convert capability into separated margins. The frozen real-word split, the clean
+  sentences, and the gate (false-positive rate at most one percent and covered
+  true-top at least sixty percent) all stay unchanged; the only question is the
+  training arc.
+
 ## Packaging and distribution
 
 ### Language packs
