@@ -216,6 +216,16 @@ pattern is pre-warm while online, check offline:
 [GitHub Action](/docs/clients/action)
 assembles for you.
 
+The typo-retrieval layer has its own first-use cost, and a prebuilt
+answer: deriving the retrieval index over a 100,000-word vocabulary
+takes 25 to 45 seconds of CPU, while the registry's per-language KTM1
+matrix (26 MB, `kotoshu setup LANG --typo`) arms the same engine in
+about half a second with byte-identical slates. The engine records
+which path it took — `Kotoshu::Typo::Engine#armed_via` answers
+`:matrix` or `:derived` — so a slow first check is diagnosable in one
+line, and a matrix that does not pair with the cached tier derives
+instead of answering wrong.
+
   
 ## The tier error budget
 
