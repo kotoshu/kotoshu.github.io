@@ -58,7 +58,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.782',
+      score: '0.811',
       protocol:
         'Strict span scorer with artifact guards; re-measured 2026-10-29 on the shipped fp32 weights.',
     },
