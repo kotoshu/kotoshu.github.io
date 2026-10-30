@@ -31,7 +31,25 @@ export interface NewsEntry {
 
 /** Newest first — the index, feeds, and prev/next all read this order. */
 export const NEWS: NewsEntry[] = [
+
   {
+    slug: 'grammar-models-multilingual',
+    date: '2026-10-30',
+    kind: 'release',
+    title: 'Grammar models: nine languages, measured honestly',
+    summary:
+      'The neural grammar family gets its public ledger — English, French, Spanish, and German shipped today with fp32 cross-architecture weights; Russian and the CJK trio are in final evaluation.',
+    senses: [
+      'English anchors the family: F0.5 0.522 on the CoNLL-14 full set under the official M² scorer — 2.49× LanguageTool on the same test.',
+      'French and Spanish ship re-measured fp32 weights (F0.5 0.782 and 0.620 on held-out benchmarks under the strict span scorer), fixing an x86-only inference defect found and killed this week.',
+      'Every shipped file is a single ONNX artifact verified on Apple Silicon and x86-64 Linux — no Python runtime, same loader filename, one confidence check away from publish.',
+      'Russian and the Chinese·Japanese·Korean model are trained and packaged; their scores appear when they survive the measurement pipeline — not before.',
+    ],
+    links: [
+      { label: 'The full scorecard', href: '/grammars' },
+      { label: 'Models on Hugging Face', href: 'https://huggingface.co/kotoshu' },
+    ],
+  },  {
     slug: 'gem-1-0-6-fixes',
     date: '2026-09-15',
     kind: 'release',

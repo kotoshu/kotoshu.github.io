@@ -1,0 +1,120 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import { GRAMMAR_MODELS, GRAMMAR_PLATFORMS, GRAMMAR_PROTOCOL } from '~/data/grammar-models'
+import { SITE } from '~/data/site'
+
+const published = GRAMMAR_MODELS.filter((m) => m.status === 'published')
+const evaluating = GRAMMAR_MODELS.filter((m) => m.status === 'evaluation')
+---
+
+<BaseLayout title={`Grammar models — ${SITE.name}`}>
+  <!-- Ledger head -->
+  <section class="relative overflow-hidden">
+    <div class="zen-glow" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-20 pb-14 sm:pt-24">
+      <SectionHeading
+        jp="訂正"
+        eyebrow="Grammar models"
+        title="Neural grammar correction, measured honestly"
+        lead="One model per language family — single-file ONNX, loaded through the gem, no Python runtime. Every score below was decoded from the exact artifact you download and scored by a pipeline built to reject inflated numbers."
+      />
+    </div>
+  </section>
+
+  <!-- The scorecard -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-14">
+      <div class="scorecard">
+        {published.map((m) => (
+          <div class="scorecard-row">
+            <div>
+              <p class="text-base font-semibold text-[var(--color-text)]">
+                {m.lang}
+                <span class="jp ml-2 text-sm font-normal text-[var(--color-text-3)]" lang={m.lang === 'Chinese · Japanese · Korean' ? 'ja' : undefined}>{m.native}</span>
+              </p>
+              <p class="scorecard-meta mt-1">
+                <a
+                  href={`${SITE.githubOrg.replace('github.com', 'huggingface.co')}/${m.repo}`}
+                  class="hover:text-[var(--color-accent)]"
+                >kotoshu/{m.repo}</a>
+                {' · '}{m.size}{' · '}{m.date}
+              </p>
+            </div>
+            <div class="min-w-0">
+              {m.benchmark ? (
+                <p class="scorecard-meta">
+                  {m.benchmark.name}
+                  {m.benchmark.comparison && (
+                    <span class="mt-1 block text-[var(--color-text-2)]">{m.benchmark.comparison}</span>
+                  )}
+                </p>
+              ) : (
+                <p class="mt-1 text-[13px] leading-6 text-[var(--color-text-2)]">{m.note}</p>
+              )}
+            </div>
+            <div class="text-left sm:text-right">
+              {m.benchmark ? (
+                <p class="scorecard-num">{m.benchmark.score}</p>
+              ) : (
+                <p class="scorecard-meta">F0.5 — card</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p class="mt-5 text-xs leading-6 text-[var(--color-text-3)]">
+        F0.5 weights precision 5× over recall — a proofreading tool must not invent errors.
+        Protocols: CoNLL-14 via the official M² scorer; fr/es via the strict span scorer on
+        held-out corruption benchmarks with artifact guards.
+      </p>
+    </div>
+  </section>
+
+  <!-- In evaluation -->
+  <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-14">
+      <SectionHeading
+        jp="評価中"
+        eyebrow="In final evaluation"
+        title="Five more languages at the gate"
+        lead="These models are trained and packaged; their scores are being measured now. Numbers appear when they survive the pipeline — not before."
+      />
+      <div class="mt-10 grid gap-4 sm:grid-cols-2">
+        {evaluating.map((m) => (
+          <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-base font-semibold text-[var(--color-text)]">{m.lang}</p>
+              <span class="chip-evaluation rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider">
+                evaluating
+              </span>
+            </div>
+            <p class="jp mt-1 text-sm text-[var(--color-text-3)]" lang="ja">{m.native}</p>
+            <p class="mt-3 text-[13px] leading-6 text-[var(--color-text-2)]">{m.note}</p>
+            <p class="scorecard-meta mt-3">{m.size}{' · '}{m.date}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Protocol -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-14">
+      <SectionHeading
+        jp="測定"
+        eyebrow="The measurement law"
+        title={GRAMMAR_PROTOCOL.title}
+        lead={GRAMMAR_PROTOCOL.body}
+      />
+      <div class="mt-10 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-inset)] p-6 sm:p-8">
+        <p class="font-mono text-xs uppercase tracking-wider text-[var(--color-gold)]">{GRAMMAR_PLATFORMS.line}</p>
+        <p class="mt-3 text-sm leading-7 text-[var(--color-text-2)]">{GRAMMAR_PLATFORMS.detail}</p>
+        <pre class="mt-5 overflow-x-auto rounded-lg bg-[var(--color-bg-dark)] p-4 font-mono text-[12.5px] leading-6 text-[var(--color-text)]"><code>gem install kotoshu
+# fetch a grammar model into the gem cache
+python scripts/fetch_grammar_model.py --lang fr   # → ~/.cache/kotoshu/grammar/fr</code></pre>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

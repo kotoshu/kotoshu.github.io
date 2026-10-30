@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
   { label: 'Projects', href: '/projects' },
   { label: 'Audiences', href: '/audiences' },
   { label: 'Languages', href: '/languages' },
+  { label: 'Grammar models', href: '/grammars' },
   { label: 'Docs', href: '/docs' },
   { label: 'News', href: '/news' },
   { label: 'Playground', href: '/playground' },

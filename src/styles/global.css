@@ -462,6 +462,14 @@ html:has([data-theme="dark"]) body::after {
 }
 .docs-body pre {
   margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  background: var(--color-bg-inset);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
 }
 .docs-body pre code {
   background: none;
@@ -580,4 +588,54 @@ html:has([data-theme="dark"]) body::after {
   .lab-spinner, .lab-dot-busy, .lab-progress-indet, .lab-pane-flash {
     animation: none;
   }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Grammar scorecard — the measurement ledger. Monospace tabular
+   numbers on ruled rows; the mend accent marks our scores.
+   ─────────────────────────────────────────────────────────────── */
+
+.scorecard {
+  border-top: 1px solid var(--color-border);
+}
+
+.scorecard-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem 1.5rem;
+  padding: 1.1rem 0.25rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+@media (min-width: 640px) {
+  .scorecard-row {
+    grid-template-columns: 15rem 1fr auto;
+    align-items: baseline;
+  }
+}
+
+.scorecard-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.scorecard-meta {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-3);
+}
+
+.chip-published {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.chip-evaluation {
+  background: var(--color-gold-soft);
+  color: var(--color-gold);
 }

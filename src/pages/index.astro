@@ -9,6 +9,7 @@ import { AUDIENCES } from '~/data/audiences'
 import { PROJECTS } from '~/data/projects'
 import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_STATS, KELLY_LANGUAGES } from '~/data/languages'
 import { SITE } from '~/data/site'
+import { GRAMMAR_MODELS } from '~/data/grammar-models'
 
 const featured = PROJECTS.filter((p) => p.featured)
 ---
@@ -84,6 +85,46 @@ const featured = PROJECTS.filter((p) => p.featured)
       </div>
     </div>
   </section>
+
+  <!-- Grammar models -->
+  <section class="border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
+      <SectionHeading
+        jp="訂正"
+        eyebrow="Grammar models"
+        title="Nine languages of grammar correction, measured honestly"
+        lead="Neural GEC as single-file ONNX — decoded from the shipped artifact and scored by a pipeline built to reject inflated numbers. Measured, not marketed."
+      />
+      <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-[var(--color-accent)] bg-[var(--color-bg)] p-6">
+          <p class="scorecard-num">0.522</p>
+          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">English · CoNLL-14</p>
+          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">official M² scorer — 2.49× LanguageTool</p>
+        </div>
+        <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
+          <p class="scorecard-num">0.782</p>
+          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">French · held-out</p>
+          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">strict span scorer, fp32 weights</p>
+        </div>
+        <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
+          <p class="scorecard-num">0.620</p>
+          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">Spanish · held-out</p>
+          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">precision-first: P 0.92</p>
+        </div>
+        <div class="rounded-xl border border-[var(--color-gold)] bg-[var(--color-bg)] p-6">
+          <p class="font-mono text-sm uppercase tracking-wider text-[var(--color-gold)]">evaluating</p>
+          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">ru · zh · ja · ko</p>
+          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">scores appear when they survive the pipeline</p>
+        </div>
+      </div>
+      <p class="mt-8 text-center text-sm">
+        <a href="/grammars" class="text-[var(--color-accent)] hover:underline">
+          The full scorecard — protocols, artifacts, and platform verification →
+        </a>
+      </p>
+    </div>
+  </section>
+
 
   <!-- Audiences -->
   <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
