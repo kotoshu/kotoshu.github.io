@@ -91,19 +91,33 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-ru',
     lang: 'Russian',
     native: 'Русский',
-    date: '2026-10-30',
+    date: '2026-10-31',
     size: '436 MB',
     status: 'evaluation',
-    note: 'Trained on 112,567 verified parallel rows; in final evaluation.',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.385',
+      protocol:
+        'Strict span scorer with artifact guards; 812 held-out single-error sentences, precision 0.71. Decode at margin gate 1.0, 4 rounds.',
+    },
+    note: 'Trained on 112,567 verified parallel rows; 16.6× the previous Russian weights. Real-learner evaluation pending a licensed corpus.',
   },
   {
     repo: 'grammar-cjk',
     lang: 'Chinese · Japanese · Korean',
     native: '中文 · 日本語 · 한국어',
-    date: '2026-10-30',
+    date: '2026-10-31',
     size: '464 MB',
     status: 'evaluation',
-    note: 'One shared model across three scripts; in final evaluation on held-out and real-error benchmarks.',
+    benchmark: {
+      name: 'Held-out + real-error benchmarks',
+      metric: 'F0.5 (zh-Hans / zh-Hant)',
+      score: '0.639 / 0.796',
+      protocol:
+        'Strict span scorer with character-level CJK comparison; 254 + 253 held-out single-error sentences, precision 0.63 / 0.78.',
+    },
+    note: 'One shared model across three scripts. Real-error slices: NLPCC-zh 0.070, Korean held-out 0.114, Korean real corpus (23,333 sentences) 0.235. Japanese in final evaluation.',
   },
 ]
 
