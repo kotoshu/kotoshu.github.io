@@ -117,7 +117,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer with character-level CJK comparison; 254 + 253 held-out single-error sentences, precision 0.63 / 0.78.',
     },
-    note: 'One shared model across three scripts. Real-error slices: NLPCC-zh 0.070, Korean held-out 0.114, Korean real corpus (23,333 sentences) 0.235. Japanese in final evaluation.',
+    note: 'One shared model across three scripts. Real-error slices: NLPCC-zh 0.070, Korean held-out 0.114, Korean real corpus (23,333 sentences) 0.235, Japanese held-out (JWTD) 0.158.',
   },
 ]
 
