@@ -119,6 +119,24 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     },
     note: 'One shared model across three scripts. Real-error slices: NLPCC-zh 0.070, Korean held-out 0.114, Korean real corpus (23,333 sentences) 0.235, Japanese held-out (JWTD) 0.158.',
   },
+  {
+    repo: 'grammar-ko',
+    lang: 'Korean',
+    native: '한국어',
+    date: '2026-11-09',
+    size: '356 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out single-error benchmark',
+      metric: 'F0.5',
+      score: '0.394',
+      comparison:
+        '3.5× the grammar-cjk Korean weights (0.114) on the same 1,582-sentence slice',
+      protocol:
+        'Strict span scorer; 1,582 held-out sentences, precision 0.61, recall 0.16. Decoded from this exact artifact at margin gate 1.0, rounds 4.',
+    },
+    note: 'Trained on 359,212 balanced corruption pairs (particle swaps, attested conjugation swaps, homophone confusables — uniformly drawn) over a Korean Wikipedia corpus. The balanced class design replaced the earlier skew that had trained merge/delete-heavy behavior into the CJK-line Korean weights.',
+  },
 ]
 
 export const GRAMMAR_PLATFORMS = {
