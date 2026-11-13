@@ -91,17 +91,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-ru',
     lang: 'Russian',
     native: 'Русский',
-    date: '2026-10-31',
-    size: '436 MB',
-    status: 'evaluation',
+    date: '2026-11-14',
+    size: '457 MB',
+    status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.385',
+      score: '0.422',
       protocol:
-        'Strict span scorer with artifact guards; 812 held-out single-error sentences, precision 0.71. Decode at margin gate 1.0, 4 rounds.',
+        'Strict span scorer with artifact guards; 812 held-out single-error sentences, precision 0.86, recall 0.14. Decode at margin gate 1.0, zero-confidence gate, 4 rounds — the measured serving law for this encoder.',
     },
-    note: 'Trained on 112,567 verified parallel rows; 16.6× the previous Russian weights. Real-learner evaluation pending a licensed corpus.',
+    note: 'Trained on 182,031 rows: the 112,567 verified corruption pack + 69,464 GLM-5.3-Flash-verified corrections (exact-restore gate). +9.5% F0.5 over the previous Russian weights, precision +0.15 at equal recall. Real-learner evaluation pending a licensed corpus.',
   },
   {
     repo: 'grammar-cjk',
