@@ -107,17 +107,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-cjk',
     lang: 'Chinese · Japanese · Korean',
     native: '中文 · 日本語 · 한국어',
-    date: '2026-10-31',
+    date: '2026-11-17',
     size: '464 MB',
-    status: 'evaluation',
+    status: 'published',
     benchmark: {
       name: 'Held-out + real-error benchmarks',
       metric: 'F0.5 (zh-Hans / zh-Hant)',
-      score: '0.639 / 0.796',
+      score: '0.661 / 0.788',
       protocol:
-        'Strict span scorer with character-level CJK comparison; 254 + 253 held-out single-error sentences, precision 0.63 / 0.78.',
+        'Strict span scorer with character-level CJK comparison; 254 + 253 held-out single-error sentences, precision 0.66 / 0.77. Decoded from the shipped artifact, 4 rounds, zero-confidence gate.',
     },
-    note: 'One shared model across three scripts. Real-error slices: NLPCC-zh 0.070, Korean held-out 0.114, Korean real corpus (23,333 sentences) 0.235, Japanese held-out (JWTD) 0.158.',
+    note: 'One shared model across three scripts. Real-error slices: NLPCC-zh 0.111, CSCD-zh 0.349, Korean held-out 0.129, Japanese held-out (JWTD) 0.319. This wave trades some zh-Hant held-out recall (the previous weights measured 0.852 on the same slice under the identical pipeline) for large gains on every real-error slice — Japanese +0.18, CSCD-zh +0.12.',
   },
   {
     repo: 'grammar-ko',
@@ -131,7 +131,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       metric: 'F0.5',
       score: '0.394',
       comparison:
-        '3.5× the grammar-cjk Korean weights (0.114) on the same 1,582-sentence slice',
+        '3.1× the grammar-cjk Korean weights (0.129) on the same 1,582-sentence slice',
       protocol:
         'Strict span scorer; 1,582 held-out sentences, precision 0.61, recall 0.16. Decoded from this exact artifact at margin gate 1.0, rounds 4.',
     },
