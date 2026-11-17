@@ -137,15 +137,20 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     },
     note: 'Trained on 359,212 balanced corruption pairs (particle swaps, attested conjugation swaps, homophone confusables — uniformly drawn) over a Korean Wikipedia corpus. The balanced class design replaced the earlier skew that had trained merge/delete-heavy behavior into the CJK-line Korean weights.',
   },
+  {
+    repo: 'grammar-ur',
+    lang: 'Urdu',
+    native: 'اردو',
+    date: '2026-11-18',
+    size: '420 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.640',
+      protocol:
+        'Strict span scorer; 1,500 held-out single-error sentences across six balanced classes (homophone letter sets, Arabic↔Urdu confusions, keyboard adjacency, transpositions, space joins, real-word swaps), precision 0.68, recall 0.52. Decoded from this exact artifact at the zero-confidence gate, 4 rounds.',
+    },
+    note: "First Urdu model. Trained on a synthetic corruption pack derived from the CLE Urdu Digest Corpus 1M and CLE Urdu WordNet (Ribose⇄CLE license); released after passing the agreement's Clause 16(e) extraction/memorization testing — zero novel corpus reproductions, no membership signal (AUC 0.485), no tokenizer leakage. Spelling dictionary packaged separately (kotoshu/dictionaries ur/).",
+  },
 ]
-
-export const GRAMMAR_PLATFORMS = {
-  line: 'Verified on Apple Silicon (arm64) and x86-64 Linux',
-  detail:
-    'Single-file ONNX per model, loaded through the gem with no Python runtime. Every shipped file passes a cross-architecture confidence check before publish.',
-} as const
-
-export const GRAMMAR_PROTOCOL = {
-  title: 'Measured, not marketed',
-  body: 'Every score on this page comes from the same frozen pipeline: decodes run against the exact artifact you download, and the scorer rejects the failure modes that inflate GEC numbers — output inflation, CJK tokenization mirages, span-size mirages. Where a comparison appears, the baseline was run on the same test set. Numbers that cannot survive this pipeline are not published.',
-} as const
