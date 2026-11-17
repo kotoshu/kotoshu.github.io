@@ -53,7 +53,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     lang: 'French',
     native: 'Français',
     date: '2026-10-29',
-    size: '473 MB',
+    size: '451 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
@@ -68,7 +68,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     lang: 'Spanish',
     native: 'Español',
     date: '2026-10-29',
-    size: '473 MB',
+    size: '452 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
@@ -92,7 +92,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     lang: 'Russian',
     native: 'Русский',
     date: '2026-11-14',
-    size: '457 MB',
+    size: '436 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
