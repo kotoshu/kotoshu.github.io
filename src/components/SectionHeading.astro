@@ -5,12 +5,25 @@ interface Props {
   title: string
   lead?: string
   center?: boolean
+  /**
+   * Sense ordinal — when set, the eyebrow becomes a full entry line:
+   * the headword with a raised sense numeral, then the kanji gloss.
+   * The homepage reads as one dictionary entry; each section is a
+   * numbered sense of the headword.
+   */
+  sense?: number
+  headword?: string
 }
-const { jp, eyebrow, title, lead, center = true } = Astro.props
+const { jp, eyebrow, title, lead, center = true, sense, headword = 'ko·to·shu' } = Astro.props
 ---
 
 <div class:list={['max-w-2xl', center && 'mx-auto text-center', 'animate-in']}>
   <p class="eyebrow mb-4">
+    {sense != null && (
+      <span class="hw">
+        {headword}<sup>{sense}</sup>
+      </span>
+    )}
     <span class="jp" lang="ja">{jp}</span>{eyebrow}
   </p>
   <h2 class="display text-3xl sm:text-4xl text-[var(--color-text)]">{title}</h2>

@@ -73,6 +73,7 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="実演"
+        sense={1}
         eyebrow="See it work"
         title="Misspellings, surfaced and mended"
         lead="A small taste of the interactive experience — the editor extension and CLI do this against the full engine, live."
@@ -91,30 +92,35 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="訂正"
+        sense={2}
         eyebrow="Grammar models"
         title="Nine languages of grammar correction, measured honestly"
         lead="Neural GEC as single-file ONNX — decoded from the shipped artifact and scored by a pipeline built to reject inflated numbers. Measured, not marketed."
       />
       <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-xl border border-[var(--color-accent)] bg-[var(--color-bg)] p-6">
-          <p class="scorecard-num">0.522</p>
+          <p class="scorecard-lang">en</p>
+          <p class="scorecard-num mt-2">0.522</p>
           <p class="mt-2 text-sm font-medium text-[var(--color-text)]">English · CoNLL-14</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">official M² scorer — 2.49× LanguageTool</p>
+          <p class="scorecard-meta mt-1">official M² scorer — 2.49× LanguageTool</p>
         </div>
         <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
-          <p class="scorecard-num">0.811</p>
+          <p class="scorecard-lang">fr</p>
+          <p class="scorecard-num mt-2">0.811</p>
           <p class="mt-2 text-sm font-medium text-[var(--color-text)]">French · held-out</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">strict span scorer, fp32 weights</p>
+          <p class="scorecard-meta mt-1">strict span scorer, fp32 weights</p>
         </div>
         <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
-          <p class="scorecard-num">0.620</p>
+          <p class="scorecard-lang">es</p>
+          <p class="scorecard-num mt-2">0.620</p>
           <p class="mt-2 text-sm font-medium text-[var(--color-text)]">Spanish · held-out</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">precision-first: P 0.92</p>
+          <p class="scorecard-meta mt-1">precision-first: P 0.92</p>
         </div>
         <div class="rounded-xl border border-[var(--color-gold)] bg-[var(--color-bg)] p-6">
-          <p class="font-mono text-sm uppercase tracking-wider text-[var(--color-gold)]">evaluating</p>
-          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">ru · zh · ja · ko</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">scores appear when they survive the pipeline</p>
+          <p class="scorecard-lang" style="color: var(--color-gold)">ru · zh · ja · ko</p>
+          <p class="scorecard-num mt-2" style="color: var(--color-text-3)">···</p>
+          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">evaluating</p>
+          <p class="scorecard-meta mt-1">scores appear when they survive the pipeline</p>
         </div>
       </div>
       <p class="mt-8 text-center text-sm">
@@ -131,6 +137,7 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="使う人"
+        sense={3}
         eyebrow="Who it's for"
         title="One engine, many hands"
         lead="Five audiences, five entry points — from a Ruby API to a one-line GitHub Action."
@@ -160,6 +167,7 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="生態系"
+        sense={4}
         eyebrow="The ecosystem"
         title="A gem at the center, a ring of surfaces around it"
         lead="Every surface is a thin adapter over the same engine — nothing duplicates the checking logic."
@@ -195,6 +203,7 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="言葉"
+        sense={5}
         eyebrow="What's supported"
         title={`${LANGUAGE_STATS.fullFeature} languages fully featured, ninety-eight staged`}
         lead="Full feature means spelling with affixes, semantic reranking, and keyboard-aware suggestions — frequency ranking rides along where Kelly data exists."
@@ -252,6 +261,7 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="思想"
+        sense={6}
         eyebrow="Principles"
         title="How Kotoshu is built"
       />
