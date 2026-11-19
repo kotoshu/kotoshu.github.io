@@ -37,16 +37,18 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-en',
     lang: 'English',
     native: 'English',
-    date: '2026-10-14',
-    size: '190 MB',
+    date: '2026-11-19',
+    size: '395 MB',
     status: 'published',
     benchmark: {
       name: 'CoNLL-14 (official M² scorer)',
       metric: 'F0.5',
-      score: '0.522',
-      comparison: '2.49× LanguageTool (0.168) on the same full set',
-      protocol: 'Official M² scorer, full test set, decodes from the shipped artifact.',
+      score: '0.535',
+      comparison: '3.2× LanguageTool (0.168) on the same full set',
+      protocol:
+        'Official M² scorer, full test set, decodes from the shipped artifact (training-faithful tokenizer path).',
     },
+    note: 'The MEGA line: 2.52M-row distillation (quad GEC corpora + cLang-8 + c4 web-domain), roberta-base, round 1 = 4ep vanilla + 2ep KEEP-weighted at LR/10. Replaces the penta weights (0.522, 2026-10-14).',
   },
   {
     repo: 'grammar-fr',
