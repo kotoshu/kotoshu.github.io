@@ -153,6 +153,54 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     },
     note: "First Urdu model. Trained on a synthetic corruption pack derived from the CLE Urdu Digest Corpus 1M and CLE Urdu WordNet (Ribose⇄CLE license); released after passing the agreement's Clause 16(e) extraction/memorization testing — zero novel corpus reproductions, no membership signal (AUC 0.485), no tokenizer leakage. Spelling dictionary packaged separately (kotoshu/dictionaries ur/).",
   },
+  {
+    repo: 'grammar-pt',
+    lang: 'Portuguese',
+    native: 'Português',
+    date: '2026-11-19',
+    size: '428 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.571',
+      protocol:
+        'Span scorer; 1,467 held-out single-error sentences across six balanced classes, precision 0.69, recall 0.34. Decoded locally (arm64 onnxruntime) from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text (static dumps, page-title provenance); corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
+  {
+    repo: 'grammar-nl',
+    lang: 'Dutch',
+    native: 'Nederlands',
+    date: '2026-11-19',
+    size: '429 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.565',
+      protocol:
+        'Span scorer; 1,458 held-out single-error sentences, precision 0.95, recall 0.21 — the most precision-conservative model on the shelf. Decoded locally from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs (no diacritic class — Dutch orthography) over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
+  {
+    repo: 'grammar-pl',
+    lang: 'Polish',
+    native: 'Polski',
+    date: '2026-11-19',
+    size: '427 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.418',
+      protocol:
+        'Span scorer; 1,490 held-out single-error sentences across six balanced classes (including the full Polish diacritic set ą ć ę ł ń ó ś ź ż), precision 0.43, recall 0.39. Decoded locally from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
 ]
 
 export const GRAMMAR_PLATFORMS = {
