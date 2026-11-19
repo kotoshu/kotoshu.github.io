@@ -219,6 +219,70 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     },
     note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
   },
+  {
+    repo: 'grammar-uk',
+    lang: 'Ukrainian',
+    native: 'Українська',
+    date: '2026-11-19',
+    size: '427 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.676',
+      protocol:
+        'Span scorer; 1,366 held-out single-error sentences (Cyrillic keyboard adjacency from the Ukrainian layout grid, і/ї/ґ diacritics), precision 0.94, recall 0.32. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
+  {
+    repo: 'grammar-tr',
+    lang: 'Turkish',
+    native: 'Türkçe',
+    date: '2026-11-19',
+    size: '428 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.597',
+      protocol:
+        'Span scorer; 1,485 held-out single-error sentences (Turkish-Q layout adjacency, ç ğ ı ö ş ü diacritics), precision 0.95, recall 0.24. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
+  {
+    repo: 'grammar-sr',
+    lang: 'Serbian',
+    native: 'Српски',
+    date: '2026-11-19',
+    size: '426 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.509',
+      protocol:
+        'Span scorer; 1,361 held-out single-error sentences (Serbian Cyrillic layout adjacency — ђ љ њ ћ џ), precision 0.77, recall 0.22. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
+  {
+    repo: 'grammar-el',
+    lang: 'Greek',
+    native: 'Ελληνικά',
+    date: '2026-11-19',
+    size: '421 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.367',
+      protocol:
+        'Span scorer; 1,486 held-out single-error sentences (Greek layout adjacency, ά έ ή ί ό ύ ώ accents), precision 0.99, recall 0.10 — the most precision-conservative model on the shelf. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
 ]
 
 export const GRAMMAR_PLATFORMS = {
