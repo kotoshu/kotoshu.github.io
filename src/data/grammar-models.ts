@@ -203,6 +203,22 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     },
     note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
   },
+  {
+    repo: 'grammar-it',
+    lang: 'Italian',
+    native: 'Italiano',
+    date: '2026-11-19',
+    size: '478 MB',
+    status: 'published',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.374',
+      protocol:
+        'Span scorer; 1,468 held-out single-error sentences across six balanced classes (Italian accents à è é ì ò ù), precision 0.96, recall 0.11 — extremely precision-conservative. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+    },
+    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+  },
 ]
 
 export const GRAMMAR_PLATFORMS = {
