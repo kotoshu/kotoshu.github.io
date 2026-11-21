@@ -91,15 +91,15 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-ru',
     lang: 'Russian',
     native: 'Русский',
-    date: '2026-11-14',
+    date: '2026-11-20',
     size: '436 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.422',
+      score: '0.4315',
       protocol:
-        'Strict span scorer with artifact guards; 812 held-out single-error sentences, precision 0.86, recall 0.14. Decode at margin gate 1.0, zero-confidence gate, 4 rounds — the measured serving law for this encoder.',
+        'Strict span scorer; 812 held-out single-error sentences, precision 1.00 (zero wrong edits), recall 0.13. v11.1 retrains on the COMPLETED GLM teacher pass (full 204,111-pair coverage); decoded from this exact artifact through the SpmBpe path, 4 rounds.',
     },
     note: 'Trained on 182,031 rows: the 112,567 verified corruption pack + 69,464 GLM-5.3-Flash-verified corrections (exact-restore gate). +9.5% F0.5 over the previous Russian weights, precision +0.15 at equal recall. Real-learner evaluation pending a licensed corpus.',
   },
@@ -141,17 +141,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-ur',
     lang: 'Urdu',
     native: 'اردو',
-    date: '2026-11-18',
-    size: '420 MB',
+    date: '2026-11-21',
+    size: '184 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.640',
+      score: '0.9137',
       protocol:
-        'Strict span scorer; 1,500 held-out single-error sentences across six balanced classes (homophone letter sets, Arabic↔Urdu confusions, keyboard adjacency, transpositions, space joins, real-word swaps), precision 0.68, recall 0.52. Decoded from this exact artifact at the zero-confidence gate, 4 rounds.',
+        'Strict span scorer; 1,500 held-out single-error sentences, precision 0.96, recall 0.76. Decoded from this exact artifact through the SpmBpe serving path, 1 round; the deberta encoder replaces the mdeberta v2 (0.640, 420 MB) at a third of the size.',
     },
-    note: "First Urdu model. Trained on a synthetic corruption pack derived from the CLE Urdu Digest Corpus 1M and CLE Urdu WordNet (Ribose⇄CLE license); released after passing the agreement's Clause 16(e) extraction/memorization testing — zero novel corpus reproductions, no membership signal (AUC 0.485), no tokenizer leakage. Spelling dictionary packaged separately (kotoshu/dictionaries ur/).",
+    note: "Urdu v3 (deberta-v3-base, fp16 pruned). Trained on a synthetic corruption pack derived from the CLE Urdu Digest Corpus 1M and CLE Urdu WordNet (Ribose⇄CLE license); released after a MEASURED Clause 16(e) run — zero verbatim corpus reproductions at the 25-word threshold over 200 held-in documents, membership AUC 0.529 / attack success 0.0%, no completion surface, zero tokenizer leakage. v2 (mdeberta) remains in repo history. Spelling dictionary planned separately (kotoshu/dictionaries ur/, compiled-package shape per Schedule C).",
   },
 ]
 
