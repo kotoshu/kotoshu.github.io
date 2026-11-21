@@ -30,6 +30,18 @@ export interface GrammarModel {
     protocol: string
   }
   note?: string
+  /** Suite capability flags for this language. */
+  capabilities?: {
+    gec: boolean
+    spell: boolean
+    rules: boolean
+  }
+  /** Measured decode performance (arm64 local, this exact artifact). */
+  perf?: {
+    ms_per_sentence: number
+    rounds: number
+    peak_rss_mb: number
+  }
 }
 
 export const GRAMMAR_MODELS: GrammarModel[] = [
@@ -38,6 +50,8 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     lang: 'English',
     native: 'English',
     date: '2026-11-19',
+    capabilities: { gec: true, spell: true, rules: true },
+    perf: { ms_per_sentence: 422, rounds: 4, peak_rss_mb: 704 },
     size: '395 MB',
     status: 'published',
     benchmark: {
@@ -153,6 +167,8 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; 1,500 held-out single-error sentences, precision 0.96, recall 0.76. Decoded from this exact artifact through the SpmBpe serving path, 1 round; the deberta encoder replaces the mdeberta v2 (0.640, 420 MB) at a third of the size.',
     },
+    capabilities: { gec: true, spell: false, rules: true },
+    perf: { ms_per_sentence: 446, rounds: 1, peak_rss_mb: 1061 },
     note: "Urdu v3 (deberta-v3-base, fp16 pruned). Trained on a synthetic corruption pack derived from the CLE Urdu Digest Corpus 1M and CLE Urdu WordNet (Ribose⇄CLE license); released after a MEASURED Clause 16(e) run — zero verbatim corpus reproductions at the 25-word threshold over 200 held-in documents, membership AUC 0.529 / attack success 0.0%, no completion surface, zero tokenizer leakage. v2 (mdeberta) remains in repo history. Spelling dictionary planned separately (kotoshu/dictionaries ur/, compiled-package shape per Schedule C).",
   },
   {

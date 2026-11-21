@@ -59,9 +59,40 @@ const evaluating = GRAMMAR_MODELS.filter((m) => m.status === 'evaluation')
               ) : (
                 <p class="scorecard-meta">F0.5 — card</p>
               )}
+              {m.perf && (
+                <p class="mt-1 text-[12px] leading-5 text-[var(--color-text-3)]">
+                  {m.perf.ms_per_sentence} ms/sent · {m.perf.rounds} rnd · RSS {m.perf.peak_rss_mb} MB
+                </p>
+              )}
             </div>
           </div>
         ))}
+      </div>
+
+      <div class="mt-8 overflow-x-auto">
+        <table class="w-full text-[13px] leading-6">
+          <caption class="text-left text-xs text-[var(--color-text-3)] mb-2">
+            Suite capability by language. Spell = dictionary/frequency tier shipped; Rules = POS-keyed grammar rules in the engine.
+          </caption>
+          <thead>
+            <tr class="text-left text-[var(--color-text-2)]">
+              <th class="pr-4">Language</th>
+              <th class="pr-4">Grammar correction</th>
+              <th class="pr-4">Spell-check tier</th>
+              <th>Grammar rules</th>
+            </tr>
+          </thead>
+          <tbody>
+            {GRAMMAR_MODELS.map((m) => (
+              <tr class="border-t border-[var(--color-border-1)]">
+                <td class="pr-4">{m.lang}</td>
+                <td class="pr-4">{m.capabilities?.gec === false ? '—' : m.status === 'published' ? 'yes' : 'card'}</td>
+                <td class="pr-4">{m.capabilities?.spell ? 'yes' : 'planned'}</td>
+                <td>{m.capabilities?.rules ? 'yes' : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <p class="mt-5 text-xs leading-6 text-[var(--color-text-3)]">
