@@ -60,7 +60,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       score: '0.5458',
       comparison: '3.4× LanguageTool (0.168) on the same full set',
       protocol:
-        'Official M² scorer, full test set (1,312), decodes from this exact shipped artifact through the SpmBpe serving path, 4 rounds (P 0.5985, R 0.4036).',
+        'Official M² scorer, full test set (1,312), decodes from this exact shipped artifact through the SpmBpe serving path, 4 rounds (P 0.5985, R 0.4036). Calibrated serving surface on the same artifact: 0.5585 (MIN_CONFIDENCE 0.5 shipped in serving.json — this encoder, like Urdu, benefits from thresholding).',
     },
     note: 'The deberta-v3-base rung: slow-spm tokenizer + per-word alignment, max_len 128, 3-round schedule on a 400k slice of the MEGA corpus. +1.1pt over the MEGA line (0.5346, roberta — remains in repo history); the deberta encoder has won every language gated. Ships at 350MB fp16 under a recorded ceiling exception — a 45k frequency cap fits 250MB but measured 0.5250 (dropped rare-word pieces cost 2.1pt), so no size-compliant deberta beats MEGA.',
   },
