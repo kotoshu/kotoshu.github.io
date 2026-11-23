@@ -209,17 +209,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-pl',
     lang: 'Polish',
     native: 'Polski',
-    date: '2026-11-19',
-    size: '427 MB',
+    date: '2026-11-23',
+    size: '194 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.418',
+      score: '0.7698',
       protocol:
-        'Span scorer; 1,490 held-out single-error sentences across six balanced classes (including the full Polish diacritic set ą ć ę ł ń ó ś ź ż), precision 0.43, recall 0.39. Decoded locally from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,490 held-out single-error sentences across six balanced classes (including the full Polish diacritic set ą ć ę ł ń ó ś ź ż), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9794, R 0.4148).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.35 F0.5 (+84%) over the wave-2 mdeberta weights (0.418, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage with Cast-to-fp32 nodes.',
   },
   {
     repo: 'grammar-it',
