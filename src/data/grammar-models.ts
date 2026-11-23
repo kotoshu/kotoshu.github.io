@@ -241,17 +241,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-uk',
     lang: 'Ukrainian',
     native: 'Українська',
-    date: '2026-11-19',
-    size: '427 MB',
+    date: '2026-11-24',
+    size: '190 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.676',
+      score: '0.7401',
       protocol:
-        'Span scorer; 1,366 held-out single-error sentences (Cyrillic keyboard adjacency from the Ukrainian layout grid, і/ї/ґ diacritics), precision 0.94, recall 0.32. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,366 held-out single-error sentences (Cyrillic keyboard adjacency, і/ї/ґ swaps), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9551, R 0.3895).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.064 F0.5 (+9.5%) over the wave-2 mdeberta weights (0.676 — the highest bar on the shelf — remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
     repo: 'grammar-tr',
