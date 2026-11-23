@@ -193,17 +193,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-nl',
     lang: 'Dutch',
     native: 'Nederlands',
-    date: '2026-11-19',
-    size: '429 MB',
+    date: '2026-11-23',
+    size: '200 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.565',
+      score: '0.739',
       protocol:
-        'Span scorer; 1,458 held-out single-error sentences, precision 0.95, recall 0.21 — the most precision-conservative model on the shelf. Decoded locally from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,458 held-out single-error sentences, decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.903, R 0.428).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs (no diacritic class — Dutch orthography) over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.17 F0.5 (+31%) over the wave-2 mdeberta weights (0.565, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (no diacritic class — Dutch orthography; seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
     repo: 'grammar-pl',
