@@ -177,17 +177,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-pt',
     lang: 'Portuguese',
     native: 'Português',
-    date: '2026-11-19',
-    size: '428 MB',
+    date: '2026-11-24',
+    size: '196 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.571',
+      score: '0.7902',
       protocol:
-        'Span scorer; 1,467 held-out single-error sentences across six balanced classes, precision 0.69, recall 0.34. Decoded locally (arm64 onnxruntime) from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,467 held-out single-error sentences across six balanced classes, decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9819, R 0.4438).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text (static dumps, page-title provenance); corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.22 F0.5 (+38%) over the wave-1 mdeberta weights (0.571, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
     repo: 'grammar-nl',
