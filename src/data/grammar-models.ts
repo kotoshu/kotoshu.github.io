@@ -257,17 +257,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-tr',
     lang: 'Turkish',
     native: 'Türkçe',
-    date: '2026-11-19',
-    size: '428 MB',
+    date: '2026-11-24',
+    size: '192 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.597',
+      score: '0.7526',
       protocol:
-        'Span scorer; 1,485 held-out single-error sentences (Turkish-Q layout adjacency, ç ğ ı ö ş ü diacritics), precision 0.95, recall 0.24. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,485 held-out single-error sentences (Turkish-Q layout adjacency, ç ğ ı ö ş ü diacritics), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9614, R 0.4027).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.156 F0.5 (+26%) over the wave-2 mdeberta weights (0.597, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
     repo: 'grammar-sr',
