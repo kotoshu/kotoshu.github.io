@@ -289,17 +289,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-el',
     lang: 'Greek',
     native: 'Ελληνικά',
-    date: '2026-11-19',
-    size: '421 MB',
+    date: '2026-11-23',
+    size: '183 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.367',
+      score: '0.6471',
       protocol:
-        'Span scorer; 1,486 held-out single-error sentences (Greek layout adjacency, ά έ ή ί ό ύ ώ accents), precision 0.99, recall 0.10 — the most precision-conservative model on the shelf. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,486 held-out single-error sentences (Greek layout adjacency, ά έ ή ί ό ύ ώ accents), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9349, R 0.29).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.28 F0.5 (+76%) over the wave-2 mdeberta weights (0.367, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (6 Greek classes, licensed hunspell vocabulary, seed 20261123), 3-round schedule, fp16 weight storage with Cast-to-fp32 nodes.',
   },
 ]
 
