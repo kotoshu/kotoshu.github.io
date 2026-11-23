@@ -273,17 +273,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-sr',
     lang: 'Serbian',
     native: 'Српски',
-    date: '2026-11-19',
-    size: '426 MB',
+    date: '2026-11-24',
+    size: '189 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.509',
+      score: '0.739',
       protocol:
-        'Span scorer; 1,361 held-out single-error sentences (Serbian Cyrillic layout adjacency — ђ љ њ ћ џ), precision 0.77, recall 0.22. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,361 held-out single-error sentences (Serbian Cyrillic layout adjacency — ђ љ њ ћ џ), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.963, R 0.3828).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.23 F0.5 (+45%) over the wave-2 mdeberta weights (0.509, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
     repo: 'grammar-el',
