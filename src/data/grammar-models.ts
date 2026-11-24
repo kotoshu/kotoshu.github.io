@@ -141,19 +141,19 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-ko',
     lang: 'Korean',
     native: '한국어',
-    date: '2026-11-09',
-    size: '356 MB',
+    date: '2026-11-25',
+    size: '264 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out single-error benchmark',
       metric: 'F0.5',
-      score: '0.394',
+      score: '0.5558',
       comparison:
-        '3.1× the grammar-cjk Korean weights (0.129) on the same 1,582-sentence slice',
+        '4.3× the grammar-cjk Korean weights (0.129) on the same 1,582-sentence slice',
       protocol:
-        'Strict span scorer; 1,582 held-out sentences, precision 0.61, recall 0.16. Decoded from this exact artifact at margin gate 1.0, rounds 4.',
+        'Strict span scorer; the same fixed 1,582 held-out sentences (643 gold edits), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.6378, R 0.367).',
     },
-    note: 'Trained on 359,212 balanced corruption pairs (particle swaps, attested conjugation swaps, homophone confusables — uniformly drawn) over a Korean Wikipedia corpus. The balanced class design replaced the earlier skew that had trained merge/delete-heavy behavior into the CJK-line Korean weights.',
+    note: 'deberta-v3-base rung: +0.16 F0.5 (+41%) over the v1 mdeberta weights (0.394, remain in repo history) at a similar size — recall 2.3× (0.16 → 0.367) at equal precision. Same balanced corruption-pack lineage (359,212 pairs; particle swaps, attested conjugation swaps, homophone confusables; seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
     repo: 'grammar-ur',
