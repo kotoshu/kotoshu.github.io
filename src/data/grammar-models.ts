@@ -225,17 +225,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-it',
     lang: 'Italian',
     native: 'Italiano',
-    date: '2026-11-19',
-    size: '478 MB',
+    date: '2026-11-25',
+    size: '267 MB',
     status: 'published',
     benchmark: {
       name: 'Held-out corruption benchmark',
       metric: 'F0.5',
-      score: '0.374',
+      score: '0.8035',
       protocol:
-        'Span scorer; 1,468 held-out single-error sentences across six balanced classes (Italian accents à è é ì ò ù), precision 0.96, recall 0.11 — extremely precision-conservative. Decoded with the training-faithful tokenizer path from this exact artifact, 4 rounds.',
+        'Strict span scorer; the same fixed 1,468 held-out single-error sentences across six balanced classes (Italian accents à è é ì ò ù), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9633, R 0.483).',
     },
-    note: 'Trained on 150,000 balanced corruption pairs over public-domain Wikisource text; corruption vocabulary from the licensed hunspell dictionary. mdeberta-v3-base, three rounds × [4ep + 2ep KEEP-weighted].',
+    note: 'deberta-v3-base rung: +0.43 F0.5 (+115%) over the wave-1 mdeberta weights (0.374, remain in repo history) at half the shipped size — recall 4.4× (0.11 → 0.483) at equal precision, the largest delta of the rung. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
     repo: 'grammar-uk',
