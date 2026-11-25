@@ -16,7 +16,7 @@ export const AUDIENCES: Audience[] = [
     id: 'ruby-devs',
     kanji: '技',
     name: 'Ruby developers',
-    headline: 'A spell checker that behaves like a Ruby gem',
+    headline: 'The checker behaves like the Ruby library that it is',
     who: 'Application and gem teams who want checking inside their own code — model validations, rake tasks, test suites — without shelling out to hunspell or aspell.',
     needs: [
       'Pure-Ruby API: Kotoshu.correct?, .suggest, .check, .check_file',
@@ -37,7 +37,7 @@ export const AUDIENCES: Audience[] = [
     id: 'editors',
     kanji: '文',
     name: 'Writers & editors',
-    headline: 'Squiggles and one-keystroke fixes, in your editor',
+    headline: 'The editor shows the correction, and one keystroke applies it',
     who: 'Prose writers, docs authors, and reviewers who live in VS Code, Neovim, Emacs, JetBrains, Helix, or Zed and want misspellings flagged as they type — with ranked quick-fixes.',
     needs: [
       'LSP diagnostics on open and change, debounced as you type',
@@ -58,7 +58,7 @@ export const AUDIENCES: Audience[] = [
     id: 'ci-cd',
     kanji: '検',
     name: 'Maintainers & CI',
-    headline: 'Spell checks that fail the build — nicely',
+    headline: 'The CI check fails the build with an actionable report',
     who: 'Repository maintainers who want typos caught in pull requests with SARIF annotations in the GitHub Security tab, and deterministic, cached CI runs.',
     needs: [
       'One-line GitHub Action with dictionary caching between runs',
@@ -79,7 +79,7 @@ export const AUDIENCES: Audience[] = [
     id: 'polyglot',
     kanji: '橋',
     name: 'Non-Ruby teams',
-    headline: 'One HTTP service, every language ecosystem',
+    headline: 'One HTTP service serves every language ecosystem',
     who: 'Python, JavaScript/TypeScript, and Go teams — or anyone with an OpenAPI client — who want Kotoshu as a self-hosted service. Your text never leaves your network.',
     needs: [
       'Self-hostable HTTP API: /v1/check, /v1/suggest, /v1/detect',
@@ -102,7 +102,7 @@ export const AUDIENCES: Audience[] = [
     id: 'multilingual',
     kanji: '言葉',
     name: 'Multilingual writers',
-    headline: 'Every language you write, resolved on demand',
+    headline: 'The checker resolves the language of each text on demand',
     who: 'Translators, technical writers, and teams producing documentation across several languages, who need the right dictionary, frequency list, and embedding model to just appear.',
     needs: [
       'Full-feature support in twenty languages — Greek, Italian, Norwegian Bokmål, Polish, Turkish, and Ukrainian among them',

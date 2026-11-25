@@ -11,6 +11,23 @@ import { FULL_LANGUAGES, FREQUENCY_LANGUAGES, LANGUAGE_STATS, KELLY_LANGUAGES } 
 import { SITE } from '~/data/site'
 import { GRAMMAR_MODELS } from '~/data/grammar-models'
 
+const byRepo = Object.fromEntries(GRAMMAR_MODELS.map((m) => [m.repo, m]))
+const FEATURED_GRAMMAR = [
+  {
+    repo: 'grammar-en',
+    label: 'English · CoNLL-14',
+    meta: 'official M² scorer — 3.4× LanguageTool',
+    accent: true,
+  },
+  { repo: 'grammar-fr', label: 'French · held-out', meta: 'strict span scorer, fp16 weights' },
+  { repo: 'grammar-ko', label: 'Korean · held-out', meta: 'recall 2.3× its earlier weights' },
+  { repo: 'grammar-it', label: 'Italian · held-out', meta: 'the largest gain: +115% on the same benchmark' },
+].map((f) => {
+  const m = byRepo[f.repo]
+  return { ...f, score: m && m.benchmark.score ? m.benchmark.score : '—' }
+})
+const GRAMMAR_COUNT = GRAMMAR_MODELS.length
+
 const featured = PROJECTS.filter((p) => p.featured)
 ---
 
@@ -32,9 +49,11 @@ const featured = PROJECTS.filter((p) => p.featured)
         The fixing and <span id="hero-mend" class="mend">embellishing</span> of&nbsp;words.
       </h1>
       <p class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-8 text-pretty text-[var(--color-text-2)] animate-in">
-        A spell checker for everything you write — terminal, editor, CI. Pure
-        Ruby underneath; the right dictionary and language model arrive on
-        demand, and nothing ever downloads without your say-so.
+        Kotoshu checks spelling and grammar in the terminal, the editor, and
+        CI. The engine is pure Ruby, and the checker detects the language of
+        the text before it resolves the dictionary and the language model
+        that the text needs; it downloads nothing without an explicit setup
+        action.
       </p>
 
       <div class="mx-auto mt-10 max-w-xl animate-in">
@@ -74,13 +93,13 @@ const featured = PROJECTS.filter((p) => p.featured)
       <SectionHeading
         jp="実演"
         eyebrow="See it work"
-        title="Misspellings, surfaced and mended"
-        lead="A small taste of the interactive experience — the editor extension and CLI do this against the full engine, live."
+        title="The checker surfaces misspellings and offers a fix in place"
+        lead="The demo runs the same engine that the editor extension and the CLI run against a full installation."
       />
       <div class="mx-auto mt-12 max-w-3xl">
         <DemoPanel client:visible />
         <p class="mt-4 text-center text-xs text-[var(--color-text-3)]">
-          No install at all? The <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground</a> runs the engine itself in your browser — or point one at <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">your own server</a>.
+          The <a href="/playground" class="text-[var(--color-accent)] hover:underline">playground</a> runs this engine in the browser, and it can connect to <a href="/playground/server" class="text-[var(--color-accent)] hover:underline">a self-hosted server</a> instead.
         </p>
       </div>
     </div>
@@ -92,30 +111,20 @@ const featured = PROJECTS.filter((p) => p.featured)
       <SectionHeading
         jp="訂正"
         eyebrow="Grammar models"
-        title="Nine languages of grammar correction, measured honestly"
-        lead="Neural GEC as single-file ONNX — decoded from the shipped artifact and scored by a pipeline built to reject inflated numbers. Measured, not marketed."
+        title={'Grammar correction for ' + GRAMMAR_COUNT + ' languages, measured on held-out benchmarks'}
+        lead="Each language ships one fp16 ONNX artifact, decoded from the shipped file and scored on the fixed held-out benchmark that its earlier weights measured on. The scorecard records both numbers, so every comparison names its data."
       />
       <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-xl border border-[var(--color-accent)] bg-[var(--color-bg)] p-6">
-          <p class="scorecard-num">0.522</p>
-          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">English · CoNLL-14</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">official M² scorer — 2.49× LanguageTool</p>
-        </div>
-        <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
-          <p class="scorecard-num">0.811</p>
-          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">French · held-out</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">strict span scorer, fp32 weights</p>
-        </div>
-        <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6">
-          <p class="scorecard-num">0.620</p>
-          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">Spanish · held-out</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">precision-first: P 0.92</p>
-        </div>
-        <div class="rounded-xl border border-[var(--color-gold)] bg-[var(--color-bg)] p-6">
-          <p class="font-mono text-sm uppercase tracking-wider text-[var(--color-gold)]">evaluating</p>
-          <p class="mt-2 text-sm font-medium text-[var(--color-text)]">ru · zh · ja · ko</p>
-          <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">scores appear when they survive the pipeline</p>
-        </div>
+        {FEATURED_GRAMMAR.map((g) => (
+          <div class:list={[
+            'rounded-xl border bg-[var(--color-bg)] p-6',
+            g.accent ? 'border-[var(--color-accent)]' : 'border-[var(--color-border)]',
+          ]}>
+            <p class="scorecard-num">{g.score}</p>
+            <p class="mt-2 text-sm font-medium text-[var(--color-text)]">{g.label}</p>
+            <p class="mt-1 text-xs leading-5 text-[var(--color-text-3)]">{g.meta}</p>
+          </div>
+        ))}
       </div>
       <p class="mt-8 text-center text-sm">
         <a href="/grammars" class="text-[var(--color-accent)] hover:underline">
@@ -131,9 +140,9 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="使う人"
-        eyebrow="Who it's for"
-        title="One engine, many hands"
-        lead="Five audiences, five entry points — from a Ruby API to a one-line GitHub Action."
+        eyebrow="Who it serves"
+        title="One engine serves five audiences"
+        lead="Five audiences start from five entry points, which range from a Ruby API to a one-line GitHub Action."
       />
       <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {AUDIENCES.map((a, i) => (
@@ -161,8 +170,8 @@ const featured = PROJECTS.filter((p) => p.featured)
       <SectionHeading
         jp="生態系"
         eyebrow="The ecosystem"
-        title="A gem at the center, a ring of surfaces around it"
-        lead="Every surface is a thin adapter over the same engine — nothing duplicates the checking logic."
+        title="The gem sits at the center of the ecosystem"
+        lead="Every other surface is a thin adapter over the same engine, so the checking logic exists in one place."
       />
       <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {featured.map((p, i) => (
@@ -195,9 +204,9 @@ const featured = PROJECTS.filter((p) => p.featured)
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24">
       <SectionHeading
         jp="言葉"
-        eyebrow="What's supported"
-        title={`${LANGUAGE_STATS.fullFeature} languages fully featured, ninety-eight staged`}
-        lead="Full feature means spelling with affixes, semantic reranking, and keyboard-aware suggestions — frequency ranking rides along where Kelly data exists."
+        eyebrow="Language support"
+        title={`${LANGUAGE_STATS.fullFeature} languages are fully featured, and ${LANGUAGE_STATS.dictionariesStaged} more have dictionaries staged`}
+        lead="A fully featured language carries spelling with affixes, semantic reranking, and keyboard-aware suggestions; frequency ranking accompanies the languages for which Kelly data exists."
       />
 
       <div class="mx-auto mt-12 max-w-4xl animate-in">
@@ -294,7 +303,7 @@ const featured = PROJECTS.filter((p) => p.featured)
   <section class="border-t border-[var(--color-border)] bg-[var(--color-bg-inset)]">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20 text-center">
       <p class="kanji text-sm text-[var(--color-accent)]" lang="ja">始めましょう</p>
-      <h2 class="display mt-3 text-3xl sm:text-4xl text-[var(--color-text)]">Begin tending your words.</h2>
+      <h2 class="display mt-3 text-3xl sm:text-4xl text-[var(--color-text)]">Install the checker, or try it in the browser first.</h2>
       <div class="mt-8 flex items-center justify-center gap-6 text-sm">
         <a href="/install" class="rounded-full bg-[var(--color-accent)] px-5 py-2 font-medium text-[var(--color-bg)] transition-colors hover:bg-[var(--color-accent-hover)]">
           Install & quickstart

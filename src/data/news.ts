@@ -33,6 +33,25 @@ export interface NewsEntry {
 export const NEWS: NewsEntry[] = [
 
   {
+    slug: 'deberta-shelf',
+    date: '2026-11-25',
+    kind: 'release',
+    title: 'The deberta shelf: every published grammar model re-trained on deberta-v3-base',
+    summary:
+      'The deberta-v3-base encoder has replaced mdeberta across the published grammar shelf — fourteen languages re-gated on their fixed held-out benchmarks, and every gate produced a higher number. The largest single gain is Italian at +115%.',
+    senses: [
+      'The wave re-gated each language on the identical fixed benchmark its previous weights measured on, so every comparison holds the data constant and changes only the encoder. Ten gates ran this quarter, and ten produced higher numbers.',
+      'The published shelf now reads: English 0.5458 on the CoNLL-14 full set (3.4× LanguageTool), French 0.9803, Italian 0.8035, Polish 0.7698, Ukrainian 0.7401, Turkish 0.7526, Dutch 0.739, Serbian 0.739, Portuguese 0.7902, Greek 0.6471, Korean 0.5558, Spanish 0.668, and Urdu 0.9137 on its CLE-derived gate.',
+      'Every artifact ships as a single fp16 ONNX file with Cast-to-fp32 nodes, verified on Apple Silicon and x86-64 Linux; each model card carries a measured MIN_CONFIDENCE calibration sweep through the product decoder, and serving.json ships the calibrated default.',
+      'The largest single gain is Italian: F0.5 0.374 to 0.8035 (+115%, recall 4.4× at equal precision) on the identical 1,468-sentence benchmark. The smallest gain is Spanish at +7.7% against its precision-first baseline, and the strongest previous bar — Ukrainian 0.676 — also fell, to 0.7401.',
+      'Each language keeps the fixed corruption-gold benchmark of its earlier line, a seed-pinned pack rebuild, and a lineage note naming the weights it supersedes; the superseded weights remain in each repository history.',
+    ],
+    links: [
+      { label: 'The full scorecard', href: '/grammars' },
+      { label: 'Models on Hugging Face', href: 'https://huggingface.co/kotoshu' },
+    ],
+  },
+  {
     slug: 'grammar-models-multilingual',
     date: '2026-10-30',
     kind: 'release',
