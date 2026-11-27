@@ -100,10 +100,17 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     repo: 'grammar-de',
     lang: 'German',
     native: 'Deutsch',
-    date: '2026-10-12',
-    size: '220 MB',
+    date: '2026-11-27',
+    size: '282 MB',
     status: 'published',
-    note: 'Measured on its held-out suite with an LLM-judge gate; see the model card.',
+    benchmark: {
+      name: 'Held-out corruption benchmark',
+      metric: 'F0.5',
+      score: '0.8018',
+      protocol:
+        'Strict span scorer; the same fixed 1,500 held-out single-error sentences (German-Q layout adjacency, umlaut diacritics), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9686, R 0.4748).',
+    },
+    note: "deberta-v3-base rung: German's first corruption-gold benchmark. The previous mdeberta weights (2026-10-12) were measured with an LLM-judge gate — a different instrument — so no comparison is stated. Same balanced corruption-pack recipe (German-Q adjacency extracted from the checker's own keyboard grid, umlaut diacritic class; seed 20261123), 3-round schedule, fp16 weight storage. F0.5 declines monotonically with MIN_CONFIDENCE; serving.json ships 0.0.",
   },
   {
     repo: 'grammar-ru',
