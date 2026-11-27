@@ -62,6 +62,7 @@ const evaluating = GRAMMAR_MODELS.filter((m) => m.status === 'evaluation')
               {m.perf && (
                 <p class="mt-1 text-[12px] leading-5 text-[var(--color-text-3)]">
                   {m.perf.ms_per_sentence} ms/sent · {m.perf.rounds} rnd · RSS {m.perf.peak_rss_mb} MB
+                  {' '}· {m.perf.platform}
                 </p>
               )}
             </div>

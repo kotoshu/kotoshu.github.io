@@ -36,11 +36,14 @@ export interface GrammarModel {
     spell: boolean
     rules: boolean
   }
-  /** Measured decode performance (arm64 local, this exact artifact). */
+  /** Measured decode performance for this exact artifact, with the
+   *  measurement platform named honestly (arm64 workstation or x86-64
+   *  runner — the classes are not comparable and are never mixed). */
   perf?: {
     ms_per_sentence: number
     rounds: number
     peak_rss_mb: number
+    platform: string
   }
 }
 
@@ -51,7 +54,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
     native: 'English',
     date: '2026-11-22',
     capabilities: { gec: true, spell: true, rules: true },
-    perf: { ms_per_sentence: 490, rounds: 4, peak_rss_mb: 704 },
+    perf: { ms_per_sentence: 490, rounds: 4, peak_rss_mb: 704, platform: "arm64 workstation" },
     size: '350 MB',
     status: 'published',
     benchmark: {
@@ -110,6 +113,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,500 held-out single-error sentences (German-Q layout adjacency, umlaut diacritics), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9686, R 0.4748).',
     },
+    perf: { ms_per_sentence: 3998.8, rounds: 4, peak_rss_mb: 1150.5, platform: "x86-64 runner" },
     note: "deberta-v3-base rung: German's first corruption-gold benchmark. The previous mdeberta weights (2026-10-12) were measured with an LLM-judge gate — a different instrument — so no comparison is stated. Same balanced corruption-pack recipe (German-Q adjacency extracted from the checker's own keyboard grid, umlaut diacritic class; seed 20261123), 3-round schedule, fp16 weight storage. F0.5 declines monotonically with MIN_CONFIDENCE; serving.json ships 0.0.",
   },
   {
@@ -160,6 +164,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,582 held-out sentences (643 gold edits), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.6378, R 0.367).',
     },
+    perf: { ms_per_sentence: 4284.2, rounds: 4, peak_rss_mb: 1100.0, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.16 F0.5 (+41%) over the v1 mdeberta weights (0.394, remain in repo history) at a similar size — recall 2.3× (0.16 → 0.367) at equal precision. Same balanced corruption-pack lineage (359,212 pairs; particle swaps, attested conjugation swaps, homophone confusables; seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
@@ -177,7 +182,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
         'Strict span scorer; 1,500 held-out single-error sentences, precision 0.96, recall 0.76. Decoded from this exact artifact through the SpmBpe serving path, 1 round; the deberta encoder replaces the mdeberta v2 (0.640, 420 MB) at a third of the size. Ruby product surface on the same artifact: 0.8377 (MIN_CONFIDENCE-calibrated at 0.7 — +10.5pt, this encoder needs thresholding).',
     },
     capabilities: { gec: true, spell: false, rules: true },
-    perf: { ms_per_sentence: 446, rounds: 1, peak_rss_mb: 1061 },
+    perf: { ms_per_sentence: 446, rounds: 1, peak_rss_mb: 1061, platform: "arm64 workstation" },
     note: "Urdu v3 (deberta-v3-base, fp16 pruned). Trained on a synthetic corruption pack derived from the CLE Urdu Digest Corpus 1M and CLE Urdu WordNet (Ribose⇄CLE license); released after a MEASURED Clause 16(e) run — zero verbatim corpus reproductions at the 25-word threshold over 200 held-in documents, membership AUC 0.529 / attack success 0.0%, no completion surface, zero tokenizer leakage. v2 (mdeberta) remains in repo history. Spelling dictionary planned separately (kotoshu/dictionaries ur/, compiled-package shape per Schedule C).",
   },
   {
@@ -194,6 +199,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,467 held-out single-error sentences across six balanced classes, decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9819, R 0.4438).',
     },
+    perf: { ms_per_sentence: 4803.8, rounds: 4, peak_rss_mb: 916.0, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.22 F0.5 (+38%) over the wave-1 mdeberta weights (0.571, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
@@ -210,6 +216,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,458 held-out single-error sentences, decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.903, R 0.428).',
     },
+    perf: { ms_per_sentence: 4701.4, rounds: 4, peak_rss_mb: 924.5, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.17 F0.5 (+31%) over the wave-2 mdeberta weights (0.565, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (no diacritic class — Dutch orthography; seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
@@ -226,6 +233,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,490 held-out single-error sentences across six balanced classes (including the full Polish diacritic set ą ć ę ł ń ó ś ź ż), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9794, R 0.4148).',
     },
+    perf: { ms_per_sentence: 4597.1, rounds: 4, peak_rss_mb: 904.6, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.35 F0.5 (+84%) over the wave-2 mdeberta weights (0.418, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage with Cast-to-fp32 nodes.',
   },
   {
@@ -242,6 +250,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,468 held-out single-error sentences across six balanced classes (Italian accents à è é ì ò ù), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9633, R 0.483).',
     },
+    perf: { ms_per_sentence: 5958.4, rounds: 4, peak_rss_mb: 1156.6, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.43 F0.5 (+115%) over the wave-1 mdeberta weights (0.374, remain in repo history) at half the shipped size — recall 4.4× (0.11 → 0.483) at equal precision, the largest delta of the rung. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
@@ -258,6 +267,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,366 held-out single-error sentences (Cyrillic keyboard adjacency, і/ї/ґ swaps), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9551, R 0.3895).',
     },
+    perf: { ms_per_sentence: 3771.0, rounds: 4, peak_rss_mb: 867.5, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.064 F0.5 (+9.5%) over the wave-2 mdeberta weights (0.676 — the highest bar on the shelf — remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
@@ -274,6 +284,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,485 held-out single-error sentences (Turkish-Q layout adjacency, ç ğ ı ö ş ü diacritics), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9614, R 0.4027).',
     },
+    perf: { ms_per_sentence: 3943.4, rounds: 4, peak_rss_mb: 905.3, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.156 F0.5 (+26%) over the wave-2 mdeberta weights (0.597, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
@@ -290,6 +301,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,361 held-out single-error sentences (Serbian Cyrillic layout adjacency — ђ љ њ ћ џ), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.963, R 0.3828).',
     },
+    perf: { ms_per_sentence: 4390.2, rounds: 4, peak_rss_mb: 879.8, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.23 F0.5 (+45%) over the wave-2 mdeberta weights (0.509, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (seed 20261123), 3-round schedule, fp16 weight storage.',
   },
   {
@@ -306,6 +318,7 @@ export const GRAMMAR_MODELS: GrammarModel[] = [
       protocol:
         'Strict span scorer; the same fixed 1,486 held-out single-error sentences (Greek layout adjacency, ά έ ή ί ό ύ ώ accents), decoded from this exact artifact through the SpmBpe serving path, 1 round (P 0.9349, R 0.29).',
     },
+    perf: { ms_per_sentence: 4892.4, rounds: 4, peak_rss_mb: 860.0, platform: "x86-64 runner" },
     note: 'deberta-v3-base rung: +0.28 F0.5 (+76%) over the wave-2 mdeberta weights (0.367, remain in repo history) at under half the shipped size. Same balanced corruption-pack recipe (6 Greek classes, licensed hunspell vocabulary, seed 20261123), 3-round schedule, fp16 weight storage with Cast-to-fp32 nodes.',
   },
 ]
