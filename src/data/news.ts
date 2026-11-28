@@ -33,6 +33,25 @@ export interface NewsEntry {
 export const NEWS: NewsEntry[] = [
 
   {
+    slug: 'shelf-completion-campaign',
+    date: '2026-11-28',
+    kind: 'release',
+    title: 'Shelf completion: German measured, three gates lost honestly, rules for nine languages',
+    summary:
+      'The completion campaign closed every open lane: German received its first corruption-gold benchmark (0.8018), three experimental rungs lost their gates and the incumbents stand, starter rule tiers shipped for nine more languages, and every model card now carries a platform-labeled performance measurement.',
+    senses: [
+      'German grammar-de v2 published at F0.5 0.8018 (precision 0.9686) on the fixed 1,500-sentence held-out benchmark — German’s first corruption-gold measurement; the previous weights were judged by an LLM and the card states the instrument change rather than comparing across instruments.',
+      'Three experimental rungs lost their pre-committed gates, and each incumbent stands with the verdict recorded: the full-MEGA English scale-up (0.4803 against 0.5458 on CoNLL-14), the CJK deberta candidate (held-out Chinese collapsed even as real-error slices improved), and the Korean real-error fold-in (0.4397 against 0.5558 — real-learner corrections taught noisier editing). A benchmark program is only as credible as its losses.',
+      'Starter grammar-rule tiers shipped for nine more languages — German, Polish, Dutch, Portuguese, Ukrainian, Turkish, Greek, Korean, and Russian — ninety original rules written to the false-positive budget: every pattern is unambiguously wrong in clean text, legally ambiguous pairs are excluded, and no third-party rule data is used.',
+      'Every published model card now carries a measured decode performance row with its platform named — the measurement classes are labeled and never mixed. The measurement pipeline itself moved to cloud runners, where the full CoNLL-14 decode completes in under an hour.',
+    ],
+    links: [
+      { label: 'The full scorecard', href: '/grammars' },
+      { label: 'Models on Hugging Face', href: 'https://huggingface.co/kotoshu' },
+    ],
+  },
+
+  {
     slug: 'deberta-shelf',
     date: '2026-11-25',
     kind: 'release',
